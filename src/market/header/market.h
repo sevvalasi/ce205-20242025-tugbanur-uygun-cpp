@@ -1,23 +1,23 @@
 /**
- * @file calculator.h
+ * @file market.h
  * 
  * @brief Provides functions for math. utilities
  */
 
-#ifndef CALCULATOR_H
-#define CALCULATOR_H
+#ifndef MARKET_H
+#define MARKET_H
 
 #include "../../utility/header/commonTypes.h"
 
 namespace Coruh
 {
-    namespace Calculator
+    namespace Market
     {
         /**
-            @class Calculator
+            @class Market
             @brief Provides Basic functions for various operations.
         */
-        class Calculator
+        class Market
         {
         public:
             /**
@@ -59,4 +59,4 @@ namespace Coruh
     }
 }
 
-#endif // CALCULATOR_H
+#endif // MARKET_H
