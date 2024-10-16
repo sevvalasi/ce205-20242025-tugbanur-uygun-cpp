@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 #include "../../market/header/market.h"  // Adjust this include path based on your project structure
+#include "../../market/src/market.cpp"
+
 
 using namespace Coruh::Market;
 
