@@ -11,7 +11,7 @@
 int main() {
 
 
-    mainmenu();
+    mainMenu();
 
     return 0;
 }
