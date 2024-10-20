@@ -10,8 +10,8 @@
 
 int main() {
 
-
-    mainMenu();
+    userAuthentication();
+   
 
     return 0;
 }

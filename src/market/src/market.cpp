@@ -1,4 +1,4 @@
-/*Functions*/
+﻿/*Functions*/
 
 #define _CRT_SECURE_NO_WARNINGS
 #include "../header/market.h"
@@ -15,41 +15,33 @@
 #include <stdio.h>
 
 // Fonksiyon bildirimleri
-int userAuthentication();
-int listingOfLocalVendorsAndProducts();
-int seasonalProduceGuide();
-int priceComparison();
-int marketHoursAndLocations();
+
 
 int mainMenu() {
     int choice;
 
     do {
-        // Ana men�y� yazd�r
+        // Ana menüyü yazdýr
         printf("\n--- Main Menu ---\n");
-        printf("1. User Authentication\n");
-        printf("2. Listing of Local Vendors and Products\n");
-        printf("3. Seasonal Produce Guide\n");
-        printf("4. Price Comparison\n");
-        printf("5. Market Hours and Locations\n");
+        printf("1. Listing of Local Vendors and Products\n");
+        printf("2. Seasonal Produce Guide\n");
+        printf("3. Price Comparison\n");
+        printf("4. Market Hours and Locations\n");
         printf("0. Exit\n");
         printf("Choose an option: ");
         scanf("%d", &choice);
 
         switch (choice) {
         case 1:
-            userAuthentication();
-            break;
-        case 2:
             listingOfLocalVendorsAndProducts();
             break;
-        case 3:
+        case 2:
             seasonalProduceGuide();
             break;
-        case 4:
+        case 3:
             priceComparison();
             break;
-        case 5:
+        case 4:
             marketHoursAndLocations();
             break;
         case 0:
@@ -75,10 +67,12 @@ int userAuthentication() {
 
     switch (choice) {
     case 1:
-        printf("Login selected.\n");
+       // printf("Login selected.\n");
+        loginUser();
         break;
     case 2:
-        printf("Register selected.\n");
+        registerUser();
+        //printf("Register selected.\n");
         break;
     case 3:
         printf("Guest Mode selected.\n");
@@ -155,4 +149,64 @@ int marketHoursAndLocations() {
         printf("Invalid option. Returning to main menu.\n");
     }
     return 0;
+}
+
+bool registerUser() {
+    FILE* file;
+    User user;
+
+    // Kullanıcıdan bilgiler alınıyor
+    printf("Kullanıcı Adı: ");
+    scanf("%s", user.username);
+    printf("Şifre: ");
+    scanf("%s", user.password);
+
+    // Kullanıcı bilgileri binary formatta dosyaya yazılıyor
+    file = fopen("users.bin", "ab"); // "ab" ile dosyaya ekleme modunda açıyoruz
+    if (file == NULL) {
+        printf("Dosya açılamadı.\n");
+        exit(1);
+    }
+    fwrite(&user, sizeof(User), 1, file);
+    fclose(file);
+
+    printf("Kayıt başarılı!\n");
+    return true;
+}
+
+// Kullanıcı giriş fonksiyonu
+bool loginUser() {
+    FILE* file;
+    User user;
+    char username[50], password[50];
+    int found = 0;
+
+    // Kullanıcıdan giriş bilgileri alınıyor
+    printf("Kullanıcı Adı: ");
+    scanf("%s", username);
+    printf("Şifre: ");
+    scanf("%s", password);
+
+    // Dosya açılıyor ve kullanıcı bilgileri okunuyor
+    file = fopen("users.bin", "rb");
+    if (file == NULL) {
+        printf("Dosya açılamadı.\n");
+        exit(1);
+    }
+
+    // Dosyadaki kullanıcılar tek tek okunup kontrol ediliyor
+    while (fread(&user, sizeof(User), 1, file)) {
+        if (strcmp(user.username, username) == 0 && strcmp(user.password, password) == 0) {
+            printf("Giriş başarılı! Hoş geldin %s.\n", username);
+            found = 1;
+            break;
+        }
+    }
+
+    fclose(file);
+
+    if (!found) {
+        printf("Hatalı kullanıcı adı veya şifre.\n");
+    }
+    return true;
 }
