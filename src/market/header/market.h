@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file market.h
  * 
  * @brief Provides functions for math. utilities
@@ -7,56 +7,25 @@
 #ifndef MARKET_H
 #define MARKET_H
 
+#include <iostream>
 #include "../../utility/header/commonTypes.h"
 
-namespace Coruh
-{
-    namespace Market
-    {
-        /**
-            @class Market
-            @brief Provides Basic functions for various operations.
-        */
-        class Market
-        {
-        public:
-            /**
-             * Adds two numbers.
-             * @param a First operand.
-             * @param b Second operand.
-             * @return The sum of a and b.
-             */
-            static double add(double a, double b);
+ // Kullanıcı bilgilerini tutacak yapı (struct)
+struct User {
+    char username[50];  // Kullanıcı adı (en fazla 50 karakter)
+    char password[50];  // Şifre (en fazla 50 karakter)
+};
 
-            /**
-             * Subtracts the second number from the first.
-             * @param a Minuend.
-             * @param b Subtrahend.
-             * @return The result of a - b.
-             */
-            static double subtract(double a, double b);
-
-            /**
-             * Multiplies two numbers.
-             * @param a First operand.
-             * @param b Second operand.
-             * @return The product of a and b.
-             */
-            static double multiply(double a, double b);
-
-            /**
-             * Divides the first number by the second.
-             * Throws std::invalid_argument if the second number is zero.
-             * @param a Dividend.
-             * @param b Divisor.
-             * @return The result of a / b.
-             * @throws std::invalid_argument If b is zero.
-             */
-            static double divide(double a, double b);
+int getInput();
+bool userAuthentication();
+bool loginUser();
+bool registerUser();
+int listingOfLocalVendorsAndProducts();
+int seasonalProduceGuide();
+int priceComparison();
+int marketHoursAndLocations();
 
 
-        };
-    }
-}
+
 
 #endif // MARKET_H
