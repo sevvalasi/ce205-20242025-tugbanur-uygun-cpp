@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include "../header/market.h"
 #include <stdexcept>
 #include <iostream>
@@ -75,12 +75,12 @@ bool userAuthentication() {
             break;
         default:
             printf("Invalid option. Please try again.\n");
-            getchar();
+            getchar(); 
             break;
         }
 
     } while (choice != 4);
-
+   
     return true;
 }
 
@@ -284,9 +284,9 @@ bool loginUser() {
     if (!found) {
         printf("Incorrect username or password. \n");
         return false;
-
+        
     }
-
+    
     return true;
 }
 

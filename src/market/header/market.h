@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file market.h
  *
  * @brief Provides functions for math. utilities
