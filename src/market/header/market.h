@@ -1,31 +1,41 @@
-/**
+﻿/**
  * @file market.h
- * 
+ *
  * @brief Provides functions for math. utilities
  */
 
 #ifndef MARKET_H
 #define MARKET_H
 
+#include <iostream>
 #include "../../utility/header/commonTypes.h"
 
-typedef struct {
-    char username[50];
-    char password[50];
-} User;
+ // Kullanıcı bilgilerini tutacak yapı (struct)
+struct User {
+    char username[50];  // Kullanıcı adı (en fazla 50 karakter)
+    char password[50];  // Şifre (en fazla 50 karakter)
+};
 
+int getInput();
+int mainMenu();
+
+bool userAuthentication();
+bool loginUser();
 bool registerUser();
 
-bool loginUser();
-
-int userAuthentication();
-
-int listingOfLocalVendorsAndProducts();
-
+int listingOfLocalVendors();
+int listingOfLocalProducts();
 int seasonalProduceGuide();
-
 int priceComparison();
-
 int marketHoursAndLocations();
+
+int searchProductsOrEnterKeyword();
+int enterFavoriteProducts();
+int enterKeywords();
+
+
+
+
+
 
 #endif // MARKET_H
