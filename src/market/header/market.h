@@ -1,6 +1,6 @@
-﻿/**
+/**
  * @file market.h
- * 
+ *
  * @brief Provides functions for math. utilities
  */
 
@@ -17,13 +17,23 @@ struct User {
 };
 
 int getInput();
+int mainMenu();
+
 bool userAuthentication();
 bool loginUser();
 bool registerUser();
-int listingOfLocalVendorsAndProducts();
+
+int listingOfLocalVendors();
+int listingOfLocalProducts();
 int seasonalProduceGuide();
 int priceComparison();
 int marketHoursAndLocations();
+
+int searchProductsOrEnterKeyword();
+int enterFavoriteProducts();
+int enterKeywords();
+
+
 
 
 

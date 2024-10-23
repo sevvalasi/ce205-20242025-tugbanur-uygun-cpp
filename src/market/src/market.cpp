@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include "../header/market.h"
 #include <stdexcept>
 #include <iostream>
@@ -15,6 +15,10 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
+
+
+// Kullanıcının giriş yapıp yapmadığını tutan değişken
+bool isAuthenticated = false;
 
 
 void clearScreen() {
@@ -40,15 +44,6 @@ int getInput()
     return choice;
 }
 
-// Kullanıcının giriş yapıp yapmadığını tutan değişken
-bool isAuthenticated = false;
-
-bool userAuthentication();
-int mainMenu();
-int listingOfLocalVendorsAndProducts();
-int seasonalProduceGuide();
-int priceComparison();
-int marketHoursAndLocations();
 
 
 bool userAuthentication() {
@@ -80,7 +75,7 @@ bool userAuthentication() {
             break;
         default:
             printf("Invalid option. Please try again.\n");
-            getch();
+            getchar(); 
             break;
         }
 
@@ -96,26 +91,30 @@ int mainMenu() {
         // Ana menüyü yazdır
         clearScreen();
         printf("\n--- Main Menu ---\n");
-        printf("1. Listing of Local Vendors and Products\n");
-        printf("2. Seasonal Produce Guide\n");
+        printf("1. Listing of Local Vendors\n");
+        printf("2. Listening of Local Products\n");
         printf("3. Price Comparison\n");
         printf("4. Market Hours and Locations\n");
+        printf("5. Search Products or Enter Keywords\n");
         printf("0. Exit\n");
         printf("Choose an option: ");
         scanf("%d", &choice);
 
         switch (choice) {
         case 1:
-            listingOfLocalVendorsAndProducts();
+            listingOfLocalVendors();
             break;
         case 2:
-            seasonalProduceGuide();
+            listingOfLocalProducts();
             break;
         case 3:
             priceComparison();
             break;
         case 4:
             marketHoursAndLocations();
+            break;
+        case 5:
+            searchProductsOrEnterKeyword();
             break;
         case 0:
             printf("Exiting the program...\n");
@@ -128,7 +127,7 @@ int mainMenu() {
     return 0;
 }
 
-int listingOfLocalVendorsAndProducts() {
+int listingOfLocalVendors() {
     int choice;
 
     printf("\n--- Listing of Local Vendors and Products ---\n");
@@ -150,11 +149,13 @@ int listingOfLocalVendorsAndProducts() {
     return 0;
 }
 
-int seasonalProduceGuide() {
+int listingOfLocalProducts()
+{
     printf("\n--- Seasonal Produce Guide ---\n");
     printf("View Seasonal Availability selected.\n");
     return 0;
 }
+
 
 int priceComparison() {
     int choice;
@@ -196,6 +197,57 @@ int marketHoursAndLocations() {
     return 0;
 }
 
+int searchProductsOrEnterKeyword() {
+    int choice;
+
+    do {
+        clearScreen();
+        printf("\n--- Search Products or Enter Keyword ---\n");
+        printf("1. Enter Favorite Products\n");
+        printf("2. Enter Keywords\n");
+        printf("0. Return to Main Menu\n");
+        printf("Choose an option: ");
+        choice = getInput();
+
+        switch (choice) {
+        case 1:
+            enterFavoriteProducts();
+            break;
+        case 2:
+            enterKeywords();
+            break;
+        case 0:
+            printf("Returning to main menu...\n");
+            break;
+        default:
+            printf("Invalid option. Please try again.\n");
+            break;
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
+
+int enterFavoriteProducts() {
+    char favoriteProduct[100];
+    printf("\nEnter your favorite product: ");
+    scanf("%s", favoriteProduct);
+    printf("Favorite product '%s' has been saved.\n", favoriteProduct);
+
+    return 0;
+}
+
+int enterKeywords() {
+    char keyword[100];
+    printf("\nEnter a keyword to search: ");
+    scanf("%s", keyword);
+    printf("Searching for products with keyword '%s'...\n", keyword);
+
+    return 0;
+}
+
+
 // Kullanıcı giriş fonksiyonu
 bool loginUser() {
     clearScreen();
@@ -221,7 +273,7 @@ bool loginUser() {
     while (fread(&user, sizeof(User), 1, file)) {
         if (strcmp(user.username, username) == 0 && strcmp(user.password, password) == 0) {
             printf("The entry is successfull. Welcome! %s.\n", username);
-            getch();
+            getchar();
             found = 1;
             break;
         }
@@ -259,7 +311,7 @@ bool registerUser() {
     fclose(file);
 
     printf("Register is successfull!\n");
-    getch();
+    getchar();
     return true;
 }
 
