@@ -16,6 +16,7 @@
 #include <time.h>
 #include <ctype.h>
 
+#include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
 // Kullanıcının giriş yapıp yapmadığını tutan değişken
 bool isAuthenticated = false;
@@ -43,7 +44,6 @@ int getInput()
 
     return choice;
 }
-
 
 
 bool userAuthentication() {
@@ -127,27 +127,45 @@ int mainMenu() {
     return 0;
 }
 
+
 int listingOfLocalVendors() {
     int choice;
 
-    printf("\n--- Listing of Local Vendors and Products ---\n");
-    printf("1. Browse Vendors\n");
-    printf("2. Search Products\n");
-    printf("Choose an option: ");
-    scanf("%d", &choice);
+    do {
+        clearScreen();
+        printf("\n--- Listing of Local Vendors and Products ---\n");
+        printf("1. Add Vendor\n");
+        printf("2. Update Vendor\n");
+        printf("3. Delete Vendor\n");
+        printf("4. List Vendors\n");
+        printf("0. Return to Main Menu\n");
+        printf("Choose an option: ");
+        choice = getInput();
 
-    switch (choice) {
-    case 1:
-        printf("Browse Vendors selected.\n");
-        break;
-    case 2:
-        printf("Search Products selected.\n");
-        break;
-    default:
-        printf("Invalid option. Returning to main menu.\n");
-    }
+        switch (choice) {
+        case 1:
+            addVendor();
+            break;
+        case 2:
+            updateVendor();
+            break;
+        case 3:
+            deleteVendor();
+            break;
+        case 4:
+            listVendors();
+            break;
+        case 0:
+            printf("Returning to main menu...\n");
+            break;
+        default:
+            printf("Invalid option. Please try again.\n");
+        }
+    } while (choice != 0);
+
     return 0;
 }
+
 
 int listingOfLocalProducts()
 {
@@ -314,5 +332,162 @@ bool registerUser() {
     getchar();
     return true;
 }
+
+// Satıcı ekleme
+int addVendor() {
+    FILE* file;
+    Vendor vendor;
+
+    file = fopen("vendor.bin", "ab"); // Dosyayı ekleme modunda açıyoruz
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("\n--- List of Vendors ---\n");
+    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+
+    // Rastgele 6 haneli ID oluşturma
+    srand(time(NULL));  // Rastgele sayı üreteciyi başlat
+    vendor.id = (rand() % 900000) + 100000;  // 100000 ile 999999 arasında rastgele bir sayı üret
+
+    printf("Assigned Vendor ID: %d\n", vendor.id);  // Atanan ID'yi gösteriyoruz
+
+    // Kullanıcıdan sadece isim alınıyor
+    printf("Enter Vendor Name: ");
+    scanf("%49s", vendor.name);  // %49s kullanarak taşmaları önlüyoruz
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // Dosyaya yazma işlemi (ID ve isim)
+    fwrite(&vendor, sizeof(Vendor), 1, file);
+    fclose(file);
+
+    printf("Vendor added successfully!\n");
+
+    // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+    printf("Press Enter to continue...");
+    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+
+    return 0;
+}
+
+
+// Satıcı güncelleme
+int updateVendor() {
+    FILE* file;
+    Vendor vendor;
+    int id, found = 0;
+    file = fopen("vendor.bin", "rb+"); // Dosyayı okuma ve yazma modunda açıyoruz
+
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("Enter Vendor ID to update: ");
+    scanf("%d", &id);
+    // Tampondaki fazlalıkları temizlemek için:
+    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        if (vendor.id == id) {
+            printf("Enter new Vendor Name: ");
+            scanf("%s", vendor.name);
+
+            fseek(file, -sizeof(Vendor), SEEK_CUR); // İmleci geri al
+            fwrite(&vendor, sizeof(Vendor), 1, file);
+            found = 1;
+            printf("Vendor updated successfully!\n");
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Vendor with ID %d not found.\n", id);
+    }
+
+    // Tampon temizleme ve devam etmek için tuşa basmayı bekleme
+    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+    printf("Press Enter to continue...");
+    getchar();  // Kullanıcıdan Enter tuşuna basmasını bekle
+
+    return 0;
+}
+
+// Satıcı silme
+int deleteVendor() {
+    FILE* file, * tempFile;
+    Vendor vendor;
+    int id, found = 0;
+
+    file = fopen("vendor.bin", "rb");
+    tempFile = fopen("temp.bin", "wb");
+
+    if (file == NULL || tempFile == NULL) {
+        printf("Error opening file.\n");
+        return 1;
+    }
+
+    printf("Enter Vendor ID to delete: ");
+    scanf("%d", &id);
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        if (vendor.id != id) {
+            fwrite(&vendor, sizeof(Vendor), 1, tempFile);
+        }
+        else {
+            found = 1;
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("vendor.bin");
+    rename("temp.bin", "vendor.bin");
+
+    if (found) {
+        printf("Vendor deleted successfully!\n");
+    }
+    else {
+        printf("Vendor with ID %d not found.\n", id);
+    }
+
+    getchar(); // Devam etmek için tuşa basma
+    return 0;
+}
+
+// Satıcıları listeleme
+int listVendors() {
+    FILE* file;
+    Vendor vendor;
+    file = fopen("vendor.bin", "rb"); // Dosyayı okuma modunda açıyoruz
+
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("\n--- List of Vendors ---\n");
+    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        printf("ID: %d, Name: %s \n", vendor.id, vendor.name);
+        vendorCount++;
+    }
+    if (vendorCount == 0) {
+        printf("No vendors found.\n");
+    }
+
+    fclose(file);
+    while (getchar() != '\n');  // Fazladan satır sonunu temizle
+    printf("Press Enter to return to menu...");
+    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+
+    return 0;
+}
+
 
 

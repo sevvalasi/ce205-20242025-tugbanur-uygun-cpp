@@ -16,6 +16,12 @@ struct User {
     char password[50];  // Şifre (en fazla 50 karakter)
 };
 
+
+struct Vendor {
+    int id;                // Benzersiz ID (int)
+    char name[50];         // Satıcının ismi (string - max 50 karakter)
+};
+
 int getInput();
 int mainMenu();
 
@@ -28,6 +34,14 @@ int listingOfLocalProducts();
 int seasonalProduceGuide();
 int priceComparison();
 int marketHoursAndLocations();
+
+
+
+int addVendor();
+int updateVendor();
+int deleteVendor();
+int listVendors();
+
 
 int searchProductsOrEnterKeyword();
 int enterFavoriteProducts();
