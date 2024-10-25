@@ -22,12 +22,17 @@ struct Vendor {
     char name[50];         // Satıcının ismi (string - max 50 karakter)
 };
 
+struct Product {
+    int vendorId;          // Satıcı ID'si
+    char productName[50];  // Ürünün adı
+    float price;           // Ürünün fiyatı
+    int quantity;          // Ürünün adedi
+    char season[20];       // Ürünün mevsimi
+};
+
+
 int getInput();
 int mainMenu();
-
-bool userAuthentication();
-bool loginUser();
-bool registerUser();
 
 int listingOfLocalVendors();
 int listingOfLocalProducts();
@@ -35,12 +40,17 @@ int seasonalProduceGuide();
 int priceComparison();
 int marketHoursAndLocations();
 
-
+bool userAuthentication();
+bool loginUser();
+bool registerUser();
 
 int addVendor();
 int updateVendor();
 int deleteVendor();
 int listVendors();
+
+int addProduct();
+int listingOfLocalVendorsandProducts();
 
 
 int searchProductsOrEnterKeyword();
