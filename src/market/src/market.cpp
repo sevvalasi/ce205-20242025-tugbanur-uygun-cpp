@@ -16,6 +16,7 @@
 #include <time.h>
 #include <ctype.h>
 
+#include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
 // Kullanıcının giriş yapıp yapmadığını tutan değişken
 bool isAuthenticated = false;
@@ -43,7 +44,6 @@ int getInput()
 
     return choice;
 }
-
 
 
 bool userAuthentication() {
@@ -92,7 +92,7 @@ int mainMenu() {
         clearScreen();
         printf("\n--- Main Menu ---\n");
         printf("1. Listing of Local Vendors\n");
-        printf("2. Listening of Local Products\n");
+        printf("2. Listing of Local Products\n");
         printf("3. Price Comparison\n");
         printf("4. Market Hours and Locations\n");
         printf("5. Search Products or Enter Keywords\n");
@@ -127,33 +127,76 @@ int mainMenu() {
     return 0;
 }
 
+
 int listingOfLocalVendors() {
     int choice;
 
-    printf("\n--- Listing of Local Vendors and Products ---\n");
-    printf("1. Browse Vendors\n");
-    printf("2. Search Products\n");
-    printf("Choose an option: ");
-    scanf("%d", &choice);
+    do {
+        clearScreen();
+        printf("\n--- Listing of Local Vendors and Products ---\n");
+        printf("1. Add Vendor\n");
+        printf("2. Update Vendor\n");
+        printf("3. Delete Vendor\n");
+        printf("4. List Vendors\n");
+        printf("0. Return to Main Menu\n");
+        printf("Choose an option: ");
+        choice = getInput();
 
-    switch (choice) {
-    case 1:
-        printf("Browse Vendors selected.\n");
-        break;
-    case 2:
-        printf("Search Products selected.\n");
-        break;
-    default:
-        printf("Invalid option. Returning to main menu.\n");
-    }
+        switch (choice) {
+        case 1:
+            addVendor();
+            break;
+        case 2:
+            updateVendor();
+            break;
+        case 3:
+            deleteVendor();
+            break;
+        case 4:
+            listVendors();
+            break;
+        case 0:
+            printf("Returning to main menu...\n");
+            break;
+        default:
+            printf("Invalid option. Please try again.\n");
+        }
+    } while (choice != 0);
+
     return 0;
 }
 
-int listingOfLocalProducts()
-{
-    printf("\n--- Seasonal Produce Guide ---\n");
-    printf("View Seasonal Availability selected.\n");
-    return 0;
+
+int listingOfLocalProducts() {
+int choice;
+
+do {
+    clearScreen();
+    printf("\n--- List All Products ---\n");
+    printf("1. Add Product \n");
+    printf("2. Listing of Local Products\n");
+    printf("0. Return to Main Menu\n");
+    printf("Choose an option: ");
+    choice = getInput();
+
+    switch (choice) {
+    case 1:
+        addProduct();
+        break;
+    case 2:
+        listingOfLocalVendorsandProducts();
+        break;
+    case 0:
+        printf("Returning to main menu...\n");
+        break;
+    default:
+        printf("Invalid option. Please try again.\n");
+        break;
+    }
+
+} while (choice != 0);
+
+return 0;
 }
 
 
@@ -314,5 +357,296 @@ bool registerUser() {
     getchar();
     return true;
 }
+
+// Satıcı ekleme
+int addVendor() {
+    FILE* file;
+    Vendor vendor;
+
+    file = fopen("vendor.bin", "ab"); // Dosyayı ekleme modunda açıyoruz
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("\n--- List of Vendors ---\n");
+    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+
+    // Rastgele 6 haneli ID oluşturma
+    srand(time(NULL));  // Rastgele sayı üreteciyi başlat
+    vendor.id = (rand() % 900000) + 100000;  // 100000 ile 999999 arasında rastgele bir sayı üret
+
+    printf("Assigned Vendor ID: %d\n", vendor.id);  // Atanan ID'yi gösteriyoruz
+
+    // Kullanıcıdan sadece isim alınıyor
+    printf("Enter Vendor Name: ");
+    scanf("%49s", vendor.name);  // %49s kullanarak taşmaları önlüyoruz
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // Dosyaya yazma işlemi (ID ve isim)
+    fwrite(&vendor, sizeof(Vendor), 1, file);
+    fclose(file);
+
+    printf("Vendor added successfully!\n");
+
+    // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+    printf("Press Enter to continue...");
+    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+
+    return 0;
+}
+
+
+// Satıcı güncelleme
+int updateVendor() {
+    FILE* file;
+    Vendor vendor;
+    int id, found = 0;
+    file = fopen("vendor.bin", "rb+"); // Dosyayı okuma ve yazma modunda açıyoruz
+
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("Enter Vendor ID to update: ");
+    scanf("%d", &id);
+    // Tampondaki fazlalıkları temizlemek için:
+    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        if (vendor.id == id) {
+            printf("Enter new Vendor Name: ");
+            scanf("%s", vendor.name);
+
+            fseek(file, -sizeof(Vendor), SEEK_CUR); // İmleci geri al
+            fwrite(&vendor, sizeof(Vendor), 1, file);
+            found = 1;
+            printf("Vendor updated successfully!\n");
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Vendor with ID %d not found.\n", id);
+    }
+
+    // Tampon temizleme ve devam etmek için tuşa basmayı bekleme
+    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+    printf("Press Enter to continue...");
+    getchar();  // Kullanıcıdan Enter tuşuna basmasını bekle
+
+    return 0;
+}
+
+// Satıcı silme
+int deleteVendor() {
+    FILE* file, * tempFile;
+    Vendor vendor;
+    int id, found = 0;
+
+    file = fopen("vendor.bin", "rb");
+    tempFile = fopen("temp.bin", "wb");
+
+    if (file == NULL || tempFile == NULL) {
+        printf("Error opening file.\n");
+        return 1;
+    }
+
+    printf("Enter Vendor ID to delete: ");
+    scanf("%d", &id);
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        if (vendor.id != id) {
+            fwrite(&vendor, sizeof(Vendor), 1, tempFile);
+        }
+        else {
+            found = 1;
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("vendor.bin");
+    rename("temp.bin", "vendor.bin");
+
+    if (found) {
+        printf("Vendor deleted successfully!\n");
+    }
+    else {
+        printf("Vendor with ID %d not found.\n", id);
+    }
+
+    getchar(); // Devam etmek için tuşa basma
+    return 0;
+}
+
+// Satıcıları listeleme
+int listVendors() {
+    FILE* file;
+    Vendor vendor;
+    file = fopen("vendor.bin", "rb"); // Dosyayı okuma modunda açıyoruz
+
+    if (file == NULL) {
+        printf("Error opening vendor file.\n");
+        return 1;
+    }
+
+    printf("\n--- List of Vendors ---\n");
+    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+
+
+    while (fread(&vendor, sizeof(Vendor), 1, file)) {
+        printf("ID: %d, Name: %s \n", vendor.id, vendor.name);
+        vendorCount++;
+    }
+    if (vendorCount == 0) {
+        printf("No vendors found.\n");
+    }
+
+    fclose(file);
+    while (getchar() != '\n');  // Fazladan satır sonunu temizle
+    printf("Press Enter to return to menu...");
+    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+
+    return 0;
+}
+
+int addProduct() {
+    FILE* productFile;
+    FILE* vendorFile;
+    Product product;
+    Vendor vendor;
+    int found = 0;
+
+    productFile = fopen("products.bin", "ab"); // Ürün dosyasını ekleme modunda açıyoruz
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    vendorFile = fopen("vendor.bin", "rb"); // Satıcı dosyasını okuma modunda açıyoruz
+    if (vendorFile == NULL) {
+        printf("Error opening vendor file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    // Satıcı ID'yi kullanıcıdan alıyoruz
+    printf("Enter Vendor ID for the product: ");
+    scanf("%d", &product.vendorId);
+
+    // Satıcı ID'sini kontrol ediyoruz
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+        if (vendor.id == product.vendorId) {
+            found = 1;  // Satıcı bulundu
+            break;
+        }
+    }
+
+    fclose(vendorFile);  // Satıcı dosyasını kapatıyoruz
+
+    if (!found) {
+        printf("Error: Vendor with ID %d does not exist.\n", product.vendorId);
+        fclose(productFile);
+        printf("Press Enter to continue...");
+        getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+        getchar();  // Bir kez daha getchar() çünkü tamponu temizliyoruz
+        return 1;  // Ürün eklenmeden fonksiyondan çık
+    }
+
+    // Eğer satıcı ID mevcutsa, ürün ekleme işlemi devam eder
+    printf("Enter Product Name: ");
+    scanf("%s", product.productName);
+
+    printf("Enter Product Price: ");
+    scanf("%f", &product.price);
+
+    printf("Enter Product Quantity: ");
+    scanf("%d", &product.quantity);
+
+    printf("Enter Product Season: ");
+    scanf("%s", product.season);
+
+    // Ürün bilgilerini dosyaya yazıyoruz
+    fwrite(&product, sizeof(Product), 1, productFile);
+    fclose(productFile);
+
+    printf("Product added successfully!\n");
+
+    // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+    printf("Press Enter to continue...");
+    getchar();
+    getchar();  // Tamponu temizlemek ve devam etmek için
+
+    return 0;
+}
+
+
+// Tüm satıcıların ürünlerini listeleyen fonksiyon
+int listingOfLocalVendorsandProducts() {
+    FILE* productFile;
+    FILE* vendorFile;
+    Product product;
+    Vendor vendor;
+    int found = 0;
+
+    // Ürün dosyasını aç
+    productFile = fopen("products.bin", "rb");
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    // Satıcı dosyasını aç
+    vendorFile = fopen("vendor.bin", "rb");
+    if (vendorFile == NULL) {
+        printf("Error opening vendor file.\n");
+        fclose(productFile);  // Ürün dosyasını kapat
+        return 1;
+    }
+
+    printf("\n--- Listing All Vendors and Their Products ---\n");
+
+    // Tüm satıcıları oku ve her satıcının ürünlerini listele
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+        printf("\nVendor: %s (ID: %d)\n", vendor.name, vendor.id);
+        printf("--------------------------\n");
+
+        // Her satıcı için ürünleri bulmak için ürün dosyasını baştan okuyalım
+        rewind(productFile);
+        int productFound = 0;
+
+        while (fread(&product, sizeof(Product), 1, productFile)) {
+            if (product.vendorId == vendor.id) {
+                printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                    product.productName, product.price, product.quantity, product.season);
+                found = 1;
+                productFound = 1;
+            }
+        }
+
+        if (!productFound) {
+            printf("No products available for this vendor.\n");
+        }
+    }
+
+    if (!found) {
+        printf("No products found for any vendor.\n");
+    }
+
+    // Dosyaları kapat
+    fclose(vendorFile);
+    fclose(productFile);
+
+    printf("\nPress Enter to return to menu...");
+    getchar();  // Devam etmek için kullanıcıdan Enter tuşuna basmasını bekle
+    getchar();  // Tamponu temizlemek için tekrar
+
+    return 0;
+}
+
 
 
