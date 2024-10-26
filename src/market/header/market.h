@@ -30,27 +30,42 @@ struct Product {
     char season[20];       // Ürünün mevsimi
 };
 
+// Çalışma saatleri ve lokasyon bilgilerini içeren yapı
+struct MarketHoursAndLocation {
+    int vendorId;
+    char location[100];
+    char workingHours[50];
+    char workingDays[20];
+};
+
+bool validateDay(const char* day);
 
 int getInput();
 int mainMenu();
 
-int listingOfLocalVendors();
+
 int listingOfLocalProducts();
-int seasonalProduceGuide();
 int priceComparison();
 int marketHoursAndLocations();
+
 
 bool userAuthentication();
 bool loginUser();
 bool registerUser();
 
+
+int listingOfLocalVendors();
 int addVendor();
 int updateVendor();
 int deleteVendor();
 int listVendors();
 
+
 int addProduct();
 int listingOfLocalVendorsandProducts();
+
+int addMarketHoursAndLocation();
+int displayMarketHoursAndLocations();
 
 
 int searchProductsOrEnterKeyword();
