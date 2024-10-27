@@ -5,7 +5,7 @@
 #include <string.h>
 #include <string>
 #include <fstream>
-#include <stdio.h>
+#include <fstream>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -235,27 +235,60 @@ return 0;
 }
 
 
+
+// Diğer gerekli kütüphaneler ve yapı tanımları
+
+int comparePricesByName(const char* productName);  // comparePricesByName için prototip
+int selectProduct(char* selectedProductName);      // selectProduct için prototip
+
 int priceComparison() {
     int choice;
+    char selectedProductName[100] = "";  // Seçilen ürün adını burada tutacağız
 
-    printf("\n--- Price Comparison ---\n");
-    printf("1. Select Product\n");
-    printf("2. Compare Prices\n");
-    printf("Choose an option: ");
-    scanf("%d", &choice);
+    do {
+        clearScreen();
+        printf("\n--- Price Comparison ---\n");
+        printf("1. Select Product\n");
+        printf("2. Compare Prices\n");
+        printf("0. Return to Main Menu\n");
+        printf("Choose an option: ");
+        choice = getInput();
 
-    switch (choice) {
-    case 1:
-        printf("Select Product selected.\n");
-        break;
-    case 2:
-        printf("Compare Prices selected.\n");
-        break;
-    default:
-        printf("Invalid option. Returning to main menu.\n");
-    }
+        switch (choice) {
+        case 1:
+            // selectProduct fonksiyonuna selectedProductName değişkenini geçiriyoruz
+            if (selectProduct(selectedProductName) == 0) {  // Ürün seçildiyse
+                printf("Product '%s' selected.\n", selectedProductName);
+            }
+            else {
+                printf("Product selection failed.\n");
+            }
+            break;
+        case 2:
+            if (strlen(selectedProductName) > 0) {  // Bir ürün seçildiyse karşılaştırma yap
+                comparePricesByName(selectedProductName);
+            }
+            else {
+                printf("No product selected. Please select a product first.\n");
+            }
+            break;
+        case 0:
+            printf("Returning to main menu...\n");
+            break;
+        default:
+            printf("Invalid option. Please try again.\n");
+            break;
+        }
+
+        printf("Press Enter to continue...");
+        getchar();  // Kullanıcıdan Enter tuşuna basmasını bekle
+        getchar();  // Tamponu temizlemek için
+
+    } while (choice != 0);
+
     return 0;
 }
+
 
 int marketHoursAndLocations() {
     int choice;
@@ -824,5 +857,114 @@ int displayMarketHoursAndLocations() {
     printf("Press Enter to return to menu...");
     getchar();
     return 0;
+}
+
+// Diğer fonksiyonlarınız burada
+
+int priceComparis() {
+    // Burada yapacağınız işlemleri tanımlayın
+    printf("Price comparison functionality.\n");
+    return 0; // Fonksiyonun başarılı bir şekilde çalıştığını belirtmek için 0 döndürüyoruz.
+}
+
+// Diğer fonksiyonlar burada devam ediyor
+
+int selectProduct(char* selectedProductName) {
+    FILE* productFile;
+    Product product;
+    int productCount = 0;
+
+    productFile = fopen("products.bin", "rb"); // Ürün dosyasını okuma modunda açıyoruz
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    printf("\n--- Available Products ---\n");
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        printf("Name: %s, Price: %.2f, Quantity: %d, Season: %s, Vendor ID: %d\n",
+            product.productName, product.price, product.quantity, product.season, product.vendorId);
+        productCount++;
+    }
+
+    fclose(productFile);
+
+    if (productCount == 0) {
+        printf("No products available.\n");
+        return 1;
+    }
+
+
+    printf("Enter the Product Name to select: ");
+    scanf(" %[^\n]s", selectedProductName);
+
+    // Ürünün seçilip seçilmediğini kontrol etmek için dosyada tekrar arama yapıyoruz
+    productFile = fopen("products.bin", "rb");
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    bool found = false;
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, selectedProductName) == 0) {
+            printf("Selected Product: %s, Price: %.2f\n", product.productName, product.price);
+            found = true;
+            break;
+        }
+    }
+
+    fclose(productFile);
+
+    if (!found) {
+        printf("Product with Name '%s' not found.\n", selectedProductName);
+        return 1;
+    }
+
+    return 0; // İşlem başarılıysa 0 döndür
+}
+
+
+
+int comparePricesByName(const char* productName) {
+    FILE* productFile;
+    Product product;
+    bool found = false;
+
+    productFile = fopen("products.bin", "rb");
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;  // Hata durumunda 1 döndür
+    }
+
+    float minPrice = FLT_MAX; // En düşük fiyat için başlangıç değeri
+    float maxPrice = FLT_MIN; // En yüksek fiyat için başlangıç değeri
+
+    printf("\n--- Price Comparison for Product Name '%s' ---\n", productName);
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, productName) == 0) {
+            printf("Vendor ID: %d, Price: %.2f\n", product.vendorId, product.price);
+
+            if (product.price < minPrice) {
+                minPrice = product.price;
+            }
+            if (product.price > maxPrice) {
+                maxPrice = product.price;
+            }
+            found = true;
+        }
+    }
+
+    fclose(productFile);
+
+    if (found) {
+        printf("\nLowest Price: %.2f\n", minPrice);
+        printf("Highest Price: %.2f\n", maxPrice);
+        return 0;  // Başarılı işlem için 0 döndür
+    }
+    else {
+        printf("No prices found for Product Name '%s'.\n", productName);
+        return 1;  // Ürün bulunamazsa 1 döndür
+    }
 }
 
