@@ -46,6 +46,8 @@ int mainMenu();
 
 int listingOfLocalProducts();
 int priceComparison();
+int comparePricesByName();
+int selectProduct();
 int marketHoursAndLocations();
 
 
@@ -71,6 +73,7 @@ int displayMarketHoursAndLocations();
 int searchProductsOrEnterKeyword();
 int enterFavoriteProducts();
 int enterKeywords();
+int priceComparis();
 
 
 
