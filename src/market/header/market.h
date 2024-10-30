@@ -38,6 +38,15 @@ struct MarketHoursAndLocation {
     char workingDays[20];
 };
 
+
+// DFS için kullanıldı 
+struct Node {
+    char* info;           // Ürün veya satıcı bilgisi
+    Node** neighbors;     // Bağlı komşu düğümler
+    int neighborCount;    // Komşu sayısı
+};
+
+
 bool validateDay(const char* day);
 
 int getInput();
@@ -71,11 +80,13 @@ int displayMarketHoursAndLocations();
 
 
 int searchProductsOrEnterKeyword();
-int enterFavoriteProducts();
+int enterSearchProducts();
 int enterKeywords();
 int priceComparis();
 
-
+// Diğer gerekli kütüphaneler ve yapı tanımları
+int comparePricesByName(const char* productName);  // comparePricesByName için prototip
+int selectProduct(char* selectedProductName);      // selectProduct için prototip
 
 
 

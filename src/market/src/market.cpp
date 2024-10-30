@@ -15,6 +15,8 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
+#include <stack>  // Yığın yapısını kullanmak için gerekli (DFS)
+
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
@@ -22,39 +24,6 @@
 bool isAuthenticated = false;
 
 
-// Haftanın günlerini doğrulayan fonksiyon
-bool validateDay(const char* day) {
-    const char* validDays[] = {
-        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-    };
-
-    for (int i = 0; i < 7; ++i) {
-        if (strcmp(day, validDays[i]) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-// Çalışma saatlerini doğrulayan fonksiyon
-bool validateWorkingHours(const char* hours) {
-    if (strlen(hours) != 13) return false;
-    if (hours[0] < '0' || hours[0] > '2') return false;
-    if (hours[1] < '0' || hours[1] > '9') return false;
-    if (hours[2] != ':') return false;
-    if (hours[3] < '0' || hours[3] > '5') return false;
-    if (hours[4] < '0' || hours[4] > '9') return false;
-    if (hours[5] != ' ') return false;
-    if (hours[6] != '-') return false;
-    if (hours[7] != ' ') return false;
-    if (hours[8] < '0' || hours[8] > '2') return false;
-    if (hours[9] < '0' || hours[9] > '9') return false;
-    if (hours[10] != ':') return false;
-    if (hours[11] < '0' || hours[11] > '5') return false;
-    if (hours[12] < '0' || hours[12] > '9') return false;
-    return true;
-}
 
 
 void clearScreen() {
@@ -235,12 +204,6 @@ return 0;
 }
 
 
-
-// Diğer gerekli kütüphaneler ve yapı tanımları
-
-int comparePricesByName(const char* productName);  // comparePricesByName için prototip
-int selectProduct(char* selectedProductName);      // selectProduct için prototip
-
 int priceComparison() {
     int choice;
     char selectedProductName[100] = "";  // Seçilen ürün adını burada tutacağız
@@ -335,7 +298,7 @@ int searchProductsOrEnterKeyword() {
     do {
         clearScreen();
         printf("\n--- Search Products or Enter Keyword ---\n");
-        printf("1. Enter Favorite Products\n");
+        printf("1. Enter Search Products\n");
         printf("2. Enter Keywords\n");
         printf("0. Return to Main Menu\n");
         printf("Choose an option: ");
@@ -343,7 +306,7 @@ int searchProductsOrEnterKeyword() {
 
         switch (choice) {
         case 1:
-            enterFavoriteProducts();
+            enterSearchProducts();
             break;
         case 2:
             enterKeywords();
@@ -361,20 +324,235 @@ int searchProductsOrEnterKeyword() {
     return 0;
 }
 
-int enterFavoriteProducts() {
+
+// KMP algoritması için LPS (Longest Prefix Suffix) dizisini hesaplayan yardımcı fonksiyon
+void computeLPSArray(const char* pattern, int M, int* lps) {
+    int length = 0;
+    lps[0] = 0; // lps[0] her zaman 0'dır
+
+    int i = 1;
+    while (i < M) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        }
+        else {
+            if (length != 0) {
+                length = lps[length - 1];
+            }
+            else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+// KMP algoritmasını kullanarak metin içinde deseni arayan fonksiyon
+bool KMPSearch(const char* pattern, const char* text) {
+    int M = strlen(pattern);
+    int N = strlen(text);
+
+    int* lps = (int*)malloc(M * sizeof(int));
+    computeLPSArray(pattern, M, lps);
+
+    int i = 0;
+    int j = 0;
+    while (i < N) {
+        if (pattern[j] == text[i]) {
+            j++;
+            i++;
+        }
+
+        if (j == M) {
+            free(lps);
+            return true; // Desen bulundu
+        }
+        else if (i < N && pattern[j] != text[i]) {
+            if (j != 0) {
+                j = lps[j - 1];
+            }
+            else {
+                i++;
+            }
+        }
+    }
+
+    free(lps);
+    return false; // Desen bulunamadı
+}
+
+// Favori ürünü ve ilgili satıcıları listeleyen fonksiyon
+int enterSearchProducts() {
+    FILE* productFile;
+    FILE* vendorFile;
+    Product product;
+    Vendor vendor;
     char favoriteProduct[100];
-    printf("\nEnter your favorite product: ");
-    scanf("%s", favoriteProduct);
-    printf("Favorite product '%s' has been saved.\n", favoriteProduct);
+    bool found = false;
+
+    // Kullanıcıdan favori ürün adını al
+    printf("Enter the name of your favorite product to search for vendors: ");
+    scanf(" %[^\n]s", favoriteProduct);
+
+    // Ürün dosyasını aç
+    productFile = fopen("products.bin", "rb");
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    // Satıcı dosyasını aç
+    vendorFile = fopen("vendor.bin", "rb");
+    if (vendorFile == NULL) {
+        printf("Error opening vendor file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    printf("\n--- Vendors Offering '%s' ---\n", favoriteProduct);
+
+    // Ürün dosyasını tarayarak KMP ile arama yap
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (KMPSearch(favoriteProduct, product.productName)) {
+            // Eşleşen ürün bulundu, satıcıyı göster
+            rewind(vendorFile); // Satıcı dosyasını baştan okumak için geri al
+            while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+                if (vendor.id == product.vendorId) {
+                    printf("Vendor: %s, ID: %d\n", vendor.name, vendor.id);
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!found) {
+        printf("No vendors found offering '%s'.\n", favoriteProduct);
+    }
+
+    // Dosyaları kapat
+    fclose(productFile);
+    fclose(vendorFile);
+
+    printf("\nPress Enter to return to menu...");
+    getchar();
+    getchar(); // Tamponu temizlemek için tekrar
 
     return 0;
+}
+
+
+bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
+    // DFS için bir yığın başlat
+    std::stack<Node*> stack;
+    stack.push(node);
+
+    while (!stack.empty()) {
+        Node* currentNode = stack.top();
+        stack.pop();
+
+        // Eğer düğüm ziyaret edilmişse atla
+        bool isVisited = false;
+        for (int i = 0; i < *visitedCount; i++) {
+            if (visited[i] == currentNode) {
+                isVisited = true;
+                break;
+            }
+        }
+        if (isVisited) continue;
+
+        // Düğümü ziyaret edilmiş olarak işaretle
+        visited[*visitedCount] = currentNode;
+        (*visitedCount)++;
+
+        // Anahtar kelime, düğüm bilgisinde varsa döndür
+        if (strstr(currentNode->info, keyword) != NULL) {
+            printf("Match found: %s\n", currentNode->info);
+            return true;
+        }
+
+        // Komşu düğümleri yığına ekle
+        for (int i = 0; i < currentNode->neighborCount; i++) {
+            stack.push(currentNode->neighbors[i]);
+        }
+    }
+
+    return false;
 }
 
 int enterKeywords() {
     char keyword[100];
     printf("\nEnter a keyword to search: ");
     scanf("%s", keyword);
-    printf("Searching for products with keyword '%s'...\n", keyword);
+
+    // Ürün ve satıcı bilgilerini dosyadan okuyup düğümler oluşturma
+    FILE* productFile = fopen("products.bin", "rb");
+    FILE* vendorFile = fopen("vendor.bin", "rb");
+
+    if (productFile == NULL || vendorFile == NULL) {
+        printf("Error opening product or vendor file.\n");
+        return 1;
+    }
+
+    Product product;
+    Vendor vendor;
+
+    // Tüm düğümler için bir dizi oluştur (maksimum 100 düğüm kabulüyle)
+    Node* nodes[100];
+    int nodeCount = 0;
+
+    // Ürünleri düğüm olarak ekleme
+    while (fread(&product, sizeof(Product), 1, productFile) && nodeCount < 100) {
+        Node* productNode = (Node*)malloc(sizeof(Node));
+        productNode->info = (char*)malloc(200 * sizeof(char));
+        snprintf(productNode->info, 200, "Product: %s, Season: %s, Vendor ID: %d, Price: %.2f, Quantity: %d",
+            product.productName, product.season, product.vendorId, product.price, product.quantity);
+        productNode->neighborCount = 0;
+        productNode->neighbors = NULL;
+        nodes[nodeCount++] = productNode;
+    }
+
+    // Satıcıları düğüm olarak ekleme
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile) && nodeCount < 100) {
+        Node* vendorNode = (Node*)malloc(sizeof(Node));
+        vendorNode->info = (char*)malloc(100 * sizeof(char));
+        snprintf(vendorNode->info, 100, "Vendor: %s, ID: %d", vendor.name, vendor.id);
+        vendorNode->neighborCount = 0;
+        vendorNode->neighbors = NULL;
+        nodes[nodeCount++] = vendorNode;
+    }
+
+    fclose(productFile);
+    fclose(vendorFile);
+
+    // DFS ile anahtar kelimeyi arama
+    Node* visited[100];  // Ziyaret edilen düğümleri izlemek için
+    int visitedCount = 0;
+    bool found = false;
+
+    for (int i = 0; i < nodeCount; ++i) {
+        visitedCount = 0;  // Her düğüm için ziyaret dizisini sıfırla
+        if (DFS(nodes[i], keyword, visited, &visitedCount)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+        printf("No matches found for keyword '%s'.\n", keyword);
+    }
+
+    // Dinamik olarak oluşturulan düğümleri temizleme
+    for (int i = 0; i < nodeCount; ++i) {
+        free(nodes[i]->info);
+        free(nodes[i]->neighbors);
+        free(nodes[i]);
+    }
+
+    printf("Press Enter to return to menu...");
+    getchar();
+    getchar();  // Tamponu temizlemek için tekrar
 
     return 0;
 }
@@ -736,6 +914,43 @@ int listingOfLocalVendorsandProducts() {
 
     return 0;
 }
+
+
+
+// Haftanın günlerini doğrulayan fonksiyon
+bool validateDay(const char* day) {
+    const char* validDays[] = {
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    };
+
+    for (int i = 0; i < 7; ++i) {
+        if (strcmp(day, validDays[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+// Çalışma saatlerini doğrulayan fonksiyon
+bool validateWorkingHours(const char* hours) {
+    if (strlen(hours) != 13) return false;
+    if (hours[0] < '0' || hours[0] > '2') return false;
+    if (hours[1] < '0' || hours[1] > '9') return false;
+    if (hours[2] != ':') return false;
+    if (hours[3] < '0' || hours[3] > '5') return false;
+    if (hours[4] < '0' || hours[4] > '9') return false;
+    if (hours[5] != ' ') return false;
+    if (hours[6] != '-') return false;
+    if (hours[7] != ' ') return false;
+    if (hours[8] < '0' || hours[8] > '2') return false;
+    if (hours[9] < '0' || hours[9] > '9') return false;
+    if (hours[10] != ':') return false;
+    if (hours[11] < '0' || hours[11] > '5') return false;
+    if (hours[12] < '0' || hours[12] > '9') return false;
+    return true;
+}
+
 
 
 int addMarketHoursAndLocation() {
