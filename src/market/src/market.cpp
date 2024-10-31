@@ -750,7 +750,12 @@ int deleteVendor() {
     return 0;
 }
 
-// Satıcıları listeleme
+// Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
+#include <unordered_map>
+#include <queue>
+#include <functional>
+
+
 int listVendors() {
     FILE* file;
     Vendor vendor;
@@ -761,25 +766,36 @@ int listVendors() {
         return 1;
     }
 
-    printf("\n--- List of Vendors ---\n");
-    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+    // Satıcıları saklamak için hash tablosu (unordered_map)
+    std::unordered_map<int, Vendor> vendorMap;
 
+    // Satıcı ID'lerini min-heap'te saklamak için priority_queue
+    auto cmp = [](int left, int right) { return left > right; };
+    std::priority_queue<int, std::vector<int>, decltype(cmp)> vendorHeap(cmp);
 
+    // Satıcı dosyasını okuma ve hash tablosuna ekleme
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        printf("ID: %d, Name: %s \n", vendor.id, vendor.name);
-        vendorCount++;
-    }
-    if (vendorCount == 0) {
-        printf("No vendors found.\n");
+        vendorMap[vendor.id] = vendor;
+        vendorHeap.push(vendor.id);
     }
 
     fclose(file);
+
+    // Sıralanmış ID'lere göre satıcıları yazdırma
+    printf("\n--- List of Vendors Sorted by ID ---\n");
+    while (!vendorHeap.empty()) {
+        int id = vendorHeap.top();
+        vendorHeap.pop();
+        Vendor v = vendorMap[id];
+        printf("ID: %d, Name: %s \n", v.id, v.name);
+    }
+
     while (getchar() != '\n');  // Fazladan satır sonunu temizle
     printf("Press Enter to return to menu...");
     getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
-
     return 0;
 }
+
 
 int addProduct() {
     FILE* productFile;
