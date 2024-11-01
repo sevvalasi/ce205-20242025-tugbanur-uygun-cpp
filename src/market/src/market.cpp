@@ -16,7 +16,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <stack>  // Yığın yapısını kullanmak için gerekli (DFS)
-
+#include <stdint.h>
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
@@ -252,7 +252,6 @@ int priceComparison() {
     return 0;
 }
 
-
 int marketHoursAndLocations() {
     int choice;
 
@@ -289,7 +288,6 @@ int marketHoursAndLocations() {
 
     return 0;
 }
-
 
 
 int searchProductsOrEnterKeyword() {
@@ -968,128 +966,6 @@ bool validateWorkingHours(const char* hours) {
 }
 
 
-
-int addMarketHoursAndLocation() {
-    FILE* file;
-    MarketHoursAndLocation marketInfo;
-    int vendorId;
-    int found = 0;
-
-    FILE* vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Vendor file not found.\n");
-        return 1;
-    }
-
-    printf("Enter Vendor ID to add working hours and location: ");
-    if (scanf("%d", &vendorId) != 1) {
-        printf("Invalid input for Vendor ID. Exiting function.\n");
-        fclose(vendorFile);
-        while (getchar() != '\n');  // Tamponu temizle
-        return 1;
-    }
-    while (getchar() != '\n');  // Tamponu temizle
-
-    Vendor vendor;
-    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-        if (vendor.id == vendorId) {
-            found = 1;
-            break;
-        }
-    }
-    fclose(vendorFile);
-
-    if (!found) {
-        printf("Vendor with ID %d not found.\n", vendorId);
-        return 1;
-    }
-
-    marketInfo.vendorId = vendorId;
-
-    printf("Enter Location: ");
-    if (scanf(" %[^\n]s", marketInfo.location) != 1) {
-        printf("Invalid input for Location. Exiting function.\n");
-        return 1;
-    }
-    while (getchar() != '\n');  // Tamponu temizle
-
-    do {
-        printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
-        if (scanf(" %[^\n]s", marketInfo.workingHours) != 1) {
-            printf("Invalid input for Working Hours. Exiting function.\n");
-            return 1;
-        }
-        if (!validateWorkingHours(marketInfo.workingHours)) {
-            printf("Invalid working hours format. Please use HH:MM - HH:MM format.\n");
-        }
-    } while (!validateWorkingHours(marketInfo.workingHours));
-    while (getchar() != '\n');  // Tamponu temizle
-
-    char day[20];
-    char allDays[200] = "";  // Tüm günleri birleştirip kaydedeceğiz
-    do {
-        printf("Enter a Working Day (e.g., Monday): ");
-        scanf(" %[^\n]s", day);
-        getchar();  // Tamponu temizler
-
-        if (validateDay(day)) {
-            if (strlen(allDays) > 0) {
-                strcat(allDays, ", ");  // Günleri virgülle ayırmak için
-            }
-            strcat(allDays, day);  // Günü listeye ekle
-            printf("Day added. Do you want to add another day? (Press Enter to skip, or type 'y' to continue): ");
-            if (getchar() == '\n') {
-                break;  // Enter basıldığında döngüden çık
-            }
-        }
-        else {
-            printf("Invalid day format. Please enter a full day name (e.g., Monday).\n");
-        }
-    } while (1);  // Sonsuz döngü; Enter basıldığında kırılacak
-
-    strcpy(marketInfo.workingDays, allDays);  // Tüm günleri marketInfo içine kaydediyoruz
-
-    file = fopen("market_hours.bin", "ab");
-    if (file == NULL) {
-        printf("Error opening market hours file.\n");
-        return 1;
-    }
-
-    fwrite(&marketInfo, sizeof(MarketHoursAndLocation), 1, file);
-    fclose(file);
-
-    printf("Market hours and location added successfully!\n");
-    getchar();
-    return 0;
-}
-
-
-int displayMarketHoursAndLocations() {
-    FILE* file;
-    MarketHoursAndLocation marketInfo;
-
-    file = fopen("market_hours.bin", "rb");
-    if (file == NULL) {
-        printf("No market hours and locations found.\n");
-        return 1;
-    }
-
-    printf("\n--- Market Hours and Locations ---\n");
-
-    while (fread(&marketInfo, sizeof(MarketHoursAndLocation), 1, file)) {
-        printf("Vendor ID: %d\n", marketInfo.vendorId);
-        printf("Location: %s\n", marketInfo.location);
-        printf("Working Hours: %s\n", marketInfo.workingHours);
-        printf("Working Days: %s\n", marketInfo.workingDays);
-        printf("-------------------------\n");
-    }
-
-    fclose(file);
-    printf("Press Enter to return to menu...");
-    getchar();
-    return 0;
-}
-
 // Diğer fonksiyonlarınız burada
 
 int priceComparis() {
@@ -1199,3 +1075,185 @@ int comparePricesByName(const char* productName) {
     }
 }
 
+//CSS (Circular Scheduling Selection) algoritması, genellikle belirli gün ve saatlerde çalışması gereken görevleri veya iş süreçlerini döngüsel olarak planlamak için kullanılır.
+// bir marketin çalışma günlerini haftalık olarak belirlemek için CSS algoritmasından yararlanabiliriz.
+
+
+
+// Haftanın günlerini belirten sabit dizi
+const char* daysOfWeek[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+
+// Günlerin indeksini döndüren fonksiyon
+#include <ctype.h> // tolower() fonksiyonu için gerekli
+
+int getDayIndex(const char* day) {
+    char lowerDay[20];
+    int i;
+
+    // Kullanıcıdan alınan günü küçük harfe çeviriyoruz
+    for (i = 0; day[i] != '\0' && i < sizeof(lowerDay) - 1; ++i) {
+        lowerDay[i] = tolower(day[i]);
+    }
+    lowerDay[i] = '\0'; // Dizinin sonuna null karakteri ekliyoruz
+
+    // Haftanın günlerini tanımlayan sabit dizi
+    const char* daysOfWeek[7] = { "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" };
+
+    for (int i = 0; i < 7; ++i) {
+        if (strcmp(lowerDay, daysOfWeek[i]) == 0) {
+            return i;
+        }
+    }
+    return -1; // Geçersiz gün
+}
+
+
+// Döngüsel çalışma günlerini oluşturan fonksiyon
+char* generateWorkingDays(const char* startDay, int duration) {
+    static char workingDays[200]; // Çıktı dizisi, döngüsel bir dizide saklanır
+    int startIndex = getDayIndex(startDay);
+    if (startIndex == -1) {
+        printf("Invalid starting day.\n");
+        return NULL; // Geçersiz gün ismi durumunda NULL döndür
+    }
+
+    workingDays[0] = '\0'; // Çıktı dizisini sıfırla
+
+    // Döngüsel olarak gün ekleme
+    for (int i = 0; i < duration; i++) {
+        int currentIndex = (startIndex + i) % 7;
+        if (i > 0) {
+            strcat(workingDays, ", ");
+        }
+        strcat(workingDays, daysOfWeek[currentIndex]);
+    }
+    return workingDays; // Gün dizisini döndür
+}
+
+// Market saatleri ve lokasyon bilgisi ekleyen fonksiyon
+int addMarketHoursAndLocation() {
+    FILE* vendorFile;
+    MarketHoursAndLocation marketInfo;
+    int vendorId;
+    int found = 0;
+
+    vendorFile = fopen("vendor.bin", "rb");
+    if (vendorFile == NULL) {
+        printf("Vendor file not found.\n");
+        return 1;
+    }
+
+    // Kullanıcıdan Vendor ID'yi alma
+    printf("Enter Vendor ID to add working hours and location: ");
+    if (scanf("%d", &vendorId) != 1) {
+        printf("Invalid input for Vendor ID. Exiting function.\n");
+        fclose(vendorFile);
+        while (getchar() != '\n');  // Tamponu temizle
+        return 1;
+    }
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // Vendor dosyasından ID'yi kontrol etme
+    Vendor vendor;
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+        if (vendor.id == vendorId) {
+            found = 1;
+            break;
+        }
+    }
+    fclose(vendorFile);
+
+    if (!found) {
+        printf("Vendor with ID %d not found.\n", vendorId);
+        return 1;
+    }
+
+    // MarketInfo yapısının vendorId kısmını doldurma
+    marketInfo.vendorId = vendorId;
+
+    // Kullanıcıdan Lokasyon ve Çalışma Saatleri bilgilerini alma
+    printf("Enter Location: ");
+    if (scanf(" %[^\n]s", marketInfo.location) != 1) {
+        printf("Invalid input for Location. Exiting function.\n");
+        return 1;
+    }
+    while (getchar() != '\n');  // Tamponu temizle
+
+    do {
+        printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
+        if (scanf(" %[^\n]s", marketInfo.workingHours) != 1) {
+            printf("Invalid input for Working Hours. Exiting function.\n");
+            return 1;
+        }
+        if (!validateWorkingHours(marketInfo.workingHours)) {
+            printf("Invalid working hours format. Please use HH:MM - HH:MM format.\n");
+        }
+    } while (!validateWorkingHours(marketInfo.workingHours));
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // CSS Algoritması kullanarak döngüsel çalışma günlerini ekle
+    char startDay[20];
+    int duration;
+    printf("Enter the starting day for working days (e.g., Monday): ");
+    scanf(" %[^\n]s", startDay);
+    printf("Enter the number of working days: ");
+    scanf("%d", &duration);
+
+    // Çalışma günlerini döngüsel olarak oluştur ve kaydet
+    const char* workingDays = generateWorkingDays(startDay, duration);
+    if (workingDays == NULL) {
+        printf("Failed to generate working days.\n");
+        return 1;
+    }
+    strcpy(marketInfo.workingDays, workingDays);
+
+    // Market hours dosyasını açma ve marketInfo'yu dosyaya yazma
+    FILE* file = fopen("market_hours.bin", "ab");
+    if (file == NULL) {
+        printf("Error opening market hours file.\n");
+        return 1;
+    }
+
+    // Dosyaya yazma ve hata kontrolü
+    if (fwrite(&marketInfo, sizeof(MarketHoursAndLocation), 1, file) != 1) {
+        printf("Error writing to market hours file.\n");
+        fclose(file);
+        return 1; // Eğer yazma işlemi başarısız olursa burada işlem durdurulacak
+    }
+    else {
+        printf("Market hours and location added successfully!\n");
+    }
+
+    fclose(file);
+    getchar();  // Kullanıcının bir tuşa basmasını bekleyin
+    return 0;
+}
+
+
+int displayMarketHoursAndLocations() {
+    FILE* file;
+    MarketHoursAndLocation marketInfo;
+
+    file = fopen("market_hours.bin", "rb");
+    if (file == NULL) {
+        printf("No market hours and locations found.\n");
+        return 1;
+    }
+
+    printf("\n--- Market Hours and Locations ---\n");
+
+    // Dosyadaki her market verisini tek tek okuyup ekrana yazdırma
+    while (fread(&marketInfo, sizeof(MarketHoursAndLocation), 1, file)) {
+        printf("Vendor ID: %d\n", marketInfo.vendorId);
+        printf("Location: %s\n", marketInfo.location);
+        printf("Working Hours: %s\n", marketInfo.workingHours);
+        printf("Working Days: %s\n", marketInfo.workingDays);
+        printf("-------------------------\n");
+    }
+
+    fclose(file);
+    printf("Press Enter to return to menu...");
+    getchar();
+    return 0;
+
+}

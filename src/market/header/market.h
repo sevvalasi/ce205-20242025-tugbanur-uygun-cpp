@@ -10,6 +10,15 @@
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
 
+
+ 
+
+ // Haftanın günlerini tanımlayan sabit dizi
+extern const char* daysOfWeek[7];
+// Fonksiyon prototipleri
+int getDayIndex(const char* day); // Günü dizideki sırasına göre döndürür
+char* generateWorkingDays(const char* startDay, int duration); // Döngüsel çalışma günlerini oluşturur
+bool validateWorkingHours(const char* hours); // Çalışma saatlerini doğrular
  // Kullanıcı bilgilerini tutacak yapı (struct)
 struct User {
     char username[50];  // Kullanıcı adı (en fazla 50 karakter)
@@ -87,6 +96,8 @@ int priceComparis();
 // Diğer gerekli kütüphaneler ve yapı tanımları
 int comparePricesByName(const char* productName);  // comparePricesByName için prototip
 int selectProduct(char* selectedProductName);      // selectProduct için prototip
+
+
 
 
 
