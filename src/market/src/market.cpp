@@ -10,13 +10,16 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <stdio.h>
-#include <stack>
 #include <sstream>
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
 #include <stack>  // Yığın yapısını kullanmak için gerekli (DFS)
 #include <stdint.h>
+#include <float.h> 
+#include <unordered_map>  //hash table 
+#include <queue>          //hash table
+#include <functional>     //hash table
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
@@ -749,9 +752,7 @@ int deleteVendor() {
 }
 
 // Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
-#include <unordered_map>
-#include <queue>
-#include <functional>
+
 
 
 int listVendors() {
@@ -966,16 +967,6 @@ bool validateWorkingHours(const char* hours) {
 }
 
 
-// Diğer fonksiyonlarınız burada
-
-int priceComparis() {
-    // Burada yapacağınız işlemleri tanımlayın
-    printf("Price comparison functionality.\n");
-    return 0; // Fonksiyonun başarılı bir şekilde çalıştığını belirtmek için 0 döndürüyoruz.
-}
-
-// Diğer fonksiyonlar burada devam ediyor
-
 int selectProduct(char* selectedProductName) {
     FILE* productFile;
     Product product;
@@ -1031,11 +1022,52 @@ int selectProduct(char* selectedProductName) {
     return 0; // İşlem başarılıysa 0 döndür
 }
 
+// Heapify fonksiyonu
+void heapify(Product arr[], int n, int i) {
+    int largest = i; // En büyük elemanı kök olarak başlatıyoruz
+    int left = 2 * i + 1; // Sol çocuk
+    int right = 2 * i + 2; // Sağ çocuk
 
+    // Sol çocuğun kökten büyük olup olmadığını kontrol et
+    if (left < n && arr[left].price > arr[largest].price)
+        largest = left;
+
+    // Sağ çocuğun kökten büyük olup olmadığını kontrol et
+    if (right < n && arr[right].price > arr[largest].price)
+        largest = right;
+
+    // Eğer en büyük eleman kök değilse
+    if (largest != i) {
+        Product temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+
+        // Alt ağaçta heapify uygula
+        heapify(arr, n, largest);
+    }
+}
+
+// Heap sort fonksiyonu
+void heapSort(Product arr[], int n) {
+    // Dizi için max-heap oluştur
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // Elemanları teker teker heap'ten çek
+    for (int i = n - 1; i >= 0; i--) {
+        Product temp = arr[0];
+        arr[0] = arr[i];
+        arr[i] = temp;
+
+        // Kalan ağaç için heapify uygula
+        heapify(arr, i, 0);
+    }
+}
 
 int comparePricesByName(const char* productName) {
     FILE* productFile;
-    Product product;
+    Product products[100]; // Maksimum 100 ürün kabul ediliyor
+    int productCount = 0;
     bool found = false;
 
     productFile = fopen("products.bin", "rb");
@@ -1044,36 +1076,37 @@ int comparePricesByName(const char* productName) {
         return 1;  // Hata durumunda 1 döndür
     }
 
-    float minPrice = FLT_MAX; // En düşük fiyat için başlangıç değeri
-    float maxPrice = FLT_MIN; // En yüksek fiyat için başlangıç değeri
-
-    printf("\n--- Price Comparison for Product Name '%s' ---\n", productName);
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (strcmp(product.productName, productName) == 0) {
-            printf("Vendor ID: %d, Price: %.2f\n", product.vendorId, product.price);
-
-            if (product.price < minPrice) {
-                minPrice = product.price;
-            }
-            if (product.price > maxPrice) {
-                maxPrice = product.price;
-            }
+    // Dosyadan ürünleri oku ve verilen isimle eşleşenleri products dizisine ekle
+    while (fread(&products[productCount], sizeof(Product), 1, productFile)) {
+        if (strcmp(products[productCount].productName, productName) == 0) {
+            productCount++;
             found = true;
         }
     }
 
     fclose(productFile);
 
-    if (found) {
-        printf("\nLowest Price: %.2f\n", minPrice);
-        printf("Highest Price: %.2f\n", maxPrice);
-        return 0;  // Başarılı işlem için 0 döndür
-    }
-    else {
+    if (!found) {
         printf("No prices found for Product Name '%s'.\n", productName);
-        return 1;  // Ürün bulunamazsa 1 döndür
+        return 1;  // Ürün bulunamazsa 1 döndür
     }
+
+    // Ürünleri fiyata göre sırala (heap sort kullanarak)
+    heapSort(products, productCount);
+
+    // Sıralanmış ürünleri yazdır
+    printf("\n--- Price Comparison for Product Name '%s' (Sorted by Price) ---\n", productName);
+    for (int i = 0; i < productCount; i++) {
+        printf("Vendor ID: %d, Price: %.2f\n", products[i].vendorId, products[i].price);
+    }
+
+    printf("\nLowest Price: %.2f\n", products[0].price);
+    printf("Highest Price: %.2f\n", products[productCount - 1].price);
+
+    return 0;  // Başarılı işlem için 0 döndür
 }
+
+
 
 //CSS (Circular Scheduling Selection) algoritması, genellikle belirli gün ve saatlerde çalışması gereken görevleri veya iş süreçlerini döngüsel olarak planlamak için kullanılır.
 // bir marketin çalışma günlerini haftalık olarak belirlemek için CSS algoritmasından yararlanabiliriz.
@@ -1257,3 +1290,4 @@ int displayMarketHoursAndLocations() {
     return 0;
 
 }
+
