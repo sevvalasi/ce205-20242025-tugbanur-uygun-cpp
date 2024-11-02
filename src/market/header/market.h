@@ -6,6 +6,8 @@
 
 #ifndef MARKET_H
 #define MARKET_H
+#define BUCKET_SIZE 5
+
 
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
@@ -50,6 +52,17 @@ struct MarketHoursAndLocation {
     char workingDays[20];
 };
 
+typedef struct {
+    int key;
+    Product product;
+    int isOccupied;
+} HashTableEntry;
+
+typedef struct {
+    Product products[BUCKET_SIZE];
+    int productCount;
+} Bucket;
+
 
 // DFS için kullanıldı 
 struct Node {
@@ -87,6 +100,16 @@ int listVendors();
 int addProduct();
 int updateProduct();
 int deleteProduct();
+int listingOfLocalVendorsandProducts();
+void initializeHashTable();
+int hashFunction(int key);
+int linearProbing(int key, int i);
+int quadraticProbing(int key, int i);
+int doubleHashing(int key, int i);
+int linearQuotient(int key, int i);
+int progressiveOverflowSearch(int key);
+int useOfBucketsSearch(int key);
+int brentsMethodSearch(int key);
 int listingOfLocalVendorsandProducts();
 
 int addMarketHoursAndLocation();
