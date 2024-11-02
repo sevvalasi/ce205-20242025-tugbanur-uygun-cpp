@@ -20,6 +20,9 @@ int getDayIndex(const char* day); // Günü dizideki sırasına göre döndürü
 char* generateWorkingDays(const char* startDay, int duration); // Döngüsel çalışma günlerini oluşturur
 bool validateWorkingHours(const char* hours); // Çalışma saatlerini doğrular
  // Kullanıcı bilgilerini tutacak yapı (struct)
+
+
+
 struct User {
     char username[50];  // Kullanıcı adı (en fazla 50 karakter)
     char password[50];  // Şifre (en fazla 50 karakter)
