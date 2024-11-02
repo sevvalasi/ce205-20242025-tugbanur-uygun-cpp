@@ -20,12 +20,18 @@
 #include <unordered_map>  //hash table 
 #include <queue>          //hash table
 #include <functional>     //hash table
+#define TABLE_SIZE 100
+#define OVERFLOW_SIZE 20
+#define BUCKET_SIZE 5
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
 // Kullanıcının giriş yapıp yapmadığını tutan değişken
 bool isAuthenticated = false;
 
+HashTableEntry hashTable[TABLE_SIZE];
+HashTableEntry overflowArea[OVERFLOW_SIZE];
+Bucket hashTableBuckets[TABLE_SIZE];
 
 
 
@@ -762,7 +768,6 @@ int deleteVendor() {
 // Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
 
 
-
 int listVendors() {
     FILE* file;
     Vendor vendor;
@@ -773,16 +778,14 @@ int listVendors() {
         return 1;
     }
 
-    // Satıcıları saklamak için hash tablosu (unordered_map)
-    std::unordered_map<int, Vendor> vendorMap;
-
     // Satıcı ID'lerini min-heap'te saklamak için priority_queue
     auto cmp = [](int left, int right) { return left > right; };
     std::priority_queue<int, std::vector<int>, decltype(cmp)> vendorHeap(cmp);
+    std::vector<Vendor> vendorList;
 
-    // Satıcı dosyasını okuma ve hash tablosuna ekleme
+    // Satıcı dosyasını okuma ve listeye ekleme
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        vendorMap[vendor.id] = vendor;
+        vendorList.push_back(vendor);
         vendorHeap.push(vendor.id);
     }
 
@@ -793,8 +796,12 @@ int listVendors() {
     while (!vendorHeap.empty()) {
         int id = vendorHeap.top();
         vendorHeap.pop();
-        Vendor v = vendorMap[id];
-        printf("ID: %d, Name: %s \n", v.id, v.name);
+        for (const Vendor& v : vendorList) {
+            if (v.id == id) {
+                printf("ID: %d, Name: %s \n", v.id, v.name);
+                break;
+            }
+        }
     }
 
     while (getchar() != '\n');  // Fazladan satır sonunu temizle
@@ -802,6 +809,7 @@ int listVendors() {
     getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
     return 0;
 }
+
 
 
 int addProduct() {
@@ -1017,17 +1025,108 @@ int listingOfLocalVendorsandProducts() {
         printf("\nVendor: %s (ID: %d)\n", vendor.name, vendor.id);
         printf("--------------------------\n");
 
-        // Her satıcı için ürünleri bulmak için ürün dosyasını baştan okuyalım
+        // Kullanıcıya arama yöntemi seçtir
+        int strategy;
+        printf("Select Collision Resolution Strategy for Vendor %d:\n", vendor.id);
+        printf("1. Linear Probing\n");
+        printf("2. Quadratic Probing\n");
+        printf("3. Double Hashing\n");
+        printf("4. Linear Quotient\n");
+        printf("5. Progressive Overflow\n");
+        printf("6. Use of Buckets\n");
+        printf("7. Brent's Method\n");
+        scanf("%d", &strategy);
+
+        // Ürünleri bulmak için uygun çakışma çözümleme algoritmasını kullan
+        // Ürün dosyasını baştan itibaren okumak için rewind kullanıyoruz
         rewind(productFile);
         int productFound = 0;
 
-        while (fread(&product, sizeof(Product), 1, productFile)) {
-            if (product.vendorId == vendor.id) {
-                printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                    product.productName, product.price, product.quantity, product.season);
-                found = 1;
-                productFound = 1;
+
+        // Ürün dosyasını baştan sona tarayarak ürünleri listeleme işlemi
+        rewind(productFile);
+
+        switch (strategy) {
+        case 1: // Lineer Probing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
             }
+            break;
+
+        case 2: // Karesel Probing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 3: // Çift Hashing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 4: // Linear Quotient
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 5: // Progressive Overflow
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 6: // Use of Buckets
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 7: // Brent's Method
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        default:
+            printf("Invalid strategy selected.\n");
+            break;
         }
 
         if (!productFound) {
@@ -1048,6 +1147,86 @@ int listingOfLocalVendorsandProducts() {
     getchar();  // Tamponu temizlemek için tekrar
 
     return 0;
+}
+
+
+// Hash Fonksiyonu
+int hashFunction(int key) {
+    return key % TABLE_SIZE;
+}
+
+// Progressive Overflow
+void initializeHashTable() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable[i].isOccupied = 0;
+        hashTableBuckets[i].productCount = 0;
+    }
+    for (int i = 0; i < OVERFLOW_SIZE; i++) {
+        overflowArea[i].isOccupied = 0;
+    }
+}
+
+// Lineer Probing
+int linearProbing(int key, int i) {
+    return (key + i) % TABLE_SIZE;
+}
+
+// Karesel Probing
+int quadraticProbing(int key, int i) {
+    return (key + i * i) % TABLE_SIZE;
+}
+
+// Çift Hashing
+int doubleHashing(int key, int i) {
+    int h1 = key % TABLE_SIZE;
+    int h2 = 1 + (key % (TABLE_SIZE - 1));
+    return (h1 + i * h2) % TABLE_SIZE;
+}
+
+// Linear Quotient
+int linearQuotient(int key, int i) {
+    return (key + i * 7) % TABLE_SIZE;
+}
+
+// Progressive Overflow Arama
+int progressiveOverflowSearch(int key) {
+    for (int i = 0; i < OVERFLOW_SIZE; i++) {
+        if (overflowArea[i].isOccupied && overflowArea[i].key == key) {
+            return i + TABLE_SIZE;
+        }
+    }
+    return -1;
+}
+
+// Bucket Kullanımı Arama
+int useOfBucketsSearch(int key) {
+    int index = hashFunction(key);
+    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
+        if (hashTableBuckets[index].products[i].vendorId == key) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+// Brent's Method
+int brentsMethodSearch(int key) {
+    int index = hashFunction(key);
+    int i = 0;
+    while (hashTable[index].isOccupied) {
+        if (hashTable[index].key == key) {
+            return index;
+        }
+        int newIndex = linearProbing(key, i);
+        if (!hashTable[newIndex].isOccupied) {
+            return -1;
+        }
+        i++;
+        if (i >= TABLE_SIZE) {
+            break;
+        }
+    }
+    return -1;
 }
 
 
