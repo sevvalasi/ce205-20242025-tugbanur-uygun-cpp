@@ -181,7 +181,9 @@ do {
     clearScreen();
     printf("\n--- List All Products ---\n");
     printf("1. Add Product \n");
-    printf("2. Listing of Local Products\n");
+    printf("2. Update Product \n");
+    printf("3. Delete Product \n");
+    printf("4. Listing of Local Products\n");
     printf("0. Return to Main Menu\n");
     printf("Choose an option: ");
     choice = getInput();
@@ -191,6 +193,12 @@ do {
         addProduct();
         break;
     case 2:
+        updateProduct();
+        break;
+    case 3:
+        deleteProduct();
+        break;
+    case 4:
         listingOfLocalVendorsandProducts();
         break;
     case 0:
@@ -862,6 +870,118 @@ int addProduct() {
     printf("Press Enter to continue...");
     getchar();
     getchar();  // Tamponu temizlemek ve devam etmek için
+
+    return 0;
+}
+
+int updateProduct() {
+    FILE* productFile, * tempFile;
+    Product product;
+    char productName[50];
+    int found = 0;
+
+    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    // Güncellemek istediğiniz ürünün adını alıyoruz
+    printf("Enter Product Name to update: ");
+    scanf("%s", productName);
+
+    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, productName) == 0) {
+            found = 1;
+            // Yeni ürün bilgilerini alıyoruz
+            printf("Enter new Product Name: ");
+            scanf("%s", product.productName);
+            printf("Enter new Product Price: ");
+            scanf("%f", &product.price);
+            printf("Enter new Product Quantity: ");
+            scanf("%d", &product.quantity);
+            printf("Enter new Product Season: ");
+            scanf("%s", product.season);
+        }
+        fwrite(&product, sizeof(Product), 1, tempFile); // Ürünü geçici dosyaya yaz
+    }
+
+    fclose(productFile);
+    fclose(tempFile);
+
+    if (!found) {
+        printf("Product with name %s not found.\n", productName);
+        remove("temp.bin"); // Geçici dosyayı sil
+    }
+    else {
+        remove("products.bin"); // Orijinal dosyayı sil
+        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+        printf("Product updated successfully!\n");
+    }
+
+    printf("Press Enter to continue...");
+    getchar();
+    getchar();
+
+    return 0;
+}
+
+int deleteProduct() {
+    FILE* productFile, * tempFile;
+    Product product;
+    char productName[50];
+    int found = 0;
+
+    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    // Silmek istediğiniz ürünün adını alıyoruz
+    printf("Enter Product Name to delete: ");
+    scanf("%s", productName);
+
+    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, productName) == 0) {
+            found = 1;
+            printf("Product with name %s deleted successfully!\n", productName);
+            continue; // Silinecek ürünü atla
+        }
+        fwrite(&product, sizeof(Product), 1, tempFile); // Diğer ürünleri geçici dosyaya yaz
+    }
+
+    fclose(productFile);
+    fclose(tempFile);
+
+    if (!found) {
+        printf("Product with name %s not found.\n", productName);
+        remove("temp.bin"); // Geçici dosyayı sil
+    }
+    else {
+        remove("products.bin"); // Orijinal dosyayı sil
+        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+    }
+
+    printf("Press Enter to continue...");
+    getchar();
+    getchar();
 
     return 0;
 }

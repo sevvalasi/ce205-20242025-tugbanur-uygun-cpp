@@ -85,6 +85,8 @@ int listVendors();
 
 
 int addProduct();
+int updateProduct();
+int deleteProduct();
 int listingOfLocalVendorsandProducts();
 
 int addMarketHoursAndLocation();
