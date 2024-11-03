@@ -23,6 +23,10 @@
 #define TABLE_SIZE 100
 #define OVERFLOW_SIZE 20
 #define BUCKET_SIZE 5
+#define MAX_VENDORS 100
+#define MAX_PRODUCTS 100
+
+
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
 
@@ -1049,7 +1053,7 @@ int listingOfLocalVendorsandProducts() {
         switch (strategy) {
         case 1: // Lineer Probing
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1060,7 +1064,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 2: // Karesel Probing
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1071,7 +1075,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 3: // Çift Hashing
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1082,7 +1086,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 4: // Linear Quotient
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1093,7 +1097,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 5: // Progressive Overflow
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1104,7 +1108,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 6: // Use of Buckets
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1115,7 +1119,7 @@ int listingOfLocalVendorsandProducts() {
 
         case 7: // Brent's Method
             while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
                     printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
                         product.productName, product.price, product.quantity, product.season);
                     productFound = 1;
@@ -1147,6 +1151,38 @@ int listingOfLocalVendorsandProducts() {
     getchar();  // Tamponu temizlemek için tekrar
 
     return 0;
+}
+
+// Bu iki satır asıl tanımlardır, hafızada yer kaplayacaklar.
+SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
+int sparseMatrixSize = 0;
+
+// Vendor ve ürün arasındaki ilişkileri ekleyen fonksiyon
+void addVendorProductRelation(int vendorId, int productId, float price) {
+
+    if (price == 0) {
+        return;
+    }
+    // Sparse matrise yeni bir ilişki ekliyoruz
+    sparseMatrix[sparseMatrixSize].vendorId = vendorId;
+    sparseMatrix[sparseMatrixSize].productId = productId;
+    sparseMatrix[sparseMatrixSize].price = price;
+    sparseMatrixSize++;
+}
+
+// Belirli bir vendor'un ürünlerini listeleyen fonksiyon
+void listProductsByVendor(int vendorId) {
+    printf("\n--- Products offered by Vendor %d ---\n", vendorId);
+    int found = 0;
+    for (int i = 0; i < sparseMatrixSize; i++) {
+        if (sparseMatrix[i].vendorId == vendorId) {
+            printf("Product ID: %d, Price: %.2f\n", sparseMatrix[i].productId, sparseMatrix[i].price);
+            found = 1;
+        }
+    }
+    if (!found) {
+        printf("No products found for Vendor %d.\n", vendorId);
+    }
 }
 
 

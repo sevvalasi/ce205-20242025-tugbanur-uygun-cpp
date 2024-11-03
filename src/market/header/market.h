@@ -7,6 +7,8 @@
 #ifndef MARKET_H
 #define MARKET_H
 #define BUCKET_SIZE 5
+#define MAX_VENDORS 100
+#define MAX_PRODUCTS 100
 
 
 #include <iostream>
@@ -71,6 +73,15 @@ struct Node {
     int neighborCount;    // Komşu sayısı
 };
 
+typedef struct {
+    int vendorId;
+    int productId;
+    float price;
+} SparseMatrixEntry;
+
+extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
+extern int sparseMatrixSize;
+
 
 bool validateDay(const char* day);
 
@@ -111,6 +122,8 @@ int progressiveOverflowSearch(int key);
 int useOfBucketsSearch(int key);
 int brentsMethodSearch(int key);
 int listingOfLocalVendorsandProducts();
+void addVendorProductRelation(int vendorId, int productId, float price);
+void listProductsByVendor(int vendorId);
 
 int addMarketHoursAndLocation();
 int displayMarketHoursAndLocations();
