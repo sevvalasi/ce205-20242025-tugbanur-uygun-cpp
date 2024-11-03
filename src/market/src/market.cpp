@@ -20,6 +20,8 @@
 #include <unordered_map>  //hash table 
 #include <queue>          //hash table
 #include <functional>     //hash table
+
+#include <limits.h> // Tarjan algoritması için INT_MAX kullanımı
 #define TABLE_SIZE 100
 #define OVERFLOW_SIZE 20
 #define BUCKET_SIZE 5
@@ -566,6 +568,10 @@ int enterKeywords() {
     if (!found) {
         printf("No matches found for keyword '%s'.\n", keyword);
     }
+    // SCC Algoritmasını çalıştırma
+   // SCC, Tarjan's veya Kosaraju'nun algoritmalarından biri kullanılarak bulunabilir
+    printf("\nFinding Strongly Connected Components (SCC)...\n");
+    findSCC(nodes, nodeCount);
 
     // Dinamik olarak oluşturulan düğümleri temizleme
     for (int i = 0; i < nodeCount; ++i) {
@@ -580,7 +586,16 @@ int enterKeywords() {
 
     return 0;
 }
+void findSCC(Node* nodes[], int nodeCount) {
+    // Bu kısımda Kosaraju veya Tarjan algoritmasını ekleyerek SCC bulabilirsiniz.
+    // Örneğin: Tarjan's Algorithm
+    // - Düğüm için discovery time, low value tutma ve stack kullanarak SCC bulunur.
 
+    // Pseudo code placeholder for SCC:
+    // - Tüm düğümler için discovery zamanını ve low value'yi takip et
+    // - Stack kullanarak, SCC'leri tespit et ve ekrana yazdır
+    // Bu kısımda detaylı bir SCC implementasyonu eklenmeli.
+}
 
 // Kullanıcı giriş fonksiyonu
 bool loginUser() {
