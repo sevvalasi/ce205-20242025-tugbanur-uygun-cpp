@@ -6,6 +6,8 @@
 
 #ifndef MARKET_H
 #define MARKET_H
+#define MAX_KEYS 3 // B+ ağacı için maksimum anahtar sayısı
+#define MIN_KEYS (MAX_KEYS / 2)
 
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
@@ -47,6 +49,17 @@ struct Node {
 };
 
 
+// B+ Tree Node yapısı
+typedef struct BPlusTreeNode {
+    bool isLeaf;
+    int keys[MAX_KEYS];
+    struct BPlusTreeNode* children[MAX_KEYS + 1];
+    int keyCount;
+    struct BPlusTreeNode* next; // Yaprak düğümler arasındaki bağlantı
+} BPlusTreeNode;
+
+
+
 bool validateDay(const char* day);
 
 int getInput();
@@ -83,6 +96,8 @@ int searchProductsOrEnterKeyword();
 int enterSearchProducts();
 int enterKeywords();
 int priceComparis();
+BPlusTreeNode* insertInternal(BPlusTreeNode* root, int key, BPlusTreeNode* child);
+
 
 // Diğer gerekli kütüphaneler ve yapı tanımları
 int comparePricesByName(const char* productName);  // comparePricesByName için prototip
