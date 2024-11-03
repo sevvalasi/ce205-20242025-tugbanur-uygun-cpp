@@ -6,9 +6,11 @@
 
 #ifndef MARKET_H
 #define MARKET_H
+
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
+
 
 
 #include <iostream>
@@ -83,6 +85,17 @@ extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 extern int sparseMatrixSize;
 
 
+// B+ Tree Node yapısı
+typedef struct BPlusTreeNode {
+    bool isLeaf;
+    int keys[MAX_KEYS];
+    struct BPlusTreeNode* children[MAX_KEYS + 1];
+    int keyCount;
+    struct BPlusTreeNode* next; // Yaprak düğümler arasındaki bağlantı
+} BPlusTreeNode;
+
+
+
 bool validateDay(const char* day);
 
 int getInput();
@@ -133,6 +146,8 @@ int searchProductsOrEnterKeyword();
 int enterSearchProducts();
 int enterKeywords();
 int priceComparis();
+BPlusTreeNode* insertInternal(BPlusTreeNode* root, int key, BPlusTreeNode* child);
+
 
 // Diğer gerekli kütüphaneler ve yapı tanımları
 int comparePricesByName(const char* productName);  // comparePricesByName için prototip

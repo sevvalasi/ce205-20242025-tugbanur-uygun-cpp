@@ -38,6 +38,12 @@ HashTableEntry overflowArea[OVERFLOW_SIZE];
 Bucket hashTableBuckets[TABLE_SIZE];
 
 
+// B+ Tree yapısı ve ilgili fonksiyonlar
+#define MAX_KEYS 3 // B+ ağacı için maksimum anahtar sayısı
+#define MIN_KEYS (MAX_KEYS / 2)
+
+
+
 
 void clearScreen() {
 #ifdef _WIN32
@@ -1624,5 +1630,176 @@ int displayMarketHoursAndLocations() {
     getchar();
     return 0;
 
+
 }
+
+
+BPlusTreeNode* createNode(bool isLeaf) {
+    BPlusTreeNode* newNode = (BPlusTreeNode*)malloc(sizeof(BPlusTreeNode));
+    newNode->isLeaf = isLeaf;
+    newNode->keyCount = 0;
+    newNode->next = NULL;
+    for (int i = 0; i < MAX_KEYS + 1; i++) {
+        newNode->children[i] = NULL;
+    }
+    return newNode;
+}
+
+
+BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
+    if (root == NULL) {
+        root = createNode(true);
+        root->keys[0] = key;
+        root->keyCount = 1;
+        return root;
+    }
+
+    BPlusTreeNode* current = root;
+    BPlusTreeNode* parent = NULL;
+    while (!current->isLeaf) {
+        parent = current;
+        for (int i = 0; i < current->keyCount; i++) {
+            if (key < current->keys[i]) {
+                current = current->children[i];
+                break;
+            }
+            if (i == current->keyCount - 1) {
+                current = current->children[i + 1];
+                break;
+            }
+        }
+    }
+
+    if (current->keyCount < MAX_KEYS) {
+        int i;
+        for (i = current->keyCount - 1; i >= 0 && current->keys[i] > key; i--) {
+            current->keys[i + 1] = current->keys[i];
+        }
+        current->keys[i + 1] = key;
+        current->keyCount++;
+    }
+    else {
+        BPlusTreeNode* newLeaf = createNode(true);
+        int tempKeys[MAX_KEYS + 1];
+        for (int i = 0; i < MAX_KEYS; i++) {
+            tempKeys[i] = current->keys[i];
+        }
+        int i, j;
+        for (i = MAX_KEYS - 1; i >= 0 && tempKeys[i] > key; i--) {
+            tempKeys[i + 1] = tempKeys[i];
+        }
+        tempKeys[i + 1] = key;
+        current->keyCount = (MAX_KEYS + 1) / 2;
+        newLeaf->keyCount = MAX_KEYS + 1 - current->keyCount;
+        current->next = newLeaf;
+        for (i = 0; i < current->keyCount; i++) {
+            current->keys[i] = tempKeys[i];
+        }
+        for (i = 0, j = current->keyCount; i < newLeaf->keyCount; i++, j++) {
+            newLeaf->keys[i] = tempKeys[j];
+        }
+        if (current == root) {
+            BPlusTreeNode* newRoot = createNode(false);
+            newRoot->keys[0] = newLeaf->keys[0];
+            newRoot->children[0] = current;
+            newRoot->children[1] = newLeaf;
+            newRoot->keyCount = 1;
+            root = newRoot;
+        }
+        else {
+            root = insertInternal(root, newLeaf->keys[0], newLeaf);
+        }
+    }
+
+    return root;
+}
+
+BPlusTreeNode* insertInternal(BPlusTreeNode* root, int key, BPlusTreeNode* child) {
+    if (root->keyCount < MAX_KEYS) {
+        int i;
+        for (i = root->keyCount - 1; i >= 0 && root->keys[i] > key; i--) {
+            root->keys[i + 1] = root->keys[i];
+            root->children[i + 2] = root->children[i + 1];
+        }
+        root->keys[i + 1] = key;
+        root->children[i + 2] = child;
+        root->keyCount++;
+        return root;
+    }
+
+    BPlusTreeNode* newInternal = createNode(false);
+    int tempKeys[MAX_KEYS + 1];
+    BPlusTreeNode* tempChildren[MAX_KEYS + 2];
+    for (int i = 0; i < MAX_KEYS; i++) {
+        tempKeys[i] = root->keys[i];
+    }
+    for (int i = 0; i < MAX_KEYS + 1; i++) {
+        tempChildren[i] = root->children[i];
+    }
+    int i, j;
+    for (i = MAX_KEYS - 1; i >= 0 && tempKeys[i] > key; i--) {
+        tempKeys[i + 1] = tempKeys[i];
+        tempChildren[i + 2] = tempChildren[i + 1];
+    }
+    tempKeys[i + 1] = key;
+    tempChildren[i + 2] = child;
+    root->keyCount = (MAX_KEYS + 1) / 2;
+    newInternal->keyCount = MAX_KEYS - root->keyCount;
+    for (i = 0; i < root->keyCount; i++) {
+        root->keys[i] = tempKeys[i];
+    }
+    for (i = 0; i <= root->keyCount; i++) {
+        root->children[i] = tempChildren[i];
+    }
+    for (i = 0, j = root->keyCount + 1; i < newInternal->keyCount; i++, j++) {
+        newInternal->keys[i] = tempKeys[j];
+    }
+    for (i = 0, j = root->keyCount + 1; i <= newInternal->keyCount; i++, j++) {
+        newInternal->children[i] = tempChildren[j];
+    }
+    if (root == root) {
+        BPlusTreeNode* newRoot = createNode(false);
+        newRoot->keys[0] = tempKeys[root->keyCount];
+        newRoot->children[0] = root;
+        newRoot->children[1] = newInternal;
+        newRoot->keyCount = 1;
+        root = newRoot;
+    }
+    else {
+        root = insertInternal(root, tempKeys[root->keyCount], newInternal);
+    }
+    return root;
+}
+
+void search(BPlusTreeNode* root, int key) {
+    if (root == NULL) {
+        printf("The tree is empty.\n");
+        return;
+    }
+
+    BPlusTreeNode* current = root;
+    while (!current->isLeaf) {
+        for (int i = 0; i < current->keyCount; i++) {
+            if (key < current->keys[i]) {
+                current = current->children[i];
+                break;
+            }
+            if (i == current->keyCount - 1) {
+                current = current->children[i + 1];
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < current->keyCount; i++) {
+        if (current->keys[i] == key) {
+            printf("Key %d found.\n", key);
+            return;
+        }
+    }
+    printf("Key %d not found.\n", key);
+}
+
+
+
 
