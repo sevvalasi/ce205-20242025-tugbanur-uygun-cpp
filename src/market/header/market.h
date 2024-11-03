@@ -17,15 +17,6 @@
 
  
 
- // Haftanın günlerini tanımlayan sabit dizi
-extern const char* daysOfWeek[7];
-// Fonksiyon prototipleri
-int getDayIndex(const char* day); // Günü dizideki sırasına göre döndürür
-char* generateWorkingDays(const char* startDay, int duration); // Döngüsel çalışma günlerini oluşturur
-bool validateWorkingHours(const char* hours); // Çalışma saatlerini doğrular
- // Kullanıcı bilgilerini tutacak yapı (struct)
-
-
 
 struct User {
     char username[50];  // Kullanıcı adı (en fazla 50 karakter)
@@ -46,13 +37,7 @@ struct Product {
     char season[20];       // Ürünün mevsimi
 };
 
-// Çalışma saatleri ve lokasyon bilgilerini içeren yapı
-struct MarketHoursAndLocation {
-    int vendorId;
-    char location[100];
-    char workingHours[50];
-    char workingDays[20];
-};
+
 
 typedef struct {
     int key;
@@ -125,9 +110,6 @@ int listingOfLocalVendorsandProducts();
 void addVendorProductRelation(int vendorId, int productId, float price);
 void listProductsByVendor(int vendorId);
 
-int addMarketHoursAndLocation();
-int displayMarketHoursAndLocations();
-
 
 int searchProductsOrEnterKeyword();
 int enterSearchProducts();
@@ -139,6 +121,36 @@ int comparePricesByName(const char* productName);  // comparePricesByName için 
 int selectProduct(char* selectedProductName);      // selectProduct için prototip
 
 
+// Market Hours structure definition
+typedef struct {
+    int id;
+    char day[20];
+    char hours[20];
+    char location[50];
+} MarketHours;
+
+
+// Function declarations
+bool validateDay(const char* day);
+bool validateWorkingHours(const char* hours);
+
+void addMarketHoursAndLocation();
+void updateMarketHoursAndLocation();
+void displayMarketHoursAndLocations();
+
+
+typedef struct MarketHoursNode {
+    MarketHours data;
+    struct MarketHoursNode* xorPtr; // XOR of previous and next nodes
+} MarketHoursNode;
+
+// Function prototypes
+MarketHoursNode* xor (MarketHoursNode* a, MarketHoursNode* b);
+MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data);
+void traverseXORList(MarketHoursNode* head);
+
+
+void traverseXORList(MarketHoursNode* head);
 
 
 
