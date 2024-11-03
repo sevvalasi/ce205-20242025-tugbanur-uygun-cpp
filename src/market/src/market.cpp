@@ -10,12 +10,22 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <stdio.h>
-#include <stack>
 #include <sstream>
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
 #include <stack>  // Yığın yapısını kullanmak için gerekli (DFS)
+#include <stdint.h>
+#include <float.h> 
+#include <unordered_map>  //hash table 
+#include <queue>          //hash table
+#include <functional>     //hash table
+#define TABLE_SIZE 100
+#define OVERFLOW_SIZE 20
+#define BUCKET_SIZE 5
+#define MAX_VENDORS 100
+#define MAX_PRODUCTS 100
+
 
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
@@ -23,6 +33,9 @@
 // Kullanıcının giriş yapıp yapmadığını tutan değişken
 bool isAuthenticated = false;
 
+HashTableEntry hashTable[TABLE_SIZE];
+HashTableEntry overflowArea[OVERFLOW_SIZE];
+Bucket hashTableBuckets[TABLE_SIZE];
 
 
 // B+ Tree yapısı ve ilgili fonksiyonlar
@@ -184,7 +197,9 @@ do {
     clearScreen();
     printf("\n--- List All Products ---\n");
     printf("1. Add Product \n");
-    printf("2. Listing of Local Products\n");
+    printf("2. Update Product \n");
+    printf("3. Delete Product \n");
+    printf("4. Listing of Local Products\n");
     printf("0. Return to Main Menu\n");
     printf("Choose an option: ");
     choice = getInput();
@@ -194,6 +209,12 @@ do {
         addProduct();
         break;
     case 2:
+        updateProduct();
+        break;
+    case 3:
+        deleteProduct();
+        break;
+    case 4:
         listingOfLocalVendorsandProducts();
         break;
     case 0:
@@ -258,7 +279,6 @@ int priceComparison() {
     return 0;
 }
 
-
 int marketHoursAndLocations() {
     int choice;
 
@@ -295,7 +315,6 @@ int marketHoursAndLocations() {
 
     return 0;
 }
-
 
 
 int searchProductsOrEnterKeyword() {
@@ -757,9 +776,6 @@ int deleteVendor() {
 }
 
 // Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
-#include <unordered_map>
-#include <queue>
-#include <functional>
 
 
 int listVendors() {
@@ -772,16 +788,14 @@ int listVendors() {
         return 1;
     }
 
-    // Satıcıları saklamak için hash tablosu (unordered_map)
-    std::unordered_map<int, Vendor> vendorMap;
-
     // Satıcı ID'lerini min-heap'te saklamak için priority_queue
     auto cmp = [](int left, int right) { return left > right; };
     std::priority_queue<int, std::vector<int>, decltype(cmp)> vendorHeap(cmp);
+    std::vector<Vendor> vendorList;
 
-    // Satıcı dosyasını okuma ve hash tablosuna ekleme
+    // Satıcı dosyasını okuma ve listeye ekleme
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        vendorMap[vendor.id] = vendor;
+        vendorList.push_back(vendor);
         vendorHeap.push(vendor.id);
     }
 
@@ -792,8 +806,12 @@ int listVendors() {
     while (!vendorHeap.empty()) {
         int id = vendorHeap.top();
         vendorHeap.pop();
-        Vendor v = vendorMap[id];
-        printf("ID: %d, Name: %s \n", v.id, v.name);
+        for (const Vendor& v : vendorList) {
+            if (v.id == id) {
+                printf("ID: %d, Name: %s \n", v.id, v.name);
+                break;
+            }
+        }
     }
 
     while (getchar() != '\n');  // Fazladan satır sonunu temizle
@@ -801,6 +819,7 @@ int listVendors() {
     getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
     return 0;
 }
+
 
 
 int addProduct() {
@@ -873,6 +892,118 @@ int addProduct() {
     return 0;
 }
 
+int updateProduct() {
+    FILE* productFile, * tempFile;
+    Product product;
+    char productName[50];
+    int found = 0;
+
+    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    // Güncellemek istediğiniz ürünün adını alıyoruz
+    printf("Enter Product Name to update: ");
+    scanf("%s", productName);
+
+    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, productName) == 0) {
+            found = 1;
+            // Yeni ürün bilgilerini alıyoruz
+            printf("Enter new Product Name: ");
+            scanf("%s", product.productName);
+            printf("Enter new Product Price: ");
+            scanf("%f", &product.price);
+            printf("Enter new Product Quantity: ");
+            scanf("%d", &product.quantity);
+            printf("Enter new Product Season: ");
+            scanf("%s", product.season);
+        }
+        fwrite(&product, sizeof(Product), 1, tempFile); // Ürünü geçici dosyaya yaz
+    }
+
+    fclose(productFile);
+    fclose(tempFile);
+
+    if (!found) {
+        printf("Product with name %s not found.\n", productName);
+        remove("temp.bin"); // Geçici dosyayı sil
+    }
+    else {
+        remove("products.bin"); // Orijinal dosyayı sil
+        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+        printf("Product updated successfully!\n");
+    }
+
+    printf("Press Enter to continue...");
+    getchar();
+    getchar();
+
+    return 0;
+}
+
+int deleteProduct() {
+    FILE* productFile, * tempFile;
+    Product product;
+    char productName[50];
+    int found = 0;
+
+    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    // Silmek istediğiniz ürünün adını alıyoruz
+    printf("Enter Product Name to delete: ");
+    scanf("%s", productName);
+
+    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (strcmp(product.productName, productName) == 0) {
+            found = 1;
+            printf("Product with name %s deleted successfully!\n", productName);
+            continue; // Silinecek ürünü atla
+        }
+        fwrite(&product, sizeof(Product), 1, tempFile); // Diğer ürünleri geçici dosyaya yaz
+    }
+
+    fclose(productFile);
+    fclose(tempFile);
+
+    if (!found) {
+        printf("Product with name %s not found.\n", productName);
+        remove("temp.bin"); // Geçici dosyayı sil
+    }
+    else {
+        remove("products.bin"); // Orijinal dosyayı sil
+        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+    }
+
+    printf("Press Enter to continue...");
+    getchar();
+    getchar();
+
+    return 0;
+}
+
 
 // Tüm satıcıların ürünlerini listeleyen fonksiyon
 int listingOfLocalVendorsandProducts() {
@@ -904,17 +1035,108 @@ int listingOfLocalVendorsandProducts() {
         printf("\nVendor: %s (ID: %d)\n", vendor.name, vendor.id);
         printf("--------------------------\n");
 
-        // Her satıcı için ürünleri bulmak için ürün dosyasını baştan okuyalım
+        // Kullanıcıya arama yöntemi seçtir
+        int strategy;
+        printf("Select Collision Resolution Strategy for Vendor %d:\n", vendor.id);
+        printf("1. Linear Probing\n");
+        printf("2. Quadratic Probing\n");
+        printf("3. Double Hashing\n");
+        printf("4. Linear Quotient\n");
+        printf("5. Progressive Overflow\n");
+        printf("6. Use of Buckets\n");
+        printf("7. Brent's Method\n");
+        scanf("%d", &strategy);
+
+        // Ürünleri bulmak için uygun çakışma çözümleme algoritmasını kullan
+        // Ürün dosyasını baştan itibaren okumak için rewind kullanıyoruz
         rewind(productFile);
         int productFound = 0;
 
-        while (fread(&product, sizeof(Product), 1, productFile)) {
-            if (product.vendorId == vendor.id) {
-                printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                    product.productName, product.price, product.quantity, product.season);
-                found = 1;
-                productFound = 1;
+
+        // Ürün dosyasını baştan sona tarayarak ürünleri listeleme işlemi
+        rewind(productFile);
+
+        switch (strategy) {
+        case 1: // Lineer Probing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
             }
+            break;
+
+        case 2: // Karesel Probing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 3: // Çift Hashing
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 4: // Linear Quotient
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 5: // Progressive Overflow
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 6: // Use of Buckets
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        case 7: // Brent's Method
+            while (fread(&product, sizeof(Product), 1, productFile)) {
+                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                        product.productName, product.price, product.quantity, product.season);
+                    productFound = 1;
+                    found = 1;
+                }
+            }
+            break;
+
+        default:
+            printf("Invalid strategy selected.\n");
+            break;
         }
 
         if (!productFound) {
@@ -935,6 +1157,118 @@ int listingOfLocalVendorsandProducts() {
     getchar();  // Tamponu temizlemek için tekrar
 
     return 0;
+}
+
+// Bu iki satır asıl tanımlardır, hafızada yer kaplayacaklar.
+SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
+int sparseMatrixSize = 0;
+
+// Vendor ve ürün arasındaki ilişkileri ekleyen fonksiyon
+void addVendorProductRelation(int vendorId, int productId, float price) {
+
+    if (price == 0) {
+        return;
+    }
+    // Sparse matrise yeni bir ilişki ekliyoruz
+    sparseMatrix[sparseMatrixSize].vendorId = vendorId;
+    sparseMatrix[sparseMatrixSize].productId = productId;
+    sparseMatrix[sparseMatrixSize].price = price;
+    sparseMatrixSize++;
+}
+
+// Belirli bir vendor'un ürünlerini listeleyen fonksiyon
+void listProductsByVendor(int vendorId) {
+    printf("\n--- Products offered by Vendor %d ---\n", vendorId);
+    int found = 0;
+    for (int i = 0; i < sparseMatrixSize; i++) {
+        if (sparseMatrix[i].vendorId == vendorId) {
+            printf("Product ID: %d, Price: %.2f\n", sparseMatrix[i].productId, sparseMatrix[i].price);
+            found = 1;
+        }
+    }
+    if (!found) {
+        printf("No products found for Vendor %d.\n", vendorId);
+    }
+}
+
+
+// Hash Fonksiyonu
+int hashFunction(int key) {
+    return key % TABLE_SIZE;
+}
+
+// Progressive Overflow
+void initializeHashTable() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable[i].isOccupied = 0;
+        hashTableBuckets[i].productCount = 0;
+    }
+    for (int i = 0; i < OVERFLOW_SIZE; i++) {
+        overflowArea[i].isOccupied = 0;
+    }
+}
+
+// Lineer Probing
+int linearProbing(int key, int i) {
+    return (key + i) % TABLE_SIZE;
+}
+
+// Karesel Probing
+int quadraticProbing(int key, int i) {
+    return (key + i * i) % TABLE_SIZE;
+}
+
+// Çift Hashing
+int doubleHashing(int key, int i) {
+    int h1 = key % TABLE_SIZE;
+    int h2 = 1 + (key % (TABLE_SIZE - 1));
+    return (h1 + i * h2) % TABLE_SIZE;
+}
+
+// Linear Quotient
+int linearQuotient(int key, int i) {
+    return (key + i * 7) % TABLE_SIZE;
+}
+
+// Progressive Overflow Arama
+int progressiveOverflowSearch(int key) {
+    for (int i = 0; i < OVERFLOW_SIZE; i++) {
+        if (overflowArea[i].isOccupied && overflowArea[i].key == key) {
+            return i + TABLE_SIZE;
+        }
+    }
+    return -1;
+}
+
+// Bucket Kullanımı Arama
+int useOfBucketsSearch(int key) {
+    int index = hashFunction(key);
+    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
+        if (hashTableBuckets[index].products[i].vendorId == key) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+// Brent's Method
+int brentsMethodSearch(int key) {
+    int index = hashFunction(key);
+    int i = 0;
+    while (hashTable[index].isOccupied) {
+        if (hashTable[index].key == key) {
+            return index;
+        }
+        int newIndex = linearProbing(key, i);
+        if (!hashTable[newIndex].isOccupied) {
+            return -1;
+        }
+        i++;
+        if (i >= TABLE_SIZE) {
+            break;
+        }
+    }
+    return -1;
 }
 
 
@@ -973,138 +1307,6 @@ bool validateWorkingHours(const char* hours) {
     return true;
 }
 
-
-
-int addMarketHoursAndLocation() {
-    FILE* file;
-    MarketHoursAndLocation marketInfo;
-    int vendorId;
-    int found = 0;
-
-    FILE* vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Vendor file not found.\n");
-        return 1;
-    }
-
-    printf("Enter Vendor ID to add working hours and location: ");
-    if (scanf("%d", &vendorId) != 1) {
-        printf("Invalid input for Vendor ID. Exiting function.\n");
-        fclose(vendorFile);
-        while (getchar() != '\n');  // Tamponu temizle
-        return 1;
-    }
-    while (getchar() != '\n');  // Tamponu temizle
-
-    Vendor vendor;
-    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-        if (vendor.id == vendorId) {
-            found = 1;
-            break;
-        }
-    }
-    fclose(vendorFile);
-
-    if (!found) {
-        printf("Vendor with ID %d not found.\n", vendorId);
-        return 1;
-    }
-
-    marketInfo.vendorId = vendorId;
-
-    printf("Enter Location: ");
-    if (scanf(" %[^\n]s", marketInfo.location) != 1) {
-        printf("Invalid input for Location. Exiting function.\n");
-        return 1;
-    }
-    while (getchar() != '\n');  // Tamponu temizle
-
-    do {
-        printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
-        if (scanf(" %[^\n]s", marketInfo.workingHours) != 1) {
-            printf("Invalid input for Working Hours. Exiting function.\n");
-            return 1;
-        }
-        if (!validateWorkingHours(marketInfo.workingHours)) {
-            printf("Invalid working hours format. Please use HH:MM - HH:MM format.\n");
-        }
-    } while (!validateWorkingHours(marketInfo.workingHours));
-    while (getchar() != '\n');  // Tamponu temizle
-
-    char day[20];
-    char allDays[200] = "";  // Tüm günleri birleştirip kaydedeceğiz
-    do {
-        printf("Enter a Working Day (e.g., Monday): ");
-        scanf(" %[^\n]s", day);
-        getchar();  // Tamponu temizler
-
-        if (validateDay(day)) {
-            if (strlen(allDays) > 0) {
-                strcat(allDays, ", ");  // Günleri virgülle ayırmak için
-            }
-            strcat(allDays, day);  // Günü listeye ekle
-            printf("Day added. Do you want to add another day? (Press Enter to skip, or type 'y' to continue): ");
-            if (getchar() == '\n') {
-                break;  // Enter basıldığında döngüden çık
-            }
-        }
-        else {
-            printf("Invalid day format. Please enter a full day name (e.g., Monday).\n");
-        }
-    } while (1);  // Sonsuz döngü; Enter basıldığında kırılacak
-
-    strcpy(marketInfo.workingDays, allDays);  // Tüm günleri marketInfo içine kaydediyoruz
-
-    file = fopen("market_hours.bin", "ab");
-    if (file == NULL) {
-        printf("Error opening market hours file.\n");
-        return 1;
-    }
-
-    fwrite(&marketInfo, sizeof(MarketHoursAndLocation), 1, file);
-    fclose(file);
-
-    printf("Market hours and location added successfully!\n");
-    getchar();
-    return 0;
-}
-
-
-int displayMarketHoursAndLocations() {
-    FILE* file;
-    MarketHoursAndLocation marketInfo;
-
-    file = fopen("market_hours.bin", "rb");
-    if (file == NULL) {
-        printf("No market hours and locations found.\n");
-        return 1;
-    }
-
-    printf("\n--- Market Hours and Locations ---\n");
-
-    while (fread(&marketInfo, sizeof(MarketHoursAndLocation), 1, file)) {
-        printf("Vendor ID: %d\n", marketInfo.vendorId);
-        printf("Location: %s\n", marketInfo.location);
-        printf("Working Hours: %s\n", marketInfo.workingHours);
-        printf("Working Days: %s\n", marketInfo.workingDays);
-        printf("-------------------------\n");
-    }
-
-    fclose(file);
-    printf("Press Enter to return to menu...");
-    getchar();
-    return 0;
-}
-
-// Diğer fonksiyonlarınız burada
-
-int priceComparis() {
-    // Burada yapacağınız işlemleri tanımlayın
-    printf("Price comparison functionality.\n");
-    return 0; // Fonksiyonun başarılı bir şekilde çalıştığını belirtmek için 0 döndürüyoruz.
-}
-
-// Diğer fonksiyonlar burada devam ediyor
 
 int selectProduct(char* selectedProductName) {
     FILE* productFile;
@@ -1161,11 +1363,52 @@ int selectProduct(char* selectedProductName) {
     return 0; // İşlem başarılıysa 0 döndür
 }
 
+// Heapify fonksiyonu
+void heapify(Product arr[], int n, int i) {
+    int largest = i; // En büyük elemanı kök olarak başlatıyoruz
+    int left = 2 * i + 1; // Sol çocuk
+    int right = 2 * i + 2; // Sağ çocuk
 
+    // Sol çocuğun kökten büyük olup olmadığını kontrol et
+    if (left < n && arr[left].price > arr[largest].price)
+        largest = left;
+
+    // Sağ çocuğun kökten büyük olup olmadığını kontrol et
+    if (right < n && arr[right].price > arr[largest].price)
+        largest = right;
+
+    // Eğer en büyük eleman kök değilse
+    if (largest != i) {
+        Product temp = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = temp;
+
+        // Alt ağaçta heapify uygula
+        heapify(arr, n, largest);
+    }
+}
+
+// Heap sort fonksiyonu
+void heapSort(Product arr[], int n) {
+    // Dizi için max-heap oluştur
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+
+    // Elemanları teker teker heap'ten çek
+    for (int i = n - 1; i >= 0; i--) {
+        Product temp = arr[0];
+        arr[0] = arr[i];
+        arr[i] = temp;
+
+        // Kalan ağaç için heapify uygula
+        heapify(arr, i, 0);
+    }
+}
 
 int comparePricesByName(const char* productName) {
     FILE* productFile;
-    Product product;
+    Product products[100]; // Maksimum 100 ürün kabul ediliyor
+    int productCount = 0;
     bool found = false;
 
     productFile = fopen("products.bin", "rb");
@@ -1174,41 +1417,220 @@ int comparePricesByName(const char* productName) {
         return 1;  // Hata durumunda 1 döndür
     }
 
-
-    float minPrice = FLT_MAX; // En düşük fiyat için başlangıç değeri
-    float maxPrice = FLT_MIN; // En yüksek fiyat için başlangıç değeri
-
-    printf("\n--- Price Comparison for Product Name '%s' ---\n", productName);
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (strcmp(product.productName, productName) == 0) {
-            printf("Vendor ID: %d, Price: %.2f\n", product.vendorId, product.price);
-
-
-              found = true;
-
-
-
-            if (product.price < minPrice) {
-                minPrice = product.price;
-            }
-            if (product.price > maxPrice) {
-                maxPrice = product.price;
-            }
+    // Dosyadan ürünleri oku ve verilen isimle eşleşenleri products dizisine ekle
+    while (fread(&products[productCount], sizeof(Product), 1, productFile)) {
+        if (strcmp(products[productCount].productName, productName) == 0) {
+            productCount++;
             found = true;
         }
     }
 
     fclose(productFile);
 
-    if (found) {
-        printf("\nLowest Price: %.2f\n", minPrice);
-        printf("Highest Price: %.2f\n", maxPrice);
-        return 0;  // Başarılı işlem için 0 döndür
+    if (!found) {
+        printf("No prices found for Product Name '%s'.\n", productName);
+        return 1;  // Ürün bulunamazsa 1 döndür
+    }
+
+    // Ürünleri fiyata göre sırala (heap sort kullanarak)
+    heapSort(products, productCount);
+
+    // Sıralanmış ürünleri yazdır
+    printf("\n--- Price Comparison for Product Name '%s' (Sorted by Price) ---\n", productName);
+    for (int i = 0; i < productCount; i++) {
+        printf("Vendor ID: %d, Price: %.2f\n", products[i].vendorId, products[i].price);
+    }
+
+    printf("\nLowest Price: %.2f\n", products[0].price);
+    printf("Highest Price: %.2f\n", products[productCount - 1].price);
+
+    return 0;  // Başarılı işlem için 0 döndür
+}
+
+
+
+//CSS (Circular Scheduling Selection) algoritması, genellikle belirli gün ve saatlerde çalışması gereken görevleri veya iş süreçlerini döngüsel olarak planlamak için kullanılır.
+// bir marketin çalışma günlerini haftalık olarak belirlemek için CSS algoritmasından yararlanabiliriz.
+
+
+
+// Haftanın günlerini belirten sabit dizi
+const char* daysOfWeek[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+
+// Günlerin indeksini döndüren fonksiyon
+#include <ctype.h> // tolower() fonksiyonu için gerekli
+
+int getDayIndex(const char* day) {
+    char lowerDay[20];
+    int i;
+
+    // Kullanıcıdan alınan günü küçük harfe çeviriyoruz
+    for (i = 0; day[i] != '\0' && i < sizeof(lowerDay) - 1; ++i) {
+        lowerDay[i] = tolower(day[i]);
+    }
+    lowerDay[i] = '\0'; // Dizinin sonuna null karakteri ekliyoruz
+
+    // Haftanın günlerini tanımlayan sabit dizi
+    const char* daysOfWeek[7] = { "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" };
+
+    for (int i = 0; i < 7; ++i) {
+        if (strcmp(lowerDay, daysOfWeek[i]) == 0) {
+            return i;
+        }
+    }
+    return -1; // Geçersiz gün
+}
+
+
+// Döngüsel çalışma günlerini oluşturan fonksiyon
+char* generateWorkingDays(const char* startDay, int duration) {
+    static char workingDays[200]; // Çıktı dizisi, döngüsel bir dizide saklanır
+    int startIndex = getDayIndex(startDay);
+    if (startIndex == -1) {
+        printf("Invalid starting day.\n");
+        return NULL; // Geçersiz gün ismi durumunda NULL döndür
+    }
+
+    workingDays[0] = '\0'; // Çıktı dizisini sıfırla
+
+    // Döngüsel olarak gün ekleme
+    for (int i = 0; i < duration; i++) {
+        int currentIndex = (startIndex + i) % 7;
+        if (i > 0) {
+            strcat(workingDays, ", ");
+        }
+        strcat(workingDays, daysOfWeek[currentIndex]);
+    }
+    return workingDays; // Gün dizisini döndür
+}
+
+// Market saatleri ve lokasyon bilgisi ekleyen fonksiyon
+int addMarketHoursAndLocation() {
+    FILE* vendorFile;
+    MarketHoursAndLocation marketInfo;
+    int vendorId;
+    int found = 0;
+
+    vendorFile = fopen("vendor.bin", "rb");
+    if (vendorFile == NULL) {
+        printf("Vendor file not found.\n");
+        return 1;
+    }
+
+    // Kullanıcıdan Vendor ID'yi alma
+    printf("Enter Vendor ID to add working hours and location: ");
+    if (scanf("%d", &vendorId) != 1) {
+        printf("Invalid input for Vendor ID. Exiting function.\n");
+        fclose(vendorFile);
+        while (getchar() != '\n');  // Tamponu temizle
+        return 1;
+    }
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // Vendor dosyasından ID'yi kontrol etme
+    Vendor vendor;
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+        if (vendor.id == vendorId) {
+            found = 1;
+            break;
+        }
+    }
+    fclose(vendorFile);
+
+    if (!found) {
+        printf("Vendor with ID %d not found.\n", vendorId);
+        return 1;
+    }
+
+    // MarketInfo yapısının vendorId kısmını doldurma
+    marketInfo.vendorId = vendorId;
+
+    // Kullanıcıdan Lokasyon ve Çalışma Saatleri bilgilerini alma
+    printf("Enter Location: ");
+    if (scanf(" %[^\n]s", marketInfo.location) != 1) {
+        printf("Invalid input for Location. Exiting function.\n");
+        return 1;
+    }
+    while (getchar() != '\n');  // Tamponu temizle
+
+    do {
+        printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
+        if (scanf(" %[^\n]s", marketInfo.workingHours) != 1) {
+            printf("Invalid input for Working Hours. Exiting function.\n");
+            return 1;
+        }
+        if (!validateWorkingHours(marketInfo.workingHours)) {
+            printf("Invalid working hours format. Please use HH:MM - HH:MM format.\n");
+        }
+    } while (!validateWorkingHours(marketInfo.workingHours));
+    while (getchar() != '\n');  // Tamponu temizle
+
+    // CSS Algoritması kullanarak döngüsel çalışma günlerini ekle
+    char startDay[20];
+    int duration;
+    printf("Enter the starting day for working days (e.g., Monday): ");
+    scanf(" %[^\n]s", startDay);
+    printf("Enter the number of working days: ");
+    scanf("%d", &duration);
+
+    // Çalışma günlerini döngüsel olarak oluştur ve kaydet
+    const char* workingDays = generateWorkingDays(startDay, duration);
+    if (workingDays == NULL) {
+        printf("Failed to generate working days.\n");
+        return 1;
+    }
+    strcpy(marketInfo.workingDays, workingDays);
+
+    // Market hours dosyasını açma ve marketInfo'yu dosyaya yazma
+    FILE* file = fopen("market_hours.bin", "ab");
+    if (file == NULL) {
+        printf("Error opening market hours file.\n");
+        return 1;
+    }
+
+    // Dosyaya yazma ve hata kontrolü
+    if (fwrite(&marketInfo, sizeof(MarketHoursAndLocation), 1, file) != 1) {
+        printf("Error writing to market hours file.\n");
+        fclose(file);
+        return 1; // Eğer yazma işlemi başarısız olursa burada işlem durdurulacak
     }
     else {
-        printf("No prices found for Product Name '%s'.\n", productName);
-        return 1;  // Ürün bulunamazsa 1 döndür
+        printf("Market hours and location added successfully!\n");
     }
+
+    fclose(file);
+    getchar();  // Kullanıcının bir tuşa basmasını bekleyin
+    return 0;
+}
+
+
+int displayMarketHoursAndLocations() {
+    FILE* file;
+    MarketHoursAndLocation marketInfo;
+
+    file = fopen("market_hours.bin", "rb");
+    if (file == NULL) {
+        printf("No market hours and locations found.\n");
+        return 1;
+    }
+
+    printf("\n--- Market Hours and Locations ---\n");
+
+    // Dosyadaki her market verisini tek tek okuyup ekrana yazdırma
+    while (fread(&marketInfo, sizeof(MarketHoursAndLocation), 1, file)) {
+        printf("Vendor ID: %d\n", marketInfo.vendorId);
+        printf("Location: %s\n", marketInfo.location);
+        printf("Working Hours: %s\n", marketInfo.workingHours);
+        printf("Working Days: %s\n", marketInfo.workingDays);
+        printf("-------------------------\n");
+    }
+
+    fclose(file);
+    printf("Press Enter to return to menu...");
+    getchar();
+    return 0;
+
+
 }
 
 
