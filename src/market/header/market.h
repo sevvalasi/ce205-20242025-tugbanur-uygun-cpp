@@ -10,6 +10,8 @@
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
+#define MAX_KEYS 3
+#define MIN_KEYS (MAX_KEYS / 2)
 
 
 
@@ -93,6 +95,7 @@ typedef struct BPlusTreeNode {
     int keyCount;
     struct BPlusTreeNode* next; // Yaprak düğümler arasındaki bağlantı
 } BPlusTreeNode;
+
 
 
 
