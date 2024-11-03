@@ -15,7 +15,10 @@
 #include "../../utility/header/commonTypes.h"
 
 
- 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 
 
 struct User {
@@ -50,7 +53,13 @@ typedef struct {
     int productCount;
 } Bucket;
 
-
+// Çalışma saatleri ve lokasyon bilgileri
+struct MarketHoursAndLocation {
+    int vendorId;
+    char location[100];
+    char workingHours[50];
+    char workingDays[20];
+};
 // DFS için kullanıldı 
 struct Node {
     char* info;           // Ürün veya satıcı bilgisi
@@ -64,8 +73,14 @@ typedef struct {
     float price;
 } SparseMatrixEntry;
 
+// Haftanın günlerini tanımlayan sabit dizi
+extern const char* daysOfWeek[7];
 extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 extern int sparseMatrixSize;
+// Fonksiyon prototipleri
+int getDayIndex(const char* day);
+char* generateWorkingDays(const char* startDay, int duration);
+bool validateWorkingHours(const char* hours);
 
 
 bool validateDay(const char* day);
@@ -152,7 +167,8 @@ void traverseXORList(MarketHoursNode* head);
 
 void traverseXORList(MarketHoursNode* head);
 
+// Diğer gerekli prototipler
 
 
-
+void findSCC(struct Node* nodes[], int nodeCount);
 #endif // MARKET_H
