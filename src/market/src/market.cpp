@@ -999,6 +999,45 @@ int deleteVendor() {
 // Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
 
 
+DoublyLinkedListNode* head = NULL;
+
+// Satıcı ekleme fonksiyonu (çift yönlü bağlı listeye sıralı ekleme)
+void insertVendor(Vendor newVendor) {
+    DoublyLinkedListNode* newNode = (DoublyLinkedListNode*)malloc(sizeof(DoublyLinkedListNode));
+    newNode->vendor = newVendor;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+
+    if (head == NULL) { // Liste boşsa
+        head = newNode;
+    }
+    else {
+        DoublyLinkedListNode* current = head;
+        DoublyLinkedListNode* previous = NULL;
+
+        // Satıcıları ID'ye göre sıralı eklemek için uygun yeri bulma
+        while (current != NULL && current->vendor.id < newVendor.id) {
+            previous = current;
+            current = current->next;
+        }
+
+        if (previous == NULL) { // En başa ekleme durumu
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
+        }
+        else { // Ortada veya sonda ekleme
+            newNode->next = current;
+            newNode->prev = previous;
+            previous->next = newNode;
+            if (current != NULL) {
+                current->prev = newNode;
+            }
+        }
+    }
+}
+
+// Satıcıları listeleme fonksiyonu (ileri ve geri gezinme özellikli)
 int listVendors() {
     FILE* file;
     Vendor vendor;
@@ -1009,35 +1048,61 @@ int listVendors() {
         return 1;
     }
 
-    // Satıcı ID'lerini min-heap'te saklamak için priority_queue
-    auto cmp = [](int left, int right) { return left > right; };
-    std::priority_queue<int, std::vector<int>, decltype(cmp)> vendorHeap(cmp);
-    std::vector<Vendor> vendorList;
-
-    // Satıcı dosyasını okuma ve listeye ekleme
+    // Dosyadaki satıcıları bağlı listeye ekleme
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        vendorList.push_back(vendor);
-        vendorHeap.push(vendor.id);
+        insertVendor(vendor);
     }
 
     fclose(file);
 
-    // Sıralanmış ID'lere göre satıcıları yazdırma
-    printf("\n--- List of Vendors Sorted by ID ---\n");
-    while (!vendorHeap.empty()) {
-        int id = vendorHeap.top();
-        vendorHeap.pop();
-        for (const Vendor& v : vendorList) {
-            if (v.id == id) {
-                printf("ID: %d, Name: %s \n", v.id, v.name);
-                break;
+    // İleri ve geri gezinme
+    printf("\n--- List of Vendors ---\n");
+    DoublyLinkedListNode* current = head;
+    char choice;
+
+
+    while (current != NULL) {
+        printf("ID: %d, Name: %s\n", current->vendor.id, current->vendor.name);
+        printf("\n'n' for Next, 'p' for Previous, 'q' to Quit: ");
+        scanf(" %c", &choice); // ' %c' ile boşluk ekleyerek önceki \n karakterini temizliyoruz.
+        clearScreen();
+
+        if (choice == 'n') {
+            if (current->next != NULL) {
+                current = current->next;
             }
+            else {
+                printf("No more vendors in this direction.\n");
+            }
+        }
+        else if (choice == 'p') {
+            if (current->prev != NULL) {
+                current = current->prev;
+            }
+            else {
+                printf("No more vendors in this direction.\n");
+            }
+        }
+        else if (choice == 'q') {
+            break;
+        }
+        else {
+            printf("Invalid input. Please use 'n', 'p', or 'q'.\n");
         }
     }
 
-    while (getchar() != '\n');  // Fazladan satır sonunu temizle
-    printf("Press Enter to return to menu...");
-    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+
+    // Hafızayı temizleme
+    current = head;
+    while (current != NULL) {
+        DoublyLinkedListNode* temp = current;
+        current = current->next;
+        free(temp);
+    }
+    head = NULL;
+
+    // Menüye dönme bildirimi
+    printf("Returning to menu...\n");
     return 0;
 }
 

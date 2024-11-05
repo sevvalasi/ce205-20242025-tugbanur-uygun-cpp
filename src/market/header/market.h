@@ -198,4 +198,13 @@ void traverseXORList(MarketHoursNode* head);
 
 
 void findSCC(struct Node* nodes[], int nodeCount);
+
+// Çift yönlü bağlı liste düğümü
+typedef struct DoublyLinkedListNode {
+    Vendor vendor;
+    struct DoublyLinkedListNode* next;
+    struct DoublyLinkedListNode* prev;
+} DoublyLinkedListNode;
+
+
 #endif // MARKET_H
