@@ -12,6 +12,7 @@
 #define MAX_TREE_HT 100
 
 
+
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
 
@@ -96,6 +97,7 @@ struct MinHeap {
     unsigned capacity;
     struct MinHeapNode** array;
 };
+
 
 
 bool validateDay(const char* day);
