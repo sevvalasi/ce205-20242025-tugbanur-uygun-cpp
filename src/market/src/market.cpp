@@ -29,6 +29,9 @@
 #define MAX_PRODUCTS 100
 #define MAX_TREE_HT 100
 
+#define MAX_KEYS 3
+#define MIN_KEYS (MAX_KEYS / 2)
+
 
 
 #include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
@@ -1700,7 +1703,100 @@ int comparePricesByName(const char* productName) {
     return 0;  // Başarılı işlem için 0 döndür
 }
 
+// Yeni bir B+ Tree Node oluşturan fonksiyon
+BPlusTreeNode* createNode(bool isLeaf) {
+    BPlusTreeNode* newNode = (BPlusTreeNode*)malloc(sizeof(BPlusTreeNode));
+    newNode->isLeaf = isLeaf;
+    newNode->keyCount = 0;
+    newNode->next = NULL;
+    for (int i = 0; i < MAX_KEYS + 1; i++) {
+        newNode->children[i] = NULL;
+    }
+    return newNode;
+}
 
+// B+ Tree'ye anahtar ekleyen fonksiyon
+BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
+    if (root == NULL) {
+        root = createNode(true);
+        root->keys[0] = key;
+        root->keyCount = 1;
+        return root;
+    }
+
+    BPlusTreeNode* current = root;
+    BPlusTreeNode* parent = NULL;
+    while (!current->isLeaf) {
+        parent = current;
+        for (int i = 0; i < current->keyCount; i++) {
+            if (key < current->keys[i]) {
+                current = current->children[i];
+                break;
+            }
+            if (i == current->keyCount - 1) {
+                current = current->children[i + 1];
+                break;
+            }
+        }
+    }
+
+    // Yaprağa ulaşıldı, anahtarı ekle
+    int i = current->keyCount - 1;
+    while (i >= 0 && current->keys[i] > key) {
+        current->keys[i + 1] = current->keys[i];
+        i--;
+    }
+    current->keys[i + 1] = key;
+    current->keyCount++;
+
+    // Yaprak dolduysa bölme işlemi
+    if (current->keyCount == MAX_KEYS) {
+        BPlusTreeNode* newLeaf = createNode(true);
+        int mid = (MAX_KEYS + 1) / 2;
+        current->keyCount = mid;
+        for (int j = mid; j < MAX_KEYS; j++) {
+            newLeaf->keys[j - mid] = current->keys[j];
+        }
+        newLeaf->keyCount = MAX_KEYS - mid;
+        newLeaf->next = current->next;
+        current->next = newLeaf;
+
+        // Ebeveyne yeni anahtarı ekle
+        if (parent == NULL) {
+            parent = createNode(false);
+            parent->keys[0] = newLeaf->keys[0];
+            parent->children[0] = current;
+            parent->children[1] = newLeaf;
+            parent->keyCount = 1;
+            root = parent;
+        }
+        else {
+            // Parent'e yeni anahtar ekle
+            int newKey = newLeaf->keys[0];
+            return insert(root, newKey);
+        }
+    }
+
+    return root;
+}
+
+// Belirli bir anahtarı arayan fonksiyon
+bool search(BPlusTreeNode* root, int key) {
+    BPlusTreeNode* current = root;
+    while (current != NULL) {
+        int i;
+        for (i = 0; i < current->keyCount; i++) {
+            if (key == current->keys[i]) {
+                return true;
+            }
+            if (key < current->keys[i]) {
+                break;
+            }
+        }
+        current = current->isLeaf ? NULL : current->children[i];
+    }
+    return false;
+}
 
 // Function to validate the day input
 bool validateDay(const char* day) {
