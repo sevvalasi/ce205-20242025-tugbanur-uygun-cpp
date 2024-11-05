@@ -83,11 +83,6 @@ typedef struct {
     float price;
 } SparseMatrixEntry;
 
-
-
-
-
-
 // Haftanın günlerini tanımlayan sabit dizi
 extern const char* daysOfWeek[7];
 extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
