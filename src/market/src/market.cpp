@@ -27,6 +27,7 @@
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
+#define MAX_TREE_HT 100
 
 
 
@@ -67,6 +68,8 @@ int getInput()
 
 bool userAuthentication() {
     int choice;
+    char username[50];
+    char password[50];
     do
     {
         clearScreen();
@@ -91,6 +94,9 @@ bool userAuthentication() {
             break;
         case 3:
             mainMenu();
+            break;
+        case 4:
+            printf("Exiting the program...\n");
             break;
         default:
             printf("Invalid option. Please try again.\n");
@@ -597,11 +603,64 @@ void findSCC(Node* nodes[], int nodeCount) {
     // Bu kısımda detaylı bir SCC implementasyonu eklenmeli.
 }
 
-// Kullanıcı giriş fonksiyonu
+bool loginUserFromHuffFile(const char* username, const char* password) {
+    FILE* file = fopen("users.huff", "rb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return false;
+    }
+
+    char fileUsername[100];
+    char filePassword[100];
+    size_t usernameLength, passwordLength;
+
+    while (fread(&usernameLength, sizeof(size_t), 1, file) == 1) {
+        if (usernameLength >= sizeof(fileUsername)) {
+            printf("Username length too long, possible data corruption.\n");
+            fclose(file);
+            return false;
+        }
+
+        if (fread(fileUsername, sizeof(char), usernameLength, file) != usernameLength) {
+            printf("Error reading username from file.\n");
+            fclose(file);
+            return false;
+        }
+        fileUsername[usernameLength] = '\0';  // Null karakter ekle
+
+        if (fread(&passwordLength, sizeof(size_t), 1, file) != 1) {
+            printf("Error reading password length from file.\n");
+            fclose(file);
+            return false;
+        }
+
+        if (passwordLength >= sizeof(filePassword)) {
+            printf("Password length too long, possible data corruption.\n");
+            fclose(file);
+            return false;
+        }
+
+        if (fread(filePassword, sizeof(char), passwordLength, file) != passwordLength) {
+            printf("Error reading password from file.\n");
+            fclose(file);
+            return false;
+        }
+        filePassword[passwordLength] = '\0';  // Null karakter ekle
+
+        if (strcmp(username, fileUsername) == 0 && strcmp(password, filePassword) == 0) {
+            fclose(file);
+            return true;
+        }
+    }
+
+    fclose(file);
+    return false;
+}
+
+
+
 bool loginUser() {
     clearScreen();
-    FILE* file;
-    User user;
     char username[50], password[50];
     int found = 0;
 
@@ -611,57 +670,205 @@ bool loginUser() {
     printf("Password: ");
     scanf("%s", password);
 
-    // Dosya açılıyor ve kullanıcı bilgileri okunuyor
-    file = fopen("users.bin", "rb");
-    if (file == NULL) {
-        printf("The file is not opened.\n");
-        exit(1);
+    // .huff dosyasını kullanarak kullanıcı bilgilerini kontrol et
+    if (loginUserFromHuffFile(username, password)) {
+        printf("Login successful. Welcome! %s.\n", username);
+        found = 1;
+    }
+    else {
+        printf("Incorrect username or password.\n");
+        return false;
     }
 
-    // Dosyadaki kullanıcılar tek tek okunup kontrol ediliyor
-    while (fread(&user, sizeof(User), 1, file)) {
-        if (strcmp(user.username, username) == 0 && strcmp(user.password, password) == 0) {
-            printf("The entry is successfull. Welcome! %s.\n", username);
-            getchar();
-            found = 1;
-            break;
-        }
+    return found == 1;
+}
+
+
+
+bool saveUserToHuffFile(const char* username, const char* password) {
+    FILE* file = fopen("users.huff", "ab");
+    if (file == NULL) {
+        perror("Error opening file");
+        return false;
     }
+
+    // Kullanıcı adını ve şifreyi binary formatta kaydetme
+    size_t usernameLength = strlen(username);
+    size_t passwordLength = strlen(password);
+
+    fwrite(&usernameLength, sizeof(size_t), 1, file);
+    fwrite(username, sizeof(char), usernameLength, file);
+    fwrite(&passwordLength, sizeof(size_t), 1, file);
+    fwrite(password, sizeof(char), passwordLength, file);
 
     fclose(file);
-
-    if (!found) {
-        printf("Incorrect username or password. \n");
-        return false;
-        
-    }
-    
     return true;
 }
 
-bool registerUser() {
-    clearScreen();
-    FILE* file;
-    User user;
 
-    // Kullanıcıdan bilgiler alınıyor
-    printf("Username: ");
-    scanf("%s", user.username);
-    printf("Password: ");
-    scanf("%s", user.password);
+    bool registerUser()
+    {
+        clearScreen();
+        FILE* file;
+        User user;
 
-    // Kullanıcı bilgileri binary formatta dosyaya yazılıyor
-    file = fopen("users.bin", "ab"); // "ab" ile dosyaya ekleme modunda açıyoruz
-    if (file == NULL) {
-        printf("The file is not opened.\n");
-        exit(1);
+        // Kullanıcıdan bilgiler alınıyor
+        printf("Username: ");
+        scanf("%s", user.username);
+        printf("Password: ");
+        scanf("%s", user.password);
+
+        // Kullanıcı bilgileri binary formatta dosyaya yazılıyor
+        file = fopen("users.bin", "ab"); // "ab" ile dosyaya ekleme modunda açıyoruz
+        if (file == NULL) {
+            printf("The file is not opened.\n");
+            exit(1);
+        }
+        fwrite(&user, sizeof(User), 1, file);
+        fclose(file);
+
+        // Kullanıcıyı .huff dosyasına kaydetme
+        saveUserToHuffFile(user.username, user.password);
+
+        printf("Register is successful!\n");
+        getchar();
+        return true;
     }
-    fwrite(&user, sizeof(User), 1, file);
-    fclose(file);
 
-    printf("Register is successfull!\n");
-    getchar();
-    return true;
+// Min-Heap oluşturma
+struct MinHeap* createMinHeap(unsigned capacity) {
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+    return minHeap;
+}
+
+// Min-Heap içindeki iki düğümü değiştirme
+void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
+    struct MinHeapNode* t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// Min-Heapify işlemi
+void minHeapify(struct MinHeap* minHeap, int idx) {
+    int smallest = idx;
+    int left = 2 * idx + 1;
+    int right = 2 * idx + 2;
+
+    if (left < minHeap->size && minHeap->array[left]->freq < minHeap->array[smallest]->freq) {
+        smallest = left;
+    }
+
+    if (right < minHeap->size && minHeap->array[right]->freq < minHeap->array[smallest]->freq) {
+        smallest = right;
+    }
+
+    if (smallest != idx) {
+        swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
+        minHeapify(minHeap, smallest);
+    }
+}
+
+// Min-Heap'ten minimum değeri çıkarma
+struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
+    struct MinHeapNode* temp = minHeap->array[0];
+    minHeap->array[0] = minHeap->array[minHeap->size - 1];
+    --minHeap->size;
+    minHeapify(minHeap, 0);
+    return temp;
+}
+
+// Yeni bir düğüm ekleme
+void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
+    ++minHeap->size;
+    int i = minHeap->size - 1;
+
+    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) {
+        minHeap->array[i] = minHeap->array[(i - 1) / 2];
+        i = (i - 1) / 2;
+    }
+
+    minHeap->array[i] = minHeapNode;
+}
+
+// Min-Heap oluşturma
+void buildMinHeap(struct MinHeap* minHeap) {
+    int n = minHeap->size - 1;
+    for (int i = (n - 1) / 2; i >= 0; --i) {
+        minHeapify(minHeap, i);
+    }
+}
+
+// Karakterlerin frekansını sayarak Min-Heap oluşturma
+struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
+    struct MinHeap* minHeap = createMinHeap(size);
+
+    for (int i = 0; i < size; ++i) {
+        minHeap->array[i] = newNode(data[i], freq[i]);
+    }
+
+    minHeap->size = size;
+    buildMinHeap(minHeap);
+
+    return minHeap;
+}
+
+// Huffman ağacı oluşturma
+struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
+    struct MinHeapNode* left, * right, * top;
+
+    struct MinHeap* minHeap = createAndBuildMinHeap(data, freq, size);
+
+    while (minHeap->size != 1) {
+        left = extractMin(minHeap);
+        right = extractMin(minHeap);
+
+        top = newNode('$', left->freq + right->freq);
+        top->left = left;
+        top->right = right;
+
+        insertMinHeap(minHeap, top);
+    }
+
+    return extractMin(minHeap);
+}
+
+// Huffman kodlarını oluşturma
+void printCodes(struct MinHeapNode* root, int arr[], int top) {
+    if (root->left) {
+        arr[top] = 0;
+        printCodes(root->left, arr, top + 1);
+    }
+
+    if (root->right) {
+        arr[top] = 1;
+        printCodes(root->right, arr, top + 1);
+    }
+
+    if (!root->left && !root->right) {
+        printf("%c: ", root->data);
+        for (int i = 0; i < top; ++i) {
+            printf("%d", arr[i]);
+        }
+        printf("\n");
+    }
+}
+
+// Huffman kodlama işlemi
+void HuffmanCodes(char data[], int freq[], int size) {
+    struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
+    int arr[MAX_TREE_HT], top = 0;
+    printCodes(root, arr, top);
+}
+
+struct MinHeapNode* newNode(char data, unsigned freq) {
+    struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+    temp->left = temp->right = NULL;
+    temp->data = data;
+    temp->freq = freq;
+    return temp;
 }
 
 // Satıcı ekleme
