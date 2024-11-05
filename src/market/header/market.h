@@ -9,6 +9,7 @@
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
+#define MAX_TREE_HT 100
 
 
 #include <iostream>
@@ -67,6 +68,20 @@ typedef struct {
 extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 extern int sparseMatrixSize;
 
+// Huffman düğümü tanımı
+struct MinHeapNode {
+    char data;
+    unsigned freq;
+    struct MinHeapNode* left, * right;
+};
+
+// Min-Heap tanımı
+struct MinHeap {
+    unsigned size;
+    unsigned capacity;
+    struct MinHeapNode** array;
+};
+
 
 bool validateDay(const char* day);
 
@@ -82,9 +97,21 @@ int marketHoursAndLocations();
 
 
 bool userAuthentication();
-bool loginUser();
 bool registerUser();
-
+struct MinHeapNode* newNode(char data, unsigned freq);
+struct MinHeap* createMinHeap(unsigned capacity);
+void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b);
+void minHeapify(struct MinHeap* minHeap, int idx);
+struct MinHeapNode* extractMin(struct MinHeap* minHeap);
+void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode);
+void buildMinHeap(struct MinHeap* minHeap);
+struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size);
+struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size);
+void printCodes(struct MinHeapNode* root, int arr[], int top);
+void HuffmanCodes(char data[], int freq[], int size);
+bool saveUserToHuffFile(const char* username, const char* password);
+bool loginUser();
+bool loginUserFromHuffFile(const char* username, const char* password);
 
 int listingOfLocalVendors();
 int addVendor();
