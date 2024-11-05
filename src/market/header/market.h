@@ -11,6 +11,9 @@
 #define MAX_PRODUCTS 100
 #define MAX_TREE_HT 100
 
+#define MAX_KEYS 3
+#define MIN_KEYS (MAX_KEYS / 2)
+
 
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
@@ -73,6 +76,15 @@ typedef struct {
     int productId;
     float price;
 } SparseMatrixEntry;
+
+// B+ Tree Node yapisi
+typedef struct BPlusTreeNode {
+    bool isLeaf;
+    int keys[MAX_KEYS];
+    struct BPlusTreeNode* children[MAX_KEYS + 1];
+    int keyCount;
+    struct BPlusTreeNode* next;
+} BPlusTreeNode;
 
 // Haftanın günlerini tanımlayan sabit dizi
 extern const char* daysOfWeek[7];
