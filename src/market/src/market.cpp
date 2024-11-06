@@ -947,7 +947,7 @@ int updateVendor() {
     if (!found) {
         printf("Vendor with ID %d not found.\n", id);
     }
-
+    fclose(file); // Dosyayı kapatmayı unutmayın
     // Tampon temizleme ve devam etmek için tuşa basmayı bekleme
     while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
     printf("Press Enter to continue...");
@@ -972,6 +972,7 @@ int deleteVendor() {
 
     printf("Enter Vendor ID to delete: ");
     scanf("%d", &id);
+    while (getchar() != '\n');  // Giriş tamponunu temizle
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
         if (vendor.id != id) {
@@ -994,8 +995,10 @@ int deleteVendor() {
     else {
         printf("Vendor with ID %d not found.\n", id);
     }
+    // Kullanıcıdan Enter tuşuna basmasını isteme
+    printf("Press Enter to continue...");
+    getchar();
 
-    getchar(); // Devam etmek için tuşa basma
     return 0;
 }
 
