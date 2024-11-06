@@ -14,36 +14,28 @@
 #include <conio.h>
 #include <time.h>
 #include <ctype.h>
-#include <stack>  // Yığın yapısını kullanmak için gerekli (DFS)
+#include <stack>  // Required to use the stack structure (DFS)
 #include <stdint.h>
 #include <float.h> 
 #include <unordered_map>  //hash table 
 #include <queue>          //hash table
 #include <functional>     //hash table
-
-#include <limits.h> // Tarjan algoritması için INT_MAX kullanımı
+#include <limits.h> // Using INT_MAX for the Tarjan algorithm
 #define TABLE_SIZE 100
 #define OVERFLOW_SIZE 20
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
 #define MAX_TREE_HT 100
-
 #define MAX_KEYS 3
 #define MIN_KEYS (MAX_KEYS / 2)
 
-
-
-#include "market.h"  // Bu satır her .cpp dosyasının başına eklenmeli
-
-// Kullanıcının giriş yapıp yapmadığını tutan değişken
+// Variable that holds whether the user is logged in or not
 bool isAuthenticated = false;
 
 HashTableEntry hashTable[TABLE_SIZE];
 HashTableEntry overflowArea[OVERFLOW_SIZE];
 Bucket hashTableBuckets[TABLE_SIZE];
-
-
 
 void clearScreen() {
 #ifdef _WIN32
@@ -60,14 +52,13 @@ int getInput()
 
     if (result != 1) {
         printf("Invalid choice! Please try again.\n");
-        // Gecersiz girisi temizle
-        while (fgetc(stdin) != '\n'); // Yeni satir karakterine kadar oku
-        return getInput(); // Fonksiyonu yeniden cagir
+        // Clear invalid entry
+        while (fgetc(stdin) != '\n'); // Read until new line character
+        return getInput(); // Call the function again
     }
 
     return choice;
 }
-
 
 bool userAuthentication() {
     int choice;
@@ -112,11 +103,11 @@ bool userAuthentication() {
     return true;
 }
 
-int mainMenu() {
+bool mainMenu() {
     int choice;
 
     do {
-        // Ana menüyü yazdır
+        // Print main menu
         clearScreen();
         printf("\n--- Main Menu ---\n");
         printf("1. Listing of Local Vendors\n");
@@ -152,11 +143,10 @@ int mainMenu() {
         }
     } while (choice != 0);
 
-    return 0;
+    return true;
 }
 
-
-int listingOfLocalVendors() {
+bool listingOfLocalVendors() {
     int choice;
 
     do {
@@ -191,11 +181,10 @@ int listingOfLocalVendors() {
         }
     } while (choice != 0);
 
-    return 0;
+    return true;
 }
 
-
-int listingOfLocalProducts() {
+bool listingOfLocalProducts() {
 int choice;
 
 do {
@@ -232,13 +221,12 @@ do {
 
 } while (choice != 0);
 
-return 0;
+return true;
 }
 
-
-int priceComparison() {
+bool priceComparison() {
     int choice;
-    char selectedProductName[100] = "";  // Seçilen ürün adını burada tutacağız
+    char selectedProductName[100] = "";  // We will keep the selected product name here
 
     do {
         clearScreen();
@@ -251,8 +239,8 @@ int priceComparison() {
 
         switch (choice) {
         case 1:
-            // selectProduct fonksiyonuna selectedProductName değişkenini geçiriyoruz
-            if (selectProduct(selectedProductName) == 0) {  // Ürün seçildiyse
+            // We pass the selectedProductName variable to the selectProduct function
+            if (selectProduct(selectedProductName) == 0) {  // If the product is selected
                 printf("Product '%s' selected.\n", selectedProductName);
             }
             else {
@@ -260,7 +248,7 @@ int priceComparison() {
             }
             break;
         case 2:
-            if (strlen(selectedProductName) > 0) {  // Bir ürün seçildiyse karşılaştırma yap
+            if (strlen(selectedProductName) > 0) {  // Make a comparison if the product is selected
                 comparePricesByName(selectedProductName);
             }
             else {
@@ -276,16 +264,15 @@ int priceComparison() {
         }
 
         printf("Press Enter to continue...");
-        getchar();  // Kullanıcıdan Enter tuşuna basmasını bekle
-        getchar();  // Tamponu temizlemek için
+        getchar();  // Wait for the user to press Enter
+        getchar();  // To clean the tampon
 
     } while (choice != 0);
 
-    return 0;
+    return true;
 }
 
-// Market Hours and Locations menu
-int marketHoursAndLocations() {
+bool marketHoursAndLocations() {
     int choice;
 
     do {
@@ -322,12 +309,10 @@ int marketHoursAndLocations() {
         }
     } while (choice != 0);
 
-    return 0;
+    return true;
 }
 
-
-
-int searchProductsOrEnterKeyword() {
+bool searchProductsOrEnterKeyword() {
     int choice;
 
     do {
@@ -356,254 +341,7 @@ int searchProductsOrEnterKeyword() {
 
     } while (choice != 0);
 
-    return 0;
-}
-
-
-// KMP algoritması için LPS (Longest Prefix Suffix) dizisini hesaplayan yardımcı fonksiyon
-void computeLPSArray(const char* pattern, int M, int* lps) {
-    int length = 0;
-    lps[0] = 0; // lps[0] her zaman 0'dır
-
-    int i = 1;
-    while (i < M) {
-        if (pattern[i] == pattern[length]) {
-            length++;
-            lps[i] = length;
-            i++;
-        }
-        else {
-            if (length != 0) {
-                length = lps[length - 1];
-            }
-            else {
-                lps[i] = 0;
-                i++;
-            }
-        }
-    }
-}
-
-// KMP algoritmasını kullanarak metin içinde deseni arayan fonksiyon
-bool KMPSearch(const char* pattern, const char* text) {
-    int M = strlen(pattern);
-    int N = strlen(text);
-
-    int* lps = (int*)malloc(M * sizeof(int));
-    computeLPSArray(pattern, M, lps);
-
-    int i = 0;
-    int j = 0;
-    while (i < N) {
-        if (pattern[j] == text[i]) {
-            j++;
-            i++;
-        }
-
-        if (j == M) {
-            free(lps);
-            return true; // Desen bulundu
-        }
-        else if (i < N && pattern[j] != text[i]) {
-            if (j != 0) {
-                j = lps[j - 1];
-            }
-            else {
-                i++;
-            }
-        }
-    }
-
-    free(lps);
-    return false; // Desen bulunamadı
-}
-
-// Favori ürünü ve ilgili satıcıları listeleyen fonksiyon
-int enterSearchProducts() {
-    FILE* productFile;
-    FILE* vendorFile;
-    Product product;
-    Vendor vendor;
-    char favoriteProduct[100];
-    bool found = false;
-
-    // Kullanıcıdan favori ürün adını al
-    printf("Enter the name of your favorite product to search for vendors: ");
-    scanf(" %[^\n]s", favoriteProduct);
-
-    // Ürün dosyasını aç
-    productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
-
-    // Satıcı dosyasını aç
-    vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(productFile);
-        return 1;
-    }
-
-    printf("\n--- Vendors Offering '%s' ---\n", favoriteProduct);
-
-    // Ürün dosyasını tarayarak KMP ile arama yap
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (KMPSearch(favoriteProduct, product.productName)) {
-            // Eşleşen ürün bulundu, satıcıyı göster
-            rewind(vendorFile); // Satıcı dosyasını baştan okumak için geri al
-            while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-                if (vendor.id == product.vendorId) {
-                    printf("Vendor: %s, ID: %d\n", vendor.name, vendor.id);
-                    found = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (!found) {
-        printf("No vendors found offering '%s'.\n", favoriteProduct);
-    }
-
-    // Dosyaları kapat
-    fclose(productFile);
-    fclose(vendorFile);
-
-    printf("\nPress Enter to return to menu...");
-    getchar();
-    getchar(); // Tamponu temizlemek için tekrar
-
-    return 0;
-}
-
-
-bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
-    // DFS için bir yığın başlat
-    std::stack<Node*> stack;
-    stack.push(node);
-
-    while (!stack.empty()) {
-        Node* currentNode = stack.top();
-        stack.pop();
-
-        // Eğer düğüm ziyaret edilmişse atla
-        bool isVisited = false;
-        for (int i = 0; i < *visitedCount; i++) {
-            if (visited[i] == currentNode) {
-                isVisited = true;
-                break;
-            }
-        }
-        if (isVisited) continue;
-
-        // Düğümü ziyaret edilmiş olarak işaretle
-        visited[*visitedCount] = currentNode;
-        (*visitedCount)++;
-
-        // Anahtar kelime, düğüm bilgisinde varsa döndür
-        if (strstr(currentNode->info, keyword) != NULL) {
-            printf("Match found: %s\n", currentNode->info);
-            return true;
-        }
-
-        // Komşu düğümleri yığına ekle
-        for (int i = 0; i < currentNode->neighborCount; i++) {
-            stack.push(currentNode->neighbors[i]);
-        }
-    }
-
-    return false;
-}
-
-int enterKeywords() {
-    char keyword[100];
-    printf("\nEnter a keyword to search: ");
-    scanf("%s", keyword);
-
-    // Ürün ve satıcı bilgilerini dosyadan okuyup düğümler oluşturma
-    FILE* productFile = fopen("products.bin", "rb");
-    FILE* vendorFile = fopen("vendor.bin", "rb");
-
-    if (productFile == NULL || vendorFile == NULL) {
-        printf("Error opening product or vendor file.\n");
-        return 1;
-    }
-
-    Product product;
-    Vendor vendor;
-
-    // Tüm düğümler için bir dizi oluştur (maksimum 100 düğüm kabulüyle)
-    Node* nodes[100];
-    int nodeCount = 0;
-
-    // Ürünleri düğüm olarak ekleme
-    while (fread(&product, sizeof(Product), 1, productFile) && nodeCount < 100) {
-        Node* productNode = (Node*)malloc(sizeof(Node));
-        productNode->info = (char*)malloc(200 * sizeof(char));
-        snprintf(productNode->info, 200, "Product: %s, Season: %s, Vendor ID: %d, Price: %.2f, Quantity: %d",
-            product.productName, product.season, product.vendorId, product.price, product.quantity);
-        productNode->neighborCount = 0;
-        productNode->neighbors = NULL;
-        nodes[nodeCount++] = productNode;
-    }
-
-    // Satıcıları düğüm olarak ekleme
-    while (fread(&vendor, sizeof(Vendor), 1, vendorFile) && nodeCount < 100) {
-        Node* vendorNode = (Node*)malloc(sizeof(Node));
-        vendorNode->info = (char*)malloc(100 * sizeof(char));
-        snprintf(vendorNode->info, 100, "Vendor: %s, ID: %d", vendor.name, vendor.id);
-        vendorNode->neighborCount = 0;
-        vendorNode->neighbors = NULL;
-        nodes[nodeCount++] = vendorNode;
-    }
-
-    fclose(productFile);
-    fclose(vendorFile);
-
-    // DFS ile anahtar kelimeyi arama
-    Node* visited[100];  // Ziyaret edilen düğümleri izlemek için
-    int visitedCount = 0;
-    bool found = false;
-
-    for (int i = 0; i < nodeCount; ++i) {
-        visitedCount = 0;  // Her düğüm için ziyaret dizisini sıfırla
-        if (DFS(nodes[i], keyword, visited, &visitedCount)) {
-            found = true;
-        }
-    }
-
-    if (!found) {
-        printf("No matches found for keyword '%s'.\n", keyword);
-    }
-    // SCC Algoritmasını çalıştırma
-   // SCC, Tarjan's veya Kosaraju'nun algoritmalarından biri kullanılarak bulunabilir
-    printf("\nFinding Strongly Connected Components (SCC)...\n");
-    findSCC(nodes, nodeCount);
-
-    // Dinamik olarak oluşturulan düğümleri temizleme
-    for (int i = 0; i < nodeCount; ++i) {
-        free(nodes[i]->info);
-        free(nodes[i]->neighbors);
-        free(nodes[i]);
-    }
-
-    printf("Press Enter to return to menu...");
-    getchar();
-    getchar();  // Tamponu temizlemek için tekrar
-
-    return 0;
-}
-void findSCC(Node* nodes[], int nodeCount) {
-    // Bu kısımda Kosaraju veya Tarjan algoritmasını ekleyerek SCC bulabilirsiniz.
-    // Örneğin: Tarjan's Algorithm
-    // - Düğüm için discovery time, low value tutma ve stack kullanarak SCC bulunur.
-
-    // Pseudo code placeholder for SCC:
-    // - Tüm düğümler için discovery zamanını ve low value'yi takip et
-    // - Stack kullanarak, SCC'leri tespit et ve ekrana yazdır
-    // Bu kısımda detaylı bir SCC implementasyonu eklenmeli.
+    return true;
 }
 
 bool loginUserFromHuffFile(const char* username, const char* password) {
@@ -629,7 +367,7 @@ bool loginUserFromHuffFile(const char* username, const char* password) {
             fclose(file);
             return false;
         }
-        fileUsername[usernameLength] = '\0';  // Null karakter ekle
+        fileUsername[usernameLength] = '\0';  // Add null character
 
         if (fread(&passwordLength, sizeof(size_t), 1, file) != 1) {
             printf("Error reading password length from file.\n");
@@ -648,7 +386,7 @@ bool loginUserFromHuffFile(const char* username, const char* password) {
             fclose(file);
             return false;
         }
-        filePassword[passwordLength] = '\0';  // Null karakter ekle
+        filePassword[passwordLength] = '\0';  // Add null character
 
         if (strcmp(username, fileUsername) == 0 && strcmp(password, filePassword) == 0) {
             fclose(file);
@@ -660,20 +398,17 @@ bool loginUserFromHuffFile(const char* username, const char* password) {
     return false;
 }
 
-
-
 bool loginUser() {
     clearScreen();
     char username[50], password[50];
     int found = 0;
 
-    // Kullanıcıdan giriş bilgileri alınıyor
     printf("Username: ");
     scanf("%s", username);
     printf("Password: ");
     scanf("%s", password);
 
-    // .huff dosyasını kullanarak kullanıcı bilgilerini kontrol et
+    // Check user information using the .huff file
     if (loginUserFromHuffFile(username, password)) {
         printf("Login successful. Welcome! %s.\n", username);
         found = 1;
@@ -686,8 +421,6 @@ bool loginUser() {
     return found == 1;
 }
 
-
-
 bool saveUserToHuffFile(const char* username, const char* password) {
     FILE* file = fopen("users.huff", "ab");
     if (file == NULL) {
@@ -695,7 +428,7 @@ bool saveUserToHuffFile(const char* username, const char* password) {
         return false;
     }
 
-    // Kullanıcı adını ve şifreyi binary formatta kaydetme
+    // Save username and password in binary format
     size_t usernameLength = strlen(username);
     size_t passwordLength = strlen(password);
 
@@ -708,21 +441,20 @@ bool saveUserToHuffFile(const char* username, const char* password) {
     return true;
 }
 
-
-    bool registerUser()
+bool registerUser()
     {
         clearScreen();
         FILE* file;
         User user;
 
-        // Kullanıcıdan bilgiler alınıyor
+        // Information is taken from the user
         printf("Username: ");
         scanf("%s", user.username);
         printf("Password: ");
         scanf("%s", user.password);
 
-        // Kullanıcı bilgileri binary formatta dosyaya yazılıyor
-        file = fopen("users.bin", "ab"); // "ab" ile dosyaya ekleme modunda açıyoruz
+        // User information is written to file in binary format
+        file = fopen("users.bin", "ab"); // We open in append to file mode with “ab”
         if (file == NULL) {
             printf("The file is not opened.\n");
             exit(1);
@@ -730,7 +462,7 @@ bool saveUserToHuffFile(const char* username, const char* password) {
         fwrite(&user, sizeof(User), 1, file);
         fclose(file);
 
-        // Kullanıcıyı .huff dosyasına kaydetme
+        // Save user to .huff file
         saveUserToHuffFile(user.username, user.password);
 
         printf("Register is successful!\n");
@@ -738,7 +470,7 @@ bool saveUserToHuffFile(const char* username, const char* password) {
         return true;
     }
 
-// Min-Heap oluşturma
+// Create Min-Heap
 struct MinHeap* createMinHeap(unsigned capacity) {
     struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
     minHeap->size = 0;
@@ -747,14 +479,14 @@ struct MinHeap* createMinHeap(unsigned capacity) {
     return minHeap;
 }
 
-// Min-Heap içindeki iki düğümü değiştirme
+// Swapping two nodes in Min-Heap
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
     struct MinHeapNode* t = *a;
     *a = *b;
     *b = t;
 }
 
-// Min-Heapify işlemi
+// Min-Heapify process
 void minHeapify(struct MinHeap* minHeap, int idx) {
     int smallest = idx;
     int left = 2 * idx + 1;
@@ -774,7 +506,7 @@ void minHeapify(struct MinHeap* minHeap, int idx) {
     }
 }
 
-// Min-Heap'ten minimum değeri çıkarma
+// Extracting the minimum value from Min-Heap
 struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
     struct MinHeapNode* temp = minHeap->array[0];
     minHeap->array[0] = minHeap->array[minHeap->size - 1];
@@ -783,7 +515,7 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
     return temp;
 }
 
-// Yeni bir düğüm ekleme
+// Adding a new node
 void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
     ++minHeap->size;
     int i = minHeap->size - 1;
@@ -796,7 +528,7 @@ void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
     minHeap->array[i] = minHeapNode;
 }
 
-// Min-Heap oluşturma
+// Create Min-Heap
 void buildMinHeap(struct MinHeap* minHeap) {
     int n = minHeap->size - 1;
     for (int i = (n - 1) / 2; i >= 0; --i) {
@@ -804,7 +536,7 @@ void buildMinHeap(struct MinHeap* minHeap) {
     }
 }
 
-// Karakterlerin frekansını sayarak Min-Heap oluşturma
+// Min-Heap generation by counting the frequency of characters
 struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
     struct MinHeap* minHeap = createMinHeap(size);
 
@@ -818,7 +550,7 @@ struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
     return minHeap;
 }
 
-// Huffman ağacı oluşturma
+// Create a Huffman tree
 struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
     struct MinHeapNode* left, * right, * top;
 
@@ -838,7 +570,7 @@ struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
     return extractMin(minHeap);
 }
 
-// Huffman kodlarını oluşturma
+// Create Huffman codes
 void printCodes(struct MinHeapNode* root, int arr[], int top) {
     if (root->left) {
         arr[top] = 0;
@@ -859,7 +591,7 @@ void printCodes(struct MinHeapNode* root, int arr[], int top) {
     }
 }
 
-// Huffman kodlama işlemi
+// Huffman encoding process
 void HuffmanCodes(char data[], int freq[], int size) {
     struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
     int arr[MAX_TREE_HT], top = 0;
@@ -874,51 +606,51 @@ struct MinHeapNode* newNode(char data, unsigned freq) {
     return temp;
 }
 
-// Satıcı ekleme
-int addVendor() {
+// Adding Vendor
+bool addVendor() {
     FILE* file;
     Vendor vendor;
 
-    file = fopen("vendor.bin", "ab"); // Dosyayı ekleme modunda açıyoruz
+    file = fopen("vendor.bin", "ab"); // We open the file in insert mode
     if (file == NULL) {
         printf("Error opening vendor file.\n");
         return 1;
     }
 
     printf("\n--- List of Vendors ---\n");
-    int vendorCount = 0; // Listelediğimiz satıcı sayısını takip etmek için
+    int vendorCount = 0; // To track the number of vendors we have listed
 
-    // Rastgele 6 haneli ID oluşturma
-    srand(time(NULL));  // Rastgele sayı üreteciyi başlat
-    vendor.id = (rand() % 900000) + 100000;  // 100000 ile 999999 arasında rastgele bir sayı üret
+    // Generate a random 6-digit ID
+    srand(time(NULL));  // Initialize the random number generator
+    vendor.id = (rand() % 900000) + 100000;  // Generate a random number between 100000 and 999999
 
-    printf("Assigned Vendor ID: %d\n", vendor.id);  // Atanan ID'yi gösteriyoruz
+    printf("Assigned Vendor ID: %d\n", vendor.id);  // We show the assigned ID
 
-    // Kullanıcıdan sadece isim alınıyor
+    // Retrieving only the name from the user
     printf("Enter Vendor Name: ");
-    scanf("%49s", vendor.name);  // %49s kullanarak taşmaları önlüyoruz
-    while (getchar() != '\n');  // Tamponu temizle
+    scanf("%49s", vendor.name);  // We prevent overflows by using 49%49s
+    while (getchar() != '\n');  // Clean the tampon
 
-    // Dosyaya yazma işlemi (ID ve isim)
+    // Write to file (ID and name)
     fwrite(&vendor, sizeof(Vendor), 1, file);
     fclose(file);
 
     printf("Vendor added successfully!\n");
 
-    // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+    // Wait for the user to press a key to continue
     printf("Press Enter to continue...");
-    getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
+    getchar();  // Wait for the user to press a key to continue
 
-    return 0;
+    return true;
 }
 
 
-// Satıcı güncelleme
-int updateVendor() {
+// Updating vendor
+bool updateVendor() {
     FILE* file;
     Vendor vendor;
     int id, found = 0;
-    file = fopen("vendor.bin", "rb+"); // Dosyayı okuma ve yazma modunda açıyoruz
+    file = fopen("vendor.bin", "rb+"); // We open the file in read and write mode
 
     if (file == NULL) {
         printf("Error opening vendor file.\n");
@@ -927,8 +659,8 @@ int updateVendor() {
 
     printf("Enter Vendor ID to update: ");
     scanf("%d", &id);
-    // Tampondaki fazlalıkları temizlemek için:
-    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+    // To remove the excess from the tampon:
+    while (getchar() != '\n');  // Clear extra newline character
 
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
@@ -936,7 +668,7 @@ int updateVendor() {
             printf("Enter new Vendor Name: ");
             scanf("%s", vendor.name);
 
-            fseek(file, -sizeof(Vendor), SEEK_CUR); // İmleci geri al
+            fseek(file, -sizeof(Vendor), SEEK_CUR); // Undo cursor
             fwrite(&vendor, sizeof(Vendor), 1, file);
             found = 1;
             printf("Vendor updated successfully!\n");
@@ -947,17 +679,17 @@ int updateVendor() {
     if (!found) {
         printf("Vendor with ID %d not found.\n", id);
     }
-    fclose(file); // Dosyayı kapatmayı unutmayın
-    // Tampon temizleme ve devam etmek için tuşa basmayı bekleme
-    while (getchar() != '\n');  // Fazladan yeni satır karakterini temizle
+    fclose(file); // Remember to close the file
+    // Buffer clearing and waiting for key press to continue
+    while (getchar() != '\n');  // Clear extra newline character
     printf("Press Enter to continue...");
-    getchar();  // Kullanıcıdan Enter tuşuna basmasını bekle
+    getchar();  // Wait for the user to press Enter
 
-    return 0;
+    return true;
 }
 
-// Satıcı silme
-int deleteVendor() {
+// Deleting vendor
+bool deleteVendor() {
     FILE* file, * tempFile;
     Vendor vendor;
     int id, found = 0;
@@ -972,7 +704,7 @@ int deleteVendor() {
 
     printf("Enter Vendor ID to delete: ");
     scanf("%d", &id);
-    while (getchar() != '\n');  // Giriş tamponunu temizle
+    while (getchar() != '\n');  // Clear input buffer
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
         if (vendor.id != id) {
@@ -995,44 +727,41 @@ int deleteVendor() {
     else {
         printf("Vendor with ID %d not found.\n", id);
     }
-    // Kullanıcıdan Enter tuşuna basmasını isteme
     printf("Press Enter to continue...");
     getchar();
 
-    return 0;
+    return true;
 }
 
-// Satıcıları ID'lerine göre sıralamak için hash tablosu ve min-heap kullanarak listeleme
-
-
+// Listing using hash table and min-heap to sort vendors by their IDs
 DoublyLinkedListNode* head = NULL;
 
-// Satıcı ekleme fonksiyonu (çift yönlü bağlı listeye sıralı ekleme)
+// Vendor addition function (sequential addition to bidirectional linked list)
 void insertVendor(Vendor newVendor) {
     DoublyLinkedListNode* newNode = (DoublyLinkedListNode*)malloc(sizeof(DoublyLinkedListNode));
     newNode->vendor = newVendor;
     newNode->next = NULL;
     newNode->prev = NULL;
 
-    if (head == NULL) { // Liste boşsa
+    if (head == NULL) { // If the list is empty
         head = newNode;
     }
     else {
         DoublyLinkedListNode* current = head;
         DoublyLinkedListNode* previous = NULL;
 
-        // Satıcıları ID'ye göre sıralı eklemek için uygun yeri bulma
+        // Find the appropriate place to add vendors sorted by ID
         while (current != NULL && current->vendor.id < newVendor.id) {
             previous = current;
             current = current->next;
         }
 
-        if (previous == NULL) { // En başa ekleme durumu
+        if (previous == NULL) { // Add to the top status
             newNode->next = head;
             head->prev = newNode;
             head = newNode;
         }
-        else { // Ortada veya sonda ekleme
+        else { // Insert in the middle or at the end
             newNode->next = current;
             newNode->prev = previous;
             previous->next = newNode;
@@ -1043,25 +772,25 @@ void insertVendor(Vendor newVendor) {
     }
 }
 
-// Satıcıları listeleme fonksiyonu (ileri ve geri gezinme özellikli)
-int listVendors() {
+// Vendor listing function (with forward and backward navigation)
+bool listVendors() {
     FILE* file;
     Vendor vendor;
-    file = fopen("vendor.bin", "rb"); // Dosyayı okuma modunda açıyoruz
+    file = fopen("vendor.bin", "rb"); //We open the file in read mode
 
     if (file == NULL) {
         printf("Error opening vendor file.\n");
         return 1;
     }
 
-    // Dosyadaki satıcıları bağlı listeye ekleme
+    // Add vendors from a file to a linked list
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
         insertVendor(vendor);
     }
 
     fclose(file);
 
-    // İleri ve geri gezinme
+    // Forward and backward navigation
     printf("\n--- List of Vendors ---\n");
     DoublyLinkedListNode* current = head;
     char choice;
@@ -1070,7 +799,7 @@ int listVendors() {
     while (current != NULL) {
         printf("ID: %d, Name: %s\n", current->vendor.id, current->vendor.name);
         printf("\n'n' for Next, 'p' for Previous, 'q' to Quit: ");
-        scanf(" %c", &choice); // ' %c' ile boşluk ekleyerek önceki \n karakterini temizliyoruz.
+        scanf(" %c", &choice); // We remove the previous \n character by adding a space with ' %c'.
         clearScreen();
 
         if (choice == 'n') {
@@ -1097,8 +826,7 @@ int listVendors() {
         }
     }
 
-
-    // Hafızayı temizleme
+    // Clear memory
     current = head;
     while (current != NULL) {
         DoublyLinkedListNode* temp = current;
@@ -1107,57 +835,55 @@ int listVendors() {
     }
     head = NULL;
 
-    // Menüye dönme bildirimi
+    // Return to menu notification
     printf("Returning to menu...\n");
-    return 0;
+    return true;
 }
 
 
-
-int addProduct() {
+bool addProduct() {
     FILE* productFile;
     FILE* vendorFile;
     Product product;
     Vendor vendor;
     int found = 0;
 
-    productFile = fopen("products.bin", "ab"); // Ürün dosyasını ekleme modunda açıyoruz
+    productFile = fopen("products.bin", "ab"); 
     if (productFile == NULL) {
         printf("Error opening product file.\n");
         return 1;
     }
 
-    vendorFile = fopen("vendor.bin", "rb"); // Satıcı dosyasını okuma modunda açıyoruz
+    vendorFile = fopen("vendor.bin", "rb"); 
     if (vendorFile == NULL) {
         printf("Error opening vendor file.\n");
         fclose(productFile);
         return 1;
     }
 
-    // Satıcı ID'yi kullanıcıdan alıyoruz
     printf("Enter Vendor ID for the product: ");
     scanf("%d", &product.vendorId);
 
-    // Satıcı ID'sini kontrol ediyoruz
+    // Check the vendor ID
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
         if (vendor.id == product.vendorId) {
-            found = 1;  // Satıcı bulundu
+            found = 1;  // Vonder found
             break;
         }
     }
 
-    fclose(vendorFile);  // Satıcı dosyasını kapatıyoruz
+    fclose(vendorFile);  // Close the vendor file
 
     if (!found) {
         printf("Error: Vendor with ID %d does not exist.\n", product.vendorId);
         fclose(productFile);
         printf("Press Enter to continue...");
-        getchar();  // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
-        getchar();  // Bir kez daha getchar() çünkü tamponu temizliyoruz
-        return 1;  // Ürün eklenmeden fonksiyondan çık
+        getchar();  // Wait for the user to press a key to continue
+        getchar(); // Once again getchar() because we are clearing the buffer
+        return 1; // Exit the function before the product is added
     }
 
-    // Eğer satıcı ID mevcutsa, ürün ekleme işlemi devam eder
+    // If the vendor ID is available, the product addition process continues
     printf("Enter Product Name: ");
     scanf("%s", product.productName);
 
@@ -1170,48 +896,46 @@ int addProduct() {
     printf("Enter Product Season: ");
     scanf("%s", product.season);
 
-    // Ürün bilgilerini dosyaya yazıyoruz
+    //We write the product information in the file
     fwrite(&product, sizeof(Product), 1, productFile);
     fclose(productFile);
 
     printf("Product added successfully!\n");
 
-    // Devam etmek için kullanıcıdan bir tuşa basmasını bekle
     printf("Press Enter to continue...");
     getchar();
-    getchar();  // Tamponu temizlemek ve devam etmek için
+    getchar();  // For clean the tampon and continue
 
-    return 0;
+    return true;
 }
 
-int updateProduct() {
+bool updateProduct() {
     FILE* productFile, * tempFile;
     Product product;
     char productName[50];
     int found = 0;
 
-    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    productFile = fopen("products.bin", "rb"); 
     if (productFile == NULL) {
         printf("Error opening product file.\n");
         return 1;
     }
 
-    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    tempFile = fopen("temp.bin", "wb"); // Open temporary file in write mode
     if (tempFile == NULL) {
         printf("Error creating temporary file.\n");
         fclose(productFile);
         return 1;
     }
 
-    // Güncellemek istediğiniz ürünün adını alıyoruz
     printf("Enter Product Name to update: ");
     scanf("%s", productName);
 
-    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+    // Read all products from the file and check the name
     while (fread(&product, sizeof(Product), 1, productFile)) {
         if (strcmp(product.productName, productName) == 0) {
             found = 1;
-            // Yeni ürün bilgilerini alıyoruz
+            // Receiving new product information
             printf("Enter new Product Name: ");
             scanf("%s", product.productName);
             printf("Enter new Product Price: ");
@@ -1221,7 +945,7 @@ int updateProduct() {
             printf("Enter new Product Season: ");
             scanf("%s", product.season);
         }
-        fwrite(&product, sizeof(Product), 1, tempFile); // Ürünü geçici dosyaya yaz
+        fwrite(&product, sizeof(Product), 1, tempFile); // Write the product in the temporary file
     }
 
     fclose(productFile);
@@ -1229,11 +953,11 @@ int updateProduct() {
 
     if (!found) {
         printf("Product with name %s not found.\n", productName);
-        remove("temp.bin"); // Geçici dosyayı sil
+        remove("temp.bin"); // Delete temporary file
     }
     else {
-        remove("products.bin"); // Orijinal dosyayı sil
-        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+        remove("products.bin"); // Delete original file
+        rename("temp.bin", "products.bin"); // Rename temporary file as original file
         printf("Product updated successfully!\n");
     }
 
@@ -1241,40 +965,39 @@ int updateProduct() {
     getchar();
     getchar();
 
-    return 0;
+    return true;
 }
 
-int deleteProduct() {
+bool deleteProduct() {
     FILE* productFile, * tempFile;
     Product product;
     char productName[50];
     int found = 0;
 
-    productFile = fopen("products.bin", "rb"); // Orijinal dosyayı okuma modunda aç
+    productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
         return 1;
     }
 
-    tempFile = fopen("temp.bin", "wb"); // Geçici dosyayı yazma modunda aç
+    tempFile = fopen("temp.bin", "wb"); 
     if (tempFile == NULL) {
         printf("Error creating temporary file.\n");
         fclose(productFile);
         return 1;
     }
 
-    // Silmek istediğiniz ürünün adını alıyoruz
     printf("Enter Product Name to delete: ");
     scanf("%s", productName);
 
-    // Tüm ürünleri dosyadan okuyup, adı kontrol ediyoruz
+   // We read all products from the file and check the name
     while (fread(&product, sizeof(Product), 1, productFile)) {
         if (strcmp(product.productName, productName) == 0) {
             found = 1;
             printf("Product with name %s deleted successfully!\n", productName);
-            continue; // Silinecek ürünü atla
+            continue; // Skip product to delete
         }
-        fwrite(&product, sizeof(Product), 1, tempFile); // Diğer ürünleri geçici dosyaya yaz
+        fwrite(&product, sizeof(Product), 1, tempFile); // Put other products in the temporary file
     }
 
     fclose(productFile);
@@ -1282,52 +1005,50 @@ int deleteProduct() {
 
     if (!found) {
         printf("Product with name %s not found.\n", productName);
-        remove("temp.bin"); // Geçici dosyayı sil
+        remove("temp.bin"); // Delete temporary file
     }
     else {
-        remove("products.bin"); // Orijinal dosyayı sil
-        rename("temp.bin", "products.bin"); // Geçici dosyayı orijinal dosya olarak yeniden adlandır
+        remove("products.bin"); // Delete original file
+        rename("temp.bin", "products.bin"); // Rename temporary file as original file
     }
 
     printf("Press Enter to continue...");
     getchar();
     getchar();
 
-    return 0;
+    return true;
 }
 
 
-// Tüm satıcıların ürünlerini listeleyen fonksiyon
-int listingOfLocalVendorsandProducts() {
+// Function that lists all vendors' products
+bool listingOfLocalVendorsandProducts() {
     FILE* productFile;
     FILE* vendorFile;
     Product product;
     Vendor vendor;
     int found = 0;
 
-    // Ürün dosyasını aç
     productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
         return 1;
     }
 
-    // Satıcı dosyasını aç
     vendorFile = fopen("vendor.bin", "rb");
     if (vendorFile == NULL) {
         printf("Error opening vendor file.\n");
-        fclose(productFile);  // Ürün dosyasını kapat
+        fclose(productFile);  
         return 1;
     }
 
     printf("\n--- Listing All Vendors and Their Products ---\n");
 
-    // Tüm satıcıları oku ve her satıcının ürünlerini listele
+    // Read all vendors and list products from each vendor
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
         printf("\nVendor: %s (ID: %d)\n", vendor.name, vendor.id);
         printf("--------------------------\n");
 
-        // Kullanıcıya arama yöntemi seçtir
+        // Make the user select a search method
         int strategy;
         printf("Select Collision Resolution Strategy for Vendor %d:\n", vendor.id);
         printf("1. Linear Probing\n");
@@ -1339,13 +1060,13 @@ int listingOfLocalVendorsandProducts() {
         printf("7. Brent's Method\n");
         scanf("%d", &strategy);
 
-        // Ürünleri bulmak için uygun çakışma çözümleme algoritmasını kullan
-        // Ürün dosyasını baştan itibaren okumak için rewind kullanıyoruz
+        // Use the appropriate conflict resolution algorithm to find products
+        // We use rewind to read the product file from the beginning
         rewind(productFile);
         int productFound = 0;
 
 
-        // Ürün dosyasını baştan sona tarayarak ürünleri listeleme işlemi
+        // Listing products by scanning the product file from beginning to end
         rewind(productFile);
 
         switch (strategy) {
@@ -1440,35 +1161,34 @@ int listingOfLocalVendorsandProducts() {
         printf("No products found for any vendor.\n");
     }
 
-    // Dosyaları kapat
     fclose(vendorFile);
     fclose(productFile);
 
     printf("\nPress Enter to return to menu...");
-    getchar();  // Devam etmek için kullanıcıdan Enter tuşuna basmasını bekle
-    getchar();  // Tamponu temizlemek için tekrar
+    getchar();  
+    getchar();  
 
-    return 0;
+    return true;
 }
 
-// Bu iki satır asıl tanımlardır, hafızada yer kaplayacaklar.
+
 SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 int sparseMatrixSize = 0;
 
-// Vendor ve ürün arasındaki ilişkileri ekleyen fonksiyon
+// Function that adds relationships between vendor and product
 void addVendorProductRelation(int vendorId, int productId, float price) {
 
     if (price == 0) {
         return;
     }
-    // Sparse matrise yeni bir ilişki ekliyoruz
+    // We add a new relation to the sparse matrix
     sparseMatrix[sparseMatrixSize].vendorId = vendorId;
     sparseMatrix[sparseMatrixSize].productId = productId;
     sparseMatrix[sparseMatrixSize].price = price;
     sparseMatrixSize++;
 }
 
-// Belirli bir vendor'un ürünlerini listeleyen fonksiyon
+// Function that lists the products of a specific vendor
 void listProductsByVendor(int vendorId) {
     printf("\n--- Products offered by Vendor %d ---\n", vendorId);
     int found = 0;
@@ -1483,8 +1203,7 @@ void listProductsByVendor(int vendorId) {
     }
 }
 
-
-// Hash Fonksiyonu
+// Hash Function
 int hashFunction(int key) {
     return key % TABLE_SIZE;
 }
@@ -1522,7 +1241,7 @@ int linearQuotient(int key, int i) {
     return (key + i * 7) % TABLE_SIZE;
 }
 
-// Progressive Overflow Arama
+// Progressive Overflow Searching
 int progressiveOverflowSearch(int key) {
     for (int i = 0; i < OVERFLOW_SIZE; i++) {
         if (overflowArea[i].isOccupied && overflowArea[i].key == key) {
@@ -1532,7 +1251,7 @@ int progressiveOverflowSearch(int key) {
     return -1;
 }
 
-// Bucket Kullanımı Arama
+// Use of Bucket Searching
 int useOfBucketsSearch(int key) {
     int index = hashFunction(key);
     for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
@@ -1563,16 +1282,12 @@ int brentsMethodSearch(int key) {
     return -1;
 }
 
-
-
-
-
-int selectProduct(char* selectedProductName) {
+bool selectProduct(char* selectedProductName) {
     FILE* productFile;
     Product product;
     int productCount = 0;
 
-    productFile = fopen("products.bin", "rb"); // Ürün dosyasını okuma modunda açıyoruz
+    productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
         return 1;
@@ -1596,7 +1311,7 @@ int selectProduct(char* selectedProductName) {
     printf("Enter the Product Name to select: ");
     scanf(" %[^\n]s", selectedProductName);
 
-    // Ürünün seçilip seçilmediğini kontrol etmek için dosyada tekrar arama yapıyoruz
+    // We search the file again to check if the product has been selected
     productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
@@ -1619,64 +1334,64 @@ int selectProduct(char* selectedProductName) {
         return 1;
     }
 
-    return 0; // İşlem başarılıysa 0 döndür
+    return true;
 }
 
-// Heapify fonksiyonu
+// Heapify Function
 void heapify(Product arr[], int n, int i) {
-    int largest = i; // En büyük elemanı kök olarak başlatıyoruz
-    int left = 2 * i + 1; // Sol çocuk
-    int right = 2 * i + 2; // Sağ çocuk
+    int largest = i; // We initialize the largest element as root
+    int left = 2 * i + 1; // Left child
+    int right = 2 * i + 2; // Right child
 
-    // Sol çocuğun kökten büyük olup olmadığını kontrol et
+    // Check if the left child is bigger than the root
     if (left < n && arr[left].price > arr[largest].price)
         largest = left;
 
-    // Sağ çocuğun kökten büyük olup olmadığını kontrol et
+    // Check if the right child is bigger than the root
     if (right < n && arr[right].price > arr[largest].price)
         largest = right;
 
-    // Eğer en büyük eleman kök değilse
+    // If the largest element is not a root
     if (largest != i) {
         Product temp = arr[i];
         arr[i] = arr[largest];
         arr[largest] = temp;
 
-        // Alt ağaçta heapify uygula
+        // Apply heapify in subtree
         heapify(arr, n, largest);
     }
 }
 
-// Heap sort fonksiyonu
+// Heap sort Function
 void heapSort(Product arr[], int n) {
-    // Dizi için max-heap oluştur
+    // Create max-heap for array
     for (int i = n / 2 - 1; i >= 0; i--)
         heapify(arr, n, i);
 
-    // Elemanları teker teker heap'ten çek
+    // Pull elements from the heap one by one
     for (int i = n - 1; i >= 0; i--) {
         Product temp = arr[0];
         arr[0] = arr[i];
         arr[i] = temp;
 
-        // Kalan ağaç için heapify uygula
+        // Apply heapify for the remaining tree
         heapify(arr, i, 0);
     }
 }
 
-int comparePricesByName(const char* productName) {
+bool comparePricesByName(const char* productName) {
     FILE* productFile;
-    Product products[100]; // Maksimum 100 ürün kabul ediliyor
+    Product products[100];
     int productCount = 0;
     bool found = false;
 
     productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
-        return 1;  // Hata durumunda 1 döndür
+        return 1;
     }
 
-    // Dosyadan ürünleri oku ve verilen isimle eşleşenleri products dizisine ekle
+    // Read products from the file and add the ones that match the given name to the products array
     while (fread(&products[productCount], sizeof(Product), 1, productFile)) {
         if (strcmp(products[productCount].productName, productName) == 0) {
             productCount++;
@@ -1688,10 +1403,10 @@ int comparePricesByName(const char* productName) {
 
     if (!found) {
         printf("No prices found for Product Name '%s'.\n", productName);
-        return 1;  // Ürün bulunamazsa 1 döndür
+        return 1;
     }
 
-    // Ürünleri fiyata göre sırala (heap sort kullanarak)
+    // Sort products by price (using heap sort)
     heapSort(products, productCount);
 
     // Sıralanmış ürünleri yazdır
@@ -1703,10 +1418,10 @@ int comparePricesByName(const char* productName) {
     printf("\nLowest Price: %.2f\n", products[0].price);
     printf("Highest Price: %.2f\n", products[productCount - 1].price);
 
-    return 0;  // Başarılı işlem için 0 döndür
+    return true;
 }
 
-// Yeni bir B+ Tree Node oluşturan fonksiyon
+// Function that creates a new B+ Tree Node
 BPlusTreeNode* createNode(bool isLeaf) {
     BPlusTreeNode* newNode = (BPlusTreeNode*)malloc(sizeof(BPlusTreeNode));
     newNode->isLeaf = isLeaf;
@@ -1718,7 +1433,7 @@ BPlusTreeNode* createNode(bool isLeaf) {
     return newNode;
 }
 
-// B+ Tree'ye anahtar ekleyen fonksiyon
+// Function that adds key to B+ Tree
 BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
     if (root == NULL) {
         root = createNode(true);
@@ -1743,7 +1458,7 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
         }
     }
 
-    // Yaprağa ulaşıldı, anahtarı ekle
+    // Leaf reached, add the key
     int i = current->keyCount - 1;
     while (i >= 0 && current->keys[i] > key) {
         current->keys[i + 1] = current->keys[i];
@@ -1752,7 +1467,7 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
     current->keys[i + 1] = key;
     current->keyCount++;
 
-    // Yaprak dolduysa bölme işlemi
+    // Division if the sheet is full
     if (current->keyCount == MAX_KEYS) {
         BPlusTreeNode* newLeaf = createNode(true);
         int mid = (MAX_KEYS + 1) / 2;
@@ -1764,7 +1479,7 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
         newLeaf->next = current->next;
         current->next = newLeaf;
 
-        // Ebeveyne yeni anahtarı ekle
+        // Add new key to parent
         if (parent == NULL) {
             parent = createNode(false);
             parent->keys[0] = newLeaf->keys[0];
@@ -1774,7 +1489,7 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
             root = parent;
         }
         else {
-            // Parent'e yeni anahtar ekle
+            // Add new key to parent
             int newKey = newLeaf->keys[0];
             return insert(root, newKey);
         }
@@ -1783,7 +1498,7 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
     return root;
 }
 
-// Belirli bir anahtarı arayan fonksiyon
+// Function that searches for a specific key
 bool search(BPlusTreeNode* root, int key) {
     BPlusTreeNode* current = root;
     while (current != NULL) {
@@ -1946,13 +1661,13 @@ void updateMarketHoursAndLocation() {
             }
 
             printf("Enter new Working Hours (e.g., 09:00 - 18:00): ");
-            while (getchar() != '\n');  // Tamponu temizle
-            fgets(market.hours, sizeof(market.hours), stdin);  // fgets kullanarak saati al
-            market.hours[strcspn(market.hours, "\n")] = 0;  // Satır sonu karakterini kaldır
+            while (getchar() != '\n');  // Clean the tampon
+            fgets(market.hours, sizeof(market.hours), stdin);  // Get the clock using fgets
+            market.hours[strcspn(market.hours, "\n")] = 0;  //Remove end-of-line character
             while (!validateWorkingHours(market.hours)) {
                 printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");
                 fgets(market.hours, sizeof(market.hours), stdin);
-                market.hours[strcspn(market.hours, "\n")] = 0;  // Satır sonu karakterini kaldır
+                market.hours[strcspn(market.hours, "\n")] = 0;  // Remove end-of-line character
             }
 
 
@@ -1972,13 +1687,6 @@ void updateMarketHoursAndLocation() {
 
     fclose(file);
 }
-
-
-
-
-
-
-
 
 // XOR two pointers
 MarketHoursNode* xor (MarketHoursNode* a, MarketHoursNode* b) {
@@ -2119,3 +1827,240 @@ void displayMarketHoursAndLocations() {
     traverseXORListGroupedByID(head);
 }
 
+// Helper function to calculate the LPS (Longest Prefix Suffix) sequence for the KMP algorithm
+void computeLPSArray(const char* pattern, int M, int* lps) {
+    int length = 0;
+    lps[0] = 0; // lps[0] is always 0
+
+    int i = 1;
+    while (i < M) {
+        if (pattern[i] == pattern[length]) {
+            length++;
+            lps[i] = length;
+            i++;
+        }
+        else {
+            if (length != 0) {
+                length = lps[length - 1];
+            }
+            else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+// Function that searches for patterns in text using the KMP algorithm
+bool KMPSearch(const char* pattern, const char* text) {
+    int M = strlen(pattern);
+    int N = strlen(text);
+
+    int* lps = (int*)malloc(M * sizeof(int));
+    computeLPSArray(pattern, M, lps);
+
+    int i = 0;
+    int j = 0;
+    while (i < N) {
+        if (pattern[j] == text[i]) {
+            j++;
+            i++;
+        }
+
+        if (j == M) {
+            free(lps);
+            return true; // Pattern found
+        }
+        else if (i < N && pattern[j] != text[i]) {
+            if (j != 0) {
+                j = lps[j - 1];
+            }
+            else {
+                i++;
+            }
+        }
+    }
+
+    free(lps);
+    return false; // Pattern not found
+}
+
+// Function that lists favorite product and related vendors
+bool enterSearchProducts() {
+    FILE* productFile;
+    FILE* vendorFile;
+    Product product;
+    Vendor vendor;
+    char favoriteProduct[100];
+    bool found = false;
+
+    // Get favorite product name from user
+    printf("Enter the name of your favorite product to search for vendors: ");
+    scanf(" %[^\n]s", favoriteProduct);
+
+    // Open the product file
+    productFile = fopen("products.bin", "rb");
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return 1;
+    }
+
+    // Open the vendor file
+    vendorFile = fopen("vendor.bin", "rb");
+    if (vendorFile == NULL) {
+        printf("Error opening vendor file.\n");
+        fclose(productFile);
+        return 1;
+    }
+
+    printf("\n--- Vendors Offering '%s' ---\n", favoriteProduct);
+
+    // Search with KMP by scanning the product file
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        if (KMPSearch(favoriteProduct, product.productName)) {
+            // Matching product found, show vendor
+            rewind(vendorFile); // Undo to reread the vendor file
+            while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
+                if (vendor.id == product.vendorId) {
+                    printf("Vendor: %s, ID: %d\n", vendor.name, vendor.id);
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!found) {
+        printf("No vendors found offering '%s'.\n", favoriteProduct);
+    }
+
+    // Close the files
+    fclose(productFile);
+    fclose(vendorFile);
+
+    printf("\nPress Enter to return to menu...");
+    getchar();
+    getchar(); // Again to clean the tampon
+
+    return true;
+}
+
+bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
+    // Start a stack for DFS
+    std::stack<Node*> stack;
+    stack.push(node);
+
+    while (!stack.empty()) {
+        Node* currentNode = stack.top();
+        stack.pop();
+
+        // Skip if the node has been visited
+        bool isVisited = false;
+        for (int i = 0; i < *visitedCount; i++) {
+            if (visited[i] == currentNode) {
+                isVisited = true;
+                break;
+            }
+        }
+        if (isVisited) continue;
+
+        // Mark node as visited
+        visited[*visitedCount] = currentNode;
+        (*visitedCount)++;
+
+        // Return if the keyword is present in the node information
+        if (strstr(currentNode->info, keyword) != NULL) {
+            printf("Match found: %s\n", currentNode->info);
+            return true;
+        }
+
+        // Add neighbor nodes to the stack
+        for (int i = 0; i < currentNode->neighborCount; i++) {
+            stack.push(currentNode->neighbors[i]);
+        }
+    }
+
+    return false;
+}
+
+bool enterKeywords() {
+    char keyword[100];
+    printf("\nEnter a keyword to search: ");
+    scanf("%s", keyword);
+
+    // Read product and vendor information from file and create nodes
+    FILE* productFile = fopen("products.bin", "rb");
+    FILE* vendorFile = fopen("vendor.bin", "rb");
+
+    if (productFile == NULL || vendorFile == NULL) {
+        printf("Error opening product or vendor file.\n");
+        return 1;
+    }
+
+    Product product;
+    Vendor vendor;
+
+    // Create an array for all nodes (with a maximum of 100 nodes)
+    Node* nodes[100];
+    int nodeCount = 0;
+
+    // Adding products as nodes
+    while (fread(&product, sizeof(Product), 1, productFile) && nodeCount < 100) {
+        Node* productNode = (Node*)malloc(sizeof(Node));
+        productNode->info = (char*)malloc(200 * sizeof(char));
+        snprintf(productNode->info, 200, "Product: %s, Season: %s, Vendor ID: %d, Price: %.2f, Quantity: %d",
+            product.productName, product.season, product.vendorId, product.price, product.quantity);
+        productNode->neighborCount = 0;
+        productNode->neighbors = NULL;
+        nodes[nodeCount++] = productNode;
+    }
+
+    // Adding vendors as nodes
+    while (fread(&vendor, sizeof(Vendor), 1, vendorFile) && nodeCount < 100) {
+        Node* vendorNode = (Node*)malloc(sizeof(Node));
+        vendorNode->info = (char*)malloc(100 * sizeof(char));
+        snprintf(vendorNode->info, 100, "Vendor: %s, ID: %d", vendor.name, vendor.id);
+        vendorNode->neighborCount = 0;
+        vendorNode->neighbors = NULL;
+        nodes[nodeCount++] = vendorNode;
+    }
+
+    fclose(productFile);
+    fclose(vendorFile);
+
+    // Search keyword with DFS
+    Node* visited[100];  // To follow the nodes visited
+    int visitedCount = 0;
+    bool found = false;
+
+    for (int i = 0; i < nodeCount; ++i) {
+        visitedCount = 0;  // Reset visit sequence for each node
+        if (DFS(nodes[i], keyword, visited, &visitedCount)) {
+            found = true;
+        }
+    }
+
+    if (!found) {
+        printf("No matches found for keyword '%s'.\n", keyword);
+    }
+    // Running the SCC Algorithm
+ // SCC can be found using one of Tarjan's or Kosaraju's algorithms
+    printf("\nFinding Strongly Connected Components (SCC)...\n");
+    findSCC(nodes, nodeCount);
+
+    // Clean up dynamically created nodes
+    for (int i = 0; i < nodeCount; ++i) {
+        free(nodes[i]->info);
+        free(nodes[i]->neighbors);
+        free(nodes[i]);
+    }
+
+    printf("Press Enter to return to menu...");
+    getchar();
+    getchar();  // Again to clean the tampon
+
+    return true;
+}
+
+void findSCC(Node* nodes[], int nodeCount) {
+}

@@ -1,35 +1,21 @@
-/**
- * @file market.h
- *
- * @brief Provides functions for math. utilities
- */
-
 #ifndef MARKET_H
 #define MARKET_H
 #define BUCKET_SIZE 5
 #define MAX_VENDORS 100
 #define MAX_PRODUCTS 100
 #define MAX_TREE_HT 100
-
 #define MAX_KEYS 3
 #define MIN_KEYS (MAX_KEYS / 2)
-
-
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-
 
 struct User {
     char username[50];  // Kullanıcı adı (en fazla 50 karakter)
     char password[50];  // Şifre (en fazla 50 karakter)
 };
-
 
 struct Vendor {
     int id;                // Benzersiz ID (int)
@@ -37,14 +23,12 @@ struct Vendor {
 };
 
 struct Product {
-    int vendorId;          // Satıcı ID'si
-    char productName[50];  // Ürünün adı
-    float price;           // Ürünün fiyatı
-    int quantity;          // Ürünün adedi
-    char season[20];       // Ürünün mevsimi
+    int vendorId;          
+    char productName[50]; 
+    float price;         
+    int quantity;
+    char season[20];
 };
-
-
 
 typedef struct {
     int key;
@@ -57,18 +41,18 @@ typedef struct {
     int productCount;
 } Bucket;
 
-// Çalışma saatleri ve lokasyon bilgileri
 struct MarketHoursAndLocation {
     int vendorId;
     char location[100];
     char workingHours[50];
     char workingDays[20];
 };
-// DFS için kullanıldı 
+
+//For DFS
 struct Node {
-    char* info;           // Ürün veya satıcı bilgisi
-    Node** neighbors;     // Bağlı komşu düğümler
-    int neighborCount;    // Komşu sayısı
+    char* info;   
+    Node** neighbors;     
+    int neighborCount;   
 };
 
 typedef struct {
@@ -77,7 +61,7 @@ typedef struct {
     float price;
 } SparseMatrixEntry;
 
-// B+ Tree Node yapisi
+// B+ Tree Node Structure
 typedef struct BPlusTreeNode {
     bool isLeaf;
     int keys[MAX_KEYS];
@@ -86,42 +70,49 @@ typedef struct BPlusTreeNode {
     struct BPlusTreeNode* next;
 } BPlusTreeNode;
 
-// Haftanın günlerini tanımlayan sabit dizi
-extern const char* daysOfWeek[7];
-extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
-extern int sparseMatrixSize;
-// Fonksiyon prototipleri
-int getDayIndex(const char* day);
-char* generateWorkingDays(const char* startDay, int duration);
-bool validateWorkingHours(const char* hours);
-
-// Huffman düğümü tanımı
+// Huffman node definition
 struct MinHeapNode {
     char data;
     unsigned freq;
     struct MinHeapNode* left, * right;
 };
 
-// Min-Heap tanımı
+// Min-Heap Definition
 struct MinHeap {
     unsigned size;
     unsigned capacity;
     struct MinHeapNode** array;
 };
 
+// Market Hours structure definition
+typedef struct {
+    int id;
+    char day[20];
+    char hours[20];
+    char location[50];
+} MarketHours;
 
-bool validateDay(const char* day);
+typedef struct MarketHoursNode {
+    MarketHours data;
+    struct MarketHoursNode* xorPtr; // XOR of previous and next nodes
+} MarketHoursNode;
+
+// Two-way connected list node
+typedef struct DoublyLinkedListNode {
+    Vendor vendor;
+    struct DoublyLinkedListNode* next;
+    struct DoublyLinkedListNode* prev;
+} DoublyLinkedListNode;
 
 int getInput();
-int mainMenu();
+bool mainMenu();
 
-
-int listingOfLocalProducts();
-int priceComparison();
+bool listingOfLocalProducts();
+bool priceComparison();
+bool searchProductsOrEnterKeyword();
 int comparePricesByName();
 int selectProduct();
-int marketHoursAndLocations();
-
+bool marketHoursAndLocations();
 
 bool userAuthentication();
 bool registerUser();
@@ -140,17 +131,17 @@ bool saveUserToHuffFile(const char* username, const char* password);
 bool loginUser();
 bool loginUserFromHuffFile(const char* username, const char* password);
 
-int listingOfLocalVendors();
-int addVendor();
-int updateVendor();
-int deleteVendor();
-int listVendors();
+bool listingOfLocalVendors();
+bool addVendor();
+bool updateVendor();
+bool deleteVendor();
+bool listVendors();
 
 
-int addProduct();
-int updateProduct();
-int deleteProduct();
-int listingOfLocalVendorsandProducts();
+bool addProduct();
+bool updateProduct();
+bool deleteProduct();
+bool listingOfLocalVendorsandProducts();
 void initializeHashTable();
 int hashFunction(int key);
 int linearProbing(int key, int i);
@@ -160,63 +151,35 @@ int linearQuotient(int key, int i);
 int progressiveOverflowSearch(int key);
 int useOfBucketsSearch(int key);
 int brentsMethodSearch(int key);
-int listingOfLocalVendorsandProducts();
 void addVendorProductRelation(int vendorId, int productId, float price);
 void listProductsByVendor(int vendorId);
 
-
-int searchProductsOrEnterKeyword();
-int enterSearchProducts();
-int enterKeywords();
+bool enterSearchProducts();
+bool enterKeywords();
 int priceComparis();
-
-// Diğer gerekli kütüphaneler ve yapı tanımları
-int comparePricesByName(const char* productName);  // comparePricesByName için prototip
-int selectProduct(char* selectedProductName);      // selectProduct için prototip
-
-
-// Market Hours structure definition
-typedef struct {
-    int id;
-    char day[20];
-    char hours[20];
-    char location[50];
-} MarketHours;
-
-
-// Function declarations
+bool comparePricesByName(const char* productName); 
+bool selectProduct(char* selectedProductName);
 bool validateDay(const char* day);
 bool validateWorkingHours(const char* hours);
+int getDayIndex(const char* day);
+char* generateWorkingDays(const char* startDay, int duration);
+bool validateWorkingHours(const char* hours);
+
+// Fixed array defining the days of the week
+extern const char* daysOfWeek[7];
+extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
+extern int sparseMatrixSize;
 
 void addMarketHoursAndLocation();
 void updateMarketHoursAndLocation();
 void displayMarketHoursAndLocations();
-
-
-typedef struct MarketHoursNode {
-    MarketHours data;
-    struct MarketHoursNode* xorPtr; // XOR of previous and next nodes
-} MarketHoursNode;
-
-// Function prototypes
 MarketHoursNode* xor (MarketHoursNode* a, MarketHoursNode* b);
 MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data);
 void traverseXORList(MarketHoursNode* head);
-
-
 void traverseXORList(MarketHoursNode* head);
-
-// Diğer gerekli prototipler
-
-
 void findSCC(struct Node* nodes[], int nodeCount);
 
-// Çift yönlü bağlı liste düğümü
-typedef struct DoublyLinkedListNode {
-    Vendor vendor;
-    struct DoublyLinkedListNode* next;
-    struct DoublyLinkedListNode* prev;
-} DoublyLinkedListNode;
+
 
 
 #endif // MARKET_H
