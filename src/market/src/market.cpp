@@ -91,7 +91,7 @@ bool userAuthentication() {
             break;
         case 4:
             printf("Exiting the program...\n");
-            break;
+            return true;
         default:
             printf("Invalid option. Please try again.\n");
             getchar(); 
@@ -265,7 +265,7 @@ bool priceComparison() {
 
         printf("Press Enter to continue...");
         getchar();  // Wait for the user to press Enter
-        getchar();  // To clean the tampon
+      /*  getchar(); */ // To clean the tampon
 
     } while (choice != 0);
 
@@ -1058,6 +1058,7 @@ bool listingOfLocalVendorsandProducts() {
         printf("5. Progressive Overflow\n");
         printf("6. Use of Buckets\n");
         printf("7. Brent's Method\n");
+        printf("8.Exit\n");
         scanf("%d", &strategy);
 
         // Use the appropriate conflict resolution algorithm to find products
@@ -1145,6 +1146,11 @@ bool listingOfLocalVendorsandProducts() {
                     found = 1;
                 }
             }
+            break;
+        case 8:
+            printf("Exiting the vendor list\n");
+            getchar();
+            return true;
             break;
 
         default:
@@ -1388,6 +1394,7 @@ bool comparePricesByName(const char* productName) {
     productFile = fopen("products.bin", "rb");
     if (productFile == NULL) {
         printf("Error opening product file.\n");
+        getchar();
         return 1;
     }
 
@@ -1403,6 +1410,7 @@ bool comparePricesByName(const char* productName) {
 
     if (!found) {
         printf("No prices found for Product Name '%s'.\n", productName);
+        getchar();
         return 1;
     }
 
@@ -1417,7 +1425,7 @@ bool comparePricesByName(const char* productName) {
 
     printf("\nLowest Price: %.2f\n", products[0].price);
     printf("Highest Price: %.2f\n", products[productCount - 1].price);
-
+    getchar();
     return true;
 }
 
@@ -1548,17 +1556,17 @@ bool validateWorkingHours(const char* hours) {
 }
 
 // Function to add market hours and location
-void addMarketHoursAndLocation() {
+bool addMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "ab");
     FILE* vendorFile = fopen("vendor.bin", "rb");
     if (file == NULL) {
         printf("Error opening market hours file.\n");
-        return;
+        return false;
     }
     if (vendorFile == NULL) {
         printf("Error opening vendor file.\n");
         fclose(file);
-        return;
+        return false;
     }
 
     MarketHours market;
@@ -1590,7 +1598,7 @@ void addMarketHoursAndLocation() {
             if (vendorFile == NULL) {
                 printf("Error opening vendor file.\n");
                 fclose(file);
-                return;
+                return false;
             }
             while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
                 if (vendor.id == market.id) {
@@ -1630,14 +1638,15 @@ void addMarketHoursAndLocation() {
     fclose(file);
 
     printf("Market hours and location added successfully!\n");
+    return true;
 }
 
 // Function to update market hours and location
-void updateMarketHoursAndLocation() {
+bool updateMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "rb+");
     if (file == NULL) {
         printf("Error opening market hours file.\n");
-        return;
+        return false;
     }
 
     int marketId;
@@ -1686,6 +1695,7 @@ void updateMarketHoursAndLocation() {
     }
 
     fclose(file);
+    return true;
 }
 
 // XOR two pointers
@@ -1806,11 +1816,11 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
 }
 
 // Function to display market hours and locations grouped by ID
-void displayMarketHoursAndLocations() {
+bool displayMarketHoursAndLocations() {
     FILE* file = fopen("marketHours.bin", "rb");
     if (file == NULL) {
         printf("Error opening market hours file.\n");
-        return;
+        return false;
     }
 
     MarketHours market;
@@ -1825,6 +1835,7 @@ void displayMarketHoursAndLocations() {
 
     // Traverse and display the XOR linked list grouped by ID
     traverseXORListGroupedByID(head);
+    return true;
 }
 
 // Helper function to calculate the LPS (Longest Prefix Suffix) sequence for the KMP algorithm
