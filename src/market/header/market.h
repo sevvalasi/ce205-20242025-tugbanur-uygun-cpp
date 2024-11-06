@@ -170,10 +170,10 @@ extern const char* daysOfWeek[7];
 extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 extern int sparseMatrixSize;
 
-void addMarketHoursAndLocation();
-void updateMarketHoursAndLocation();
-void displayMarketHoursAndLocations();
-MarketHoursNode* xor (MarketHoursNode* a, MarketHoursNode* b);
+bool addMarketHoursAndLocation();
+bool updateMarketHoursAndLocation();
+bool displayMarketHoursAndLocations();
+//* xor (MarketHoursNode* a, MarketHoursNode* b);
 MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data);
 void traverseXORList(MarketHoursNode* head);
 void traverseXORList(MarketHoursNode* head);

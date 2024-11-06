@@ -18,8 +18,7 @@ int main() {
     addVendorProductRelation(2, 101, 11.0);
     addVendorProductRelation(3, 103, 15.0);
 
-    // Tüm satıcıların ürünlerini listeleme
-    listingOfLocalVendorsandProducts();
+    
    
 
     return 0;
