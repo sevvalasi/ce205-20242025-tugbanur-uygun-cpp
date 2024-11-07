@@ -515,11 +515,87 @@ TEST_F(MarketTest, EnterKeywordsTEST) {
 }
 
 
+// saveUserToHuffFile fonksiyonunu test eden birim testi
+TEST_F(MarketTest, SaveUserToHuffFileTEST) {
+    // Kullanıcı adı ve şifreyi kaydet
+    const char* username = "testUser";
+    const char* password = "password123";
+    bool result = saveUserToHuffFile(username, password);
 
+    // Kaydetme işleminin başarılı olduğunu kontrol et
+    EXPECT_TRUE(result);
+}
 
+// loginUser fonksiyonunu (düzenlenmiş) test eden birim testi
+TEST_F(MarketTest, LoginUserUpdatedTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
+    simulateUserInput("testUser\npassword123\n");
 
+    // loginUser fonksiyonunu çağır
+    bool result = loginUser();
 
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
 
+    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, RegisterUserTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("newUser\nnewPassword\n");
+
+    // registerUser fonksiyonunu çağır
+    bool result = registerUser();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, AddVendorTEST) {
+    // Simüle edilmiş vendor ekleme girişleri (vendor adı)
+    simulateUserInput("sevval\n");
+
+    // addVendor fonksiyonunu çağır
+    bool result = addVendor();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Vendor ekleme işleminin başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, UpdateVendorTEST) {
+    // Simüle edilmiş vendor güncelleme girişleri (vendor ID ve yeni adı)
+    simulateUserInput("123456\nsevval\n");
+
+    // updateVendor fonksiyonunu çağır
+    bool result = updateVendor();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Vendor güncelleme işleminin başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, DeleteVendorTEST) {
+    // Simüle edilmiş vendor silme girişleri (vendor ID)
+    simulateUserInput("123456\n");
+
+    // deleteVendor fonksiyonunu çağır
+    bool result = deleteVendor();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Vendor silme işleminin başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
 
 int main(int argc, char** argv) {
 #ifdef ENABLE_MARKET_TEST
