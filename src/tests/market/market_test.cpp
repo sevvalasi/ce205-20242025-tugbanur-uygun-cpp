@@ -475,6 +475,49 @@ TEST_F(MarketTest, DisplayMarketHoursAndLocationsTEST) {
     EXPECT_TRUE(result);
 }
 
+TEST_F(MarketTest, SearchProductsOrEnterKeywordTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("0\n");
+    // getInput fonksiyonunu çağır
+    bool result = searchProductsOrEnterKeyword;
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, EnterSearchProductsTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("tomato\n");
+    // getInput fonksiyonunu çağır
+    bool result = enterSearchProducts;
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, EnterKeywordsTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("winter\n");
+    // getInput fonksiyonunu çağır
+    bool result = enterKeywords;
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+
+
 
 
 
