@@ -173,7 +173,7 @@ extern int sparseMatrixSize;
 bool addMarketHoursAndLocation();
 bool updateMarketHoursAndLocation();
 bool displayMarketHoursAndLocations();
-//* xor (MarketHoursNode* a, MarketHoursNode* b);
+MarketHoursNode* xor_function (MarketHoursNode* a, MarketHoursNode* b);
 MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data);
 void traverseXORList(MarketHoursNode* head);
 void traverseXORList(MarketHoursNode* head);

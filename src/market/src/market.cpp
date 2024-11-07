@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <stdio.h>
 #include <sstream>
-#include <conio.h>
 #include <time.h>
 #include <ctype.h>
 #include <stack>  // Required to use the stack structure (DFS)
@@ -1699,7 +1698,7 @@ bool updateMarketHoursAndLocation() {
 }
 
 // XOR two pointers
-MarketHoursNode* xor (MarketHoursNode* a, MarketHoursNode* b) {
+MarketHoursNode* xor_function (MarketHoursNode* a, MarketHoursNode* b) {
     return (MarketHoursNode*)((uintptr_t)(a) ^ (uintptr_t)(b));
 }
 
@@ -1718,14 +1717,14 @@ MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
     MarketHoursNode* next;
 
     while (curr != NULL) {
-        next = xor (prev, curr->xorPtr);
+        next = xor_function(prev, curr->xorPtr);
         if (data.id < curr->data.id) {
             // Insert before current node
-            newNode->xorPtr = xor (prev, curr);
+            newNode->xorPtr = xor_function(prev, curr);
             if (prev != NULL) {
-                prev->xorPtr = xor (xor (prev->xorPtr, curr), newNode);
+                prev->xorPtr = xor_function(xor_function(prev->xorPtr, curr), newNode);
             }
-            curr->xorPtr = xor (newNode, next);
+            curr->xorPtr = xor_function(newNode, next);
             if (prev == NULL) {
                 head = newNode;
             }
@@ -1736,7 +1735,7 @@ MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
     }
 
     // Insert at the end
-    prev->xorPtr = xor (xor (prev->xorPtr, NULL), newNode);
+    prev->xorPtr = xor_function(xor_function(prev->xorPtr, NULL), newNode);
     newNode->xorPtr = prev;
 
     return head;
@@ -1765,7 +1764,7 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
         while (curr != NULL && curr->data.id == currentID) {
             printf("  Day: %s, Hours: %s, Location: %s\n",
                 curr->data.day, curr->data.hours, curr->data.location);
-            next = xor (prev, curr->xorPtr);
+            next = xor_function(prev, curr->xorPtr);
             prev = curr;
             curr = next;
         }
@@ -1781,7 +1780,7 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
             else if (choice == 'p') {
                 // Traverse back to the start of the previous ID group
                 while (prev != NULL && prev->data.id == currentID) {
-                    next = xor (prev->xorPtr, curr);
+                    next = xor_function(prev->xorPtr, curr);
                     curr = prev;
                     prev = next;
                 }
@@ -1790,7 +1789,7 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
                 if (prev != NULL) {
                     currentID = prev->data.id;
                     while (prev != NULL && prev->data.id == currentID) {
-                        next = xor (prev->xorPtr, curr);
+                        next = xor_function(prev->xorPtr, curr);
                         curr = prev;
                         prev = next;
                     }
