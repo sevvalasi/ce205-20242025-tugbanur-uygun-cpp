@@ -597,6 +597,22 @@ TEST_F(MarketTest, DeleteVendorTEST) {
     EXPECT_TRUE(result);
 }
 
+TEST_F(MarketTest, DisplayMarketHoursandLocationsTEST) {
+    // Simüle edilmiş vendor silme girişleri (vendor ID)
+    simulateUserInput("\n");
+
+    // deleteVendor fonksiyonunu çağır
+    bool result = displayMarketHoursAndLocations();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Vendor silme işleminin başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
 int main(int argc, char** argv) {
 #ifdef ENABLE_MARKET_TEST
     ::testing::InitGoogleTest(&argc, argv);
