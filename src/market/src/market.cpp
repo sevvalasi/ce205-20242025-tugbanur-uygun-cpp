@@ -417,7 +417,7 @@ bool loginUser() {
         return false;
     }
 
-    return found == 1;
+    return true;
 }
 
 bool saveUserToHuffFile(const char* username, const char* password) {
