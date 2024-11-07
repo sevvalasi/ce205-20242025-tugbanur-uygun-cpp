@@ -1,22 +1,48 @@
-﻿#include "gtest/gtest.h"
+﻿/**
+ * @file market_test.cpp
+ * @brief Unit tests for the Market application functions using Google Test framework.
+ *
+ * This file contains unit tests for the main menu, vendor, product management, market hours,
+ * and search functionalities of the Market application. It utilizes Google Test to simulate user
+ * inputs and verify the expected results of the functions.
+ */
+#include "gtest/gtest.h"
 #include "../../market/header/market.h"
 
-
+ /**
+  * @class MarketTest
+  * @brief Test fixture class for Market application unit tests.
+  *
+  * This class sets up and tears down the test environment, simulating user inputs and redirecting
+  * input and output streams as necessary. It is used for testing different functionalities
+  * related to vendors, products, market hours, and user interactions.
+  */
 class MarketTest : public ::testing::Test {
 protected:
     const char* inputTest = "inputTest.txt";
     const char* outputTest = "outputTest.txt";
 
+
+    /**
+     * @brief Set up the test environment by initializing the hash table.
+     */
     void SetUp() override {
         // Test verileri ayarlanabilir.
         initializeHashTable();
     }
 
+    /**
+    * @brief Tear down the test environment by removing temporary input and output files.
+    */
     void TearDown() override {
         remove(inputTest);
         remove(outputTest);
     }
 
+    /**
+     * @brief Simulate user input by writing to a file and redirecting stdin to that file.
+     * @param userInput The simulated user input.
+     */
     void simulateUserInput(const char* userInput) {
         FILE* fileinput = fopen(inputTest, "wb");
         fputs(userInput, fileinput);
@@ -25,6 +51,9 @@ protected:
         freopen(outputTest, "wb", stdout);
     }
 
+    /**
+     * @brief Reset stdin and stdout to the console.
+     */
     void resetStdinStdout() {
         fclose(stdin);
         fflush(stdout);
@@ -38,6 +67,11 @@ protected:
     }
 };
 
+
+/**
+ * @test MainMenuTest
+ * @brief Test case for the main menu function with option 0.
+ */
 TEST_F(MarketTest, MainMenuTest) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -52,6 +86,10 @@ TEST_F(MarketTest, MainMenuTest) {
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test MainMenuTest1
+ * @brief Test case for the main menu function with option 1.
+ */
 TEST_F(MarketTest, MainMenuTest1) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("1\n0\n0\n");
@@ -66,6 +104,10 @@ TEST_F(MarketTest, MainMenuTest1) {
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test MainMenuTest2
+ * @brief Test case for the main menu function with option 2.
+ */
 TEST_F(MarketTest, MainMenuTest2) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("2\n0\n0\n");
@@ -79,6 +121,8 @@ TEST_F(MarketTest, MainMenuTest2) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
 
 TEST_F(MarketTest, MainMenuTest3) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
@@ -122,6 +166,11 @@ TEST_F(MarketTest, MainMenuTest5) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test listingOfLocalVendorsTEST
+ * @brief Test case for listing local vendors.
+ */
 TEST_F(MarketTest, listingOfLocalVendorsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -137,6 +186,10 @@ TEST_F(MarketTest, listingOfLocalVendorsTEST) {
 }
 
 
+/**
+ * @test AddVendorTEST
+ * @brief Test case for adding a vendor.
+ */
 TEST_F(MarketTest, AddvendorTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("tugba\n\n");
@@ -151,7 +204,10 @@ TEST_F(MarketTest, AddvendorTEST) {
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test UpdateVendorTEST
+ * @brief Test case for updating a vendor.
+ */
 TEST_F(MarketTest, UpdatevendorTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("123456\ntugba\n");
@@ -166,6 +222,11 @@ TEST_F(MarketTest, UpdatevendorTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test DeleteVendorTEST
+ * @brief Test case for deleting a vendor.
+ */
 TEST_F(MarketTest, DeletevendorTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("123456\n\n");
@@ -180,6 +241,11 @@ TEST_F(MarketTest, DeletevendorTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test ListVendorsTEST
+ * @brief Test case for listing all vendors.
+ */
 TEST_F(MarketTest, ListVendorsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("q\n\n");
@@ -194,6 +260,11 @@ TEST_F(MarketTest, ListVendorsTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test ListingOfLocalProductsTEST
+ * @brief Test case for listing all local products.
+ */
 TEST_F(MarketTest, ListingOfLocalProductsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -208,6 +279,10 @@ TEST_F(MarketTest, ListingOfLocalProductsTEST) {
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test AddProductTEST
+ * @brief Test case for adding a product.
+ */
 TEST_F(MarketTest, AddProductTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("123456\ntomato\n15\n150\nwinter\n");
@@ -222,6 +297,11 @@ TEST_F(MarketTest, AddProductTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test UpdateProductTEST
+ * @brief Test case for updating a product.
+ */
 TEST_F(MarketTest, UpdateProductTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("123456\ntomato\n15\n150\nwinter\n");
@@ -236,7 +316,10 @@ TEST_F(MarketTest, UpdateProductTEST) {
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test DeleteProductTEST
+ * @brief Test case for deleting a product.
+ */
 TEST_F(MarketTest, DeleteProductTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("123456\ntomato\n");
@@ -251,6 +334,11 @@ TEST_F(MarketTest, DeleteProductTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test listingOfLocalVendorsandProductsTEST
+ * @brief Test case for listing all local vendors and their products.
+ */
 TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("\n\n");
@@ -264,6 +352,7 @@ TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
 
 TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST1) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
@@ -377,6 +466,11 @@ TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST8) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test PriceComparisonTEST
+ * @brief Test case for comparing product prices.
+ */
 TEST_F(MarketTest, PriceComparisonTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -392,6 +486,10 @@ TEST_F(MarketTest, PriceComparisonTEST) {
 }
 
 
+/**
+ * @test SelectProductTEST
+ * @brief Test case for selecting a product by name.
+ */
 TEST_F(MarketTest, SelectProductTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("tomato\n");
@@ -407,6 +505,11 @@ TEST_F(MarketTest, SelectProductTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test ComparePriceByNameTEST
+ * @brief Test case for comparing product prices by name.
+ */
 TEST_F(MarketTest, ComparePriceByNameTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("tomato\n");
@@ -422,6 +525,10 @@ TEST_F(MarketTest, ComparePriceByNameTEST) {
 }
 
 
+/**
+ * @test marketHoursAndLocationsTEST
+ * @brief Test case for displaying market hours and locations.
+ */
 TEST_F(MarketTest, marketHoursAndLocationsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -435,7 +542,10 @@ TEST_F(MarketTest, marketHoursAndLocationsTEST) {
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test AddMarketHoursAndLocationTEST
+ * @brief Test case for adding market hours and location.
+ */
 TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("1\n123456\nmonday\n09:00 - 18:00\ntrabzon\n");
@@ -449,6 +559,15 @@ TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @brief Test case for updating market hours and location.
+ *
+ * This test simulates user input for updating market hours and location.
+ * The input includes an ID, day, working hours, and location.
+ * After simulating the user input, it calls the updateMarketHoursAndLocation function
+ * and verifies that the function returns true, indicating a successful update.
+ */
 TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("2\n123456\nmonday\n09:00 - 18:00\ntrabzon\n");
@@ -462,6 +581,14 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @brief Test case for displaying market hours and locations.
+ *
+ * This test simulates user input for displaying market hours and locations.
+ * The function displayMarketHoursAndLocations is called after simulating the input,
+ * and it verifies that the function returns true, indicating a successful display.
+ */
 TEST_F(MarketTest, DisplayMarketHoursAndLocationsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("3\n");
@@ -475,6 +602,14 @@ TEST_F(MarketTest, DisplayMarketHoursAndLocationsTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @brief Test case for searching products or entering a keyword.
+ *
+ * This test simulates user input to trigger the searchProductsOrEnterKeyword function.
+ * It verifies that the function returns true after the simulated input, indicating
+ * a successful keyword or product search.
+ */
 TEST_F(MarketTest, SearchProductsOrEnterKeywordTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
@@ -488,6 +623,14 @@ TEST_F(MarketTest, SearchProductsOrEnterKeywordTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @brief Test case for entering search products.
+ *
+ * This test simulates user input for entering a product name to search.
+ * After simulating the input, it calls the enterSearchProducts function and verifies
+ * that the function returns true, indicating a successful product search.
+ */
 TEST_F(MarketTest, EnterSearchProductsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("tomato\n");
@@ -501,6 +644,14 @@ TEST_F(MarketTest, EnterSearchProductsTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @brief Test case for entering keywords.
+ *
+ * This test simulates user input for entering a keyword.
+ * After simulating the input, it calls the enterKeywords function and verifies
+ * that the function returns true, indicating a successful keyword entry.
+ */
 TEST_F(MarketTest, EnterKeywordsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("winter\n");
@@ -515,7 +666,10 @@ TEST_F(MarketTest, EnterKeywordsTEST) {
 }
 
 
-// saveUserToHuffFile fonksiyonunu test eden birim testi
+/**
+ * @test SaveUserToHuffFileTEST
+ * @brief Test case for saving a user to the Huffman file.
+ */
 TEST_F(MarketTest, SaveUserToHuffFileTEST) {
     // Kullanıcı adı ve şifreyi kaydet
     const char* username = "testUser";
@@ -526,7 +680,10 @@ TEST_F(MarketTest, SaveUserToHuffFileTEST) {
     EXPECT_TRUE(result);
 }
 
-// loginUser fonksiyonunu (düzenlenmiş) test eden birim testi
+/**
+ * @test LoginUserUpdatedTEST
+ * @brief Test case for logging in a user.
+ */
 TEST_F(MarketTest, LoginUserUpdatedTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
     simulateUserInput("testUser\npassword123\n");
@@ -541,6 +698,11 @@ TEST_F(MarketTest, LoginUserUpdatedTEST) {
     EXPECT_TRUE(result);
 }
 
+
+/**
+ * @test RegisterUserTEST
+ * @brief Test case for registering a new user.
+ */
 TEST_F(MarketTest, RegisterUserTEST) {
     // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
     simulateUserInput("newUser\nnewPassword\n");
@@ -612,6 +774,15 @@ TEST_F(MarketTest, DisplayMarketHoursandLocationsTEST) {
 }
 
 
+
+
+/**
+ * @brief Main entry point for running all unit tests.
+ *
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return int Exit status.
+ */
 
 int main(int argc, char** argv) {
 #ifdef ENABLE_MARKET_TEST

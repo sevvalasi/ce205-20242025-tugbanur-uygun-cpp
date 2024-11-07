@@ -1,27 +1,59 @@
+/**
+ * @file market.h
+ * @brief Market Management System Header File
+ *
+ * This file contains all necessary definitions, structs, constants, and function prototypes
+ * for managing a local market system. The system involves vendors, products, pricing comparisons,
+ * market hours, B+ trees, Huffman coding, linked lists, hash table operations, and XOR linked lists.
+ */
+
+
 #ifndef MARKET_H
 #define MARKET_H
+
+ /** @brief Bucket size for storing products */
 #define BUCKET_SIZE 5
+/** @brief Maximum number of vendors allowed */
 #define MAX_VENDORS 100
+/** @brief Maximum number of products allowed */
 #define MAX_PRODUCTS 100
+/** @brief Maximum height of Huffman tree */
 #define MAX_TREE_HT 100
+/** @brief Maximum number of keys in B+ Tree nodes */
 #define MAX_KEYS 3
+/** @brief Minimum number of keys in B+ Tree nodes */
 #define MIN_KEYS (MAX_KEYS / 2)
+
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
+
+/**
+ * @struct User
+ * @brief Stores user information for authentication.
+ */
 struct User {
     char username[50];  // Kullanıcı adı (en fazla 50 karakter)
     char password[50];  // Şifre (en fazla 50 karakter)
 };
 
+/**
+ * @struct Vendor
+ * @brief Represents a vendor with an ID and name.
+ */
 struct Vendor {
     int id;                // Benzersiz ID (int)
     char name[50];         // Satıcının ismi (string - max 50 karakter)
 };
 
+
+/**
+ * @struct Product
+ * @brief Stores product information including vendor association.
+ */
 struct Product {
     int vendorId;          
     char productName[50]; 
@@ -30,17 +62,31 @@ struct Product {
     char season[20];
 };
 
+/**
+ * @struct HashTableEntry
+ * @brief Represents an entry in the hash table for product storage.
+ */
 typedef struct {
     int key;
     Product product;
     int isOccupied;
 } HashTableEntry;
 
+
+/**
+ * @struct Bucket
+ * @brief Represents a bucket for storing products in the hash table.
+ */
 typedef struct {
     Product products[BUCKET_SIZE];
     int productCount;
 } Bucket;
 
+
+/**
+ * @struct MarketHoursAndLocation
+ * @brief Stores the market hours and location information for a vendor.
+ */
 struct MarketHoursAndLocation {
     int vendorId;
     char location[100];
@@ -48,43 +94,64 @@ struct MarketHoursAndLocation {
     char workingDays[20];
 };
 
-//For DFS
+/**
+ * @struct Node
+ * @brief Represents a graph node for DFS and SCC algorithms.
+ */
 struct Node {
     char* info;   
     Node** neighbors;     
     int neighborCount;   
 };
 
+
+/**
+ * @struct SparseMatrixEntry
+ * @brief Represents an entry in a sparse matrix used for price storage.
+ */
 typedef struct {
     int vendorId;
     int productId;
     float price;
 } SparseMatrixEntry;
 
-// B+ Tree Node Structure
+/**
+ * @struct BPlusTreeNode
+ * @brief Represents a node in a B+ tree.
+ */
 typedef struct BPlusTreeNode {
-    bool isLeaf;
-    int keys[MAX_KEYS];
-    struct BPlusTreeNode* children[MAX_KEYS + 1];
-    int keyCount;
-    struct BPlusTreeNode* next;
+    bool isLeaf;                                      /**< Indicates if the node is a leaf */
+    int keys[MAX_KEYS];                               /**< Indicates if the node is a leaf */
+    struct BPlusTreeNode* children[MAX_KEYS + 1];     /**< Child pointers */
+    int keyCount;                                     /**< Number of keys in the node */
+    struct BPlusTreeNode* next;                       /**< Pointer to next leaf node (used for linked leaf nodes) */
 } BPlusTreeNode;
 
-// Huffman node definition
+
+/**
+ * @struct MinHeapNode
+ * @brief Represents a node in the Huffman tree.
+ */
 struct MinHeapNode {
     char data;
     unsigned freq;
     struct MinHeapNode* left, * right;
 };
 
-// Min-Heap Definition
+/**
+ * @struct MinHeap
+ * @brief Represents a min-heap for building the Huffman tree.
+ */
 struct MinHeap {
     unsigned size;
     unsigned capacity;
     struct MinHeapNode** array;
 };
 
-// Market Hours structure definition
+/**
+ * @struct MarketHours
+ * @brief Represents the market hours for a vendor.
+ */
 typedef struct {
     int id;
     char day[20];
@@ -92,18 +159,28 @@ typedef struct {
     char location[50];
 } MarketHours;
 
+
+/**
+ * @struct MarketHoursNode
+ * @brief Represents a node in an XOR linked list for market hours.
+ */
 typedef struct MarketHoursNode {
     MarketHours data;
     struct MarketHoursNode* xorPtr; // XOR of previous and next nodes
 } MarketHoursNode;
 
-// Two-way connected list node
+/**
+ * @struct DoublyLinkedListNode
+ * @brief Represents a node in a doubly linked list of vendors.
+ */
 typedef struct DoublyLinkedListNode {
     Vendor vendor;
     struct DoublyLinkedListNode* next;
     struct DoublyLinkedListNode* prev;
 } DoublyLinkedListNode;
 
+
+// Function prototypes and detailed descriptions for market system management
 int getInput();
 bool mainMenu();
 
@@ -116,8 +193,22 @@ bool marketHoursAndLocations();
 
 bool userAuthentication();
 bool registerUser();
+
+/**
+ * @brief Creates a new Huffman node.
+ * @param data Character data.
+ * @param freq Frequency of the character.
+ * @return Pointer to the new MinHeapNode.
+ */
 struct MinHeapNode* newNode(char data, unsigned freq);
+
+/**
+ * @brief Creates a min-heap with given capacity.
+ * @param capacity Capacity of the min-heap.
+ * @return Pointer to the created MinHeap.
+ */
 struct MinHeap* createMinHeap(unsigned capacity);
+
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b);
 void minHeapify(struct MinHeap* minHeap, int idx);
 struct MinHeapNode* extractMin(struct MinHeap* minHeap);
@@ -165,7 +256,7 @@ int getDayIndex(const char* day);
 char* generateWorkingDays(const char* startDay, int duration);
 bool validateWorkingHours(const char* hours);
 
-// Fixed array defining the days of the week
+/** @brief Fixed array defining the days of the week */
 extern const char* daysOfWeek[7];
 extern SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 extern int sparseMatrixSize;
