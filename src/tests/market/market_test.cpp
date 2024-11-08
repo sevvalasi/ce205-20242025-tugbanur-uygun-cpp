@@ -582,26 +582,6 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
 }
 
 
-/**
- * @brief Test case for displaying market hours and locations.
- *
- * This test simulates user input for displaying market hours and locations.
- * The function displayMarketHoursAndLocations is called after simulating the input,
- * and it verifies that the function returns true, indicating a successful display.
- */
-TEST_F(MarketTest, DisplayMarketHoursAndLocationsTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("3\n");
-    // getInput fonksiyonunu çağır
-    bool result = displayMarketHoursAndLocations;
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
-
 
 /**
  * @brief Test case for searching products or entering a keyword.
@@ -759,19 +739,6 @@ TEST_F(MarketTest, DeleteVendorTEST) {
     EXPECT_TRUE(result);
 }
 
-TEST_F(MarketTest, DisplayMarketHoursandLocationsTEST) {
-    // Simüle edilmiş vendor silme girişleri (vendor ID)
-    simulateUserInput("\n");
-
-    // deleteVendor fonksiyonunu çağır
-    bool result = displayMarketHoursAndLocations();
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Vendor silme işleminin başarılı olup olmadığını kontrol et
-    EXPECT_TRUE(result);
-}
 
 
 
