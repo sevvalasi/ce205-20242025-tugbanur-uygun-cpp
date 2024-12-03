@@ -177,7 +177,9 @@ MarketHoursNode* xor_function (MarketHoursNode* a, MarketHoursNode* b);
 MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data);
 void traverseXORList(MarketHoursNode* head);
 void traverseXORList(MarketHoursNode* head);
-void findSCC(struct Node* nodes[], int nodeCount);
+void findSCC(Node* nodes[], int nodeCount);
+void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack, int* stackTop, bool* onStack, int nodeCount);
+int findNodeIndex(Node* nodes[], Node* node, int nodeCount);
 
 
 

@@ -1832,10 +1832,42 @@ bool displayMarketHoursAndLocations() {
 
     fclose(file);
 
-    // Traverse and display the XOR linked list grouped by ID
-    traverseXORListGroupedByID(head);
+    // Traverse and display the XOR linked list grouped by ID using BFS
+    if (head == NULL) {
+        printf("No market hours available.\n");
+        return true;
+    }
+
+    printf("\n--- Market Hours and Locations (BFS Traversal) ---\n");
+    std::queue<MarketHoursNode*> queue;
+    MarketHoursNode* current = head;
+    MarketHoursNode* prev = NULL;
+    queue.push(current);
+
+    // BFS Traversal
+    while (!queue.empty()) {
+        current = queue.front();
+        queue.pop();
+
+        // Display current node's information
+        printf("\nMarket ID: %d\n", current->data.id);
+        printf("  Day: %s, Hours: %s, Location: %s\n",
+            current->data.day, current->data.hours, current->data.location);
+
+        // Get the next node using XOR logic
+        MarketHoursNode* next = xor_function(prev, current->xorPtr);
+
+        if (next != NULL) {
+            queue.push(next);
+        }
+
+        // Move to the next node
+        prev = current;
+    }
+
     return true;
 }
+
 
 // Helper function to calculate the LPS (Longest Prefix Suffix) sequence for the KMP algorithm
 void computeLPSArray(const char* pattern, int M, int* lps) {
@@ -2038,13 +2070,27 @@ bool enterKeywords() {
     fclose(productFile);
     fclose(vendorFile);
 
+    // Fill adjacency lists (neighbors)
+    for (int i = 0; i < nodeCount; ++i) {
+        for (int j = 0; j < nodeCount; ++j) {
+            if (i != j) {
+                // Example condition: keyword or vendor/product relation
+                if (strstr(nodes[j]->info, nodes[i]->info) != NULL) {
+                    nodes[i]->neighborCount++;
+                    nodes[i]->neighbors = (Node**)realloc(nodes[i]->neighbors, nodes[i]->neighborCount * sizeof(Node*));
+                    nodes[i]->neighbors[nodes[i]->neighborCount - 1] = nodes[j];
+                }
+            }
+        }
+    }
+
     // Search keyword with DFS
-    Node* visited[100];  // To follow the nodes visited
+    Node* visited[100];
     int visitedCount = 0;
     bool found = false;
 
     for (int i = 0; i < nodeCount; ++i) {
-        visitedCount = 0;  // Reset visit sequence for each node
+        visitedCount = 0;
         if (DFS(nodes[i], keyword, visited, &visitedCount)) {
             found = true;
         }
@@ -2053,8 +2099,8 @@ bool enterKeywords() {
     if (!found) {
         printf("No matches found for keyword '%s'.\n", keyword);
     }
+
     // Running the SCC Algorithm
- // SCC can be found using one of Tarjan's or Kosaraju's algorithms
     printf("\nFinding Strongly Connected Components (SCC)...\n");
     findSCC(nodes, nodeCount);
 
@@ -2067,10 +2113,69 @@ bool enterKeywords() {
 
     printf("Press Enter to return to menu...");
     getchar();
-    getchar();  // Again to clean the tampon
+    getchar();
 
     return true;
 }
 
 void findSCC(Node* nodes[], int nodeCount) {
+    int* ids = (int*)malloc(nodeCount * sizeof(int));
+    int* low = (int*)malloc(nodeCount * sizeof(int));
+    bool* onStack = (bool*)malloc(nodeCount * sizeof(bool));
+    Node** stack = (Node**)malloc(nodeCount * sizeof(Node*));
+    int stackTop = -1;
+    int id = 0;
+
+    for (int i = 0; i < nodeCount; ++i) {
+        ids[i] = -1;  // -1 if node is not visited
+        low[i] = 0;
+        onStack[i] = false;
+    }
+
+    for (int i = 0; i < nodeCount; ++i) {
+        if (ids[i] == -1) {  // Start DFS if not visited
+            tarjanDFS(nodes, i, &id, ids, low, stack, &stackTop, onStack, nodeCount);
+        }
+    }
+
+    free(ids);
+    free(low);
+    free(onStack);
+    free(stack);
+}
+
+void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack, int* stackTop, bool* onStack, int nodeCount) {
+    ids[at] = low[at] = (*id)++;
+    stack[++(*stackTop)] = nodes[at];
+    onStack[at] = true;
+
+    for (int i = 0; i < nodes[at]->neighborCount; ++i) {
+        int neighborIndex = findNodeIndex(nodes, nodes[at]->neighbors[i], nodeCount); // Find your neighbor's index
+        if (ids[neighborIndex] == -1) {  // If not visited
+            tarjanDFS(nodes, neighborIndex, id, ids, low, stack, stackTop, onStack, nodeCount);
+            low[at] = fmin(low[at], low[neighborIndex]);
+        }
+        else if (onStack[neighborIndex]) {  // If the neighbor is still in the stack
+            low[at] = fmin(low[at], ids[neighborIndex]);
+        }
+    }
+
+    // SCC found if the low connection value is equal to its own id
+    if (low[at] == ids[at]) {
+        printf("SCC: ");
+        while (true) {
+            Node* node = stack[(*stackTop)--];
+            onStack[findNodeIndex(nodes, node, nodeCount)] = false;
+            printf("%s ", node->info);
+            if (node == nodes[at]) break;
+        }
+        printf("\n");
+    }
+}
+
+int findNodeIndex(Node* nodes[], Node* node, int nodeCount) {
+    for (int i = 0; i < nodeCount; ++i) {
+        if (nodes[i] == node) return i;
+    }
+    return -1;  // If not found
 }
