@@ -180,6 +180,26 @@ typedef struct DoublyLinkedListNode {
 } DoublyLinkedListNode;
 
 
+
+typedef struct StackNode {
+    Vendor vendor;
+    struct StackNode* next;
+} StackNode;
+
+typedef struct Stack {
+    StackNode* top;
+} Stack;
+
+typedef struct QueueNode {
+    Vendor vendor;
+    struct QueueNode* next;
+} QueueNode;
+
+typedef struct Queue {
+    QueueNode* front;
+    QueueNode* rear;
+} Queue;
+
 // Function prototypes and detailed descriptions for market system management
 int getInput();
 bool mainMenu();
@@ -227,6 +247,7 @@ bool addVendor();
 bool updateVendor();
 bool deleteVendor();
 bool listVendors();
+bool isDuplicate(Queue* queue, Vendor vendor);
 
 
 bool addProduct();

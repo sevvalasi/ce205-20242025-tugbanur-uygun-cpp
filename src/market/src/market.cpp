@@ -958,6 +958,94 @@ void insertVendor(Vendor newVendor) {
     }
 }
 
+Stack* createStack() {
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    stack->top = NULL;
+    return stack;
+}
+
+bool isStackEmpty(Stack* stack) {
+    return stack->top == NULL;
+}
+
+void push(Stack* stack, Vendor vendor) {
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    newNode->vendor = vendor;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+Vendor pop(Stack* stack) {
+    if (isStackEmpty(stack)) {
+        printf("Stack is empty.\n");
+        Vendor emptyVendor = { 0 };
+        return emptyVendor;
+    }
+    StackNode* temp = stack->top;
+    Vendor vendor = temp->vendor;
+    stack->top = stack->top->next;
+    free(temp);
+    return vendor;
+}
+
+void freeStack(Stack* stack) {
+    while (!isStackEmpty(stack)) {
+        pop(stack);
+    }
+    free(stack);
+}
+
+// Queue fonksiyonları
+Queue* createQueue() {
+    Queue* queue = (Queue*)malloc(sizeof(Queue));
+    queue->front = NULL;
+    queue->rear = NULL;
+    return queue;
+}
+
+bool isQueueEmpty(Queue* queue) {
+    return queue->front == NULL;
+}
+
+void enqueue(Queue* queue, Vendor vendor) {
+    QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
+    newNode->vendor = vendor;
+    newNode->next = NULL;
+    if (queue->rear == NULL) {
+        queue->front = newNode;
+        queue->rear = newNode;
+    }
+    else {
+        queue->rear->next = newNode;
+        queue->rear = newNode;
+    }
+}
+
+Vendor dequeue(Queue* queue) {
+    if (queue->front == NULL) {
+        Vendor emptyVendor = { 0 }; // Boş bir vendor döndür
+        return emptyVendor;
+    }
+
+    QueueNode* temp = queue->front;
+    Vendor vendor = temp->vendor;
+    queue->front = queue->front->next;
+
+    if (queue->front == NULL) {
+        queue->rear = NULL; // Kuyrukta hiçbir eleman kalmadıysa, rear'i de NULL yap
+    }
+
+    free(temp);
+    return vendor;
+}
+
+
+void freeQueue(Queue* queue) {
+    while (!isQueueEmpty(queue)) {
+        dequeue(queue);
+    }
+    free(queue);
+}
 
 /**
  * @brief Lists vendors in the system using a doubly linked list for navigation.
@@ -970,30 +1058,38 @@ void insertVendor(Vendor newVendor) {
 bool listVendors() {
     FILE* file;
     Vendor vendor;
-    file = fopen("vendor.bin", "rb"); //We open the file in read mode
+    file = fopen("vendor.bin", "rb"); // Dosyayı okuma modunda açıyoruz
 
     if (file == NULL) {
         printf("Error opening vendor file.\n");
-        return 1;
+        return false;
     }
 
-    // Add vendors from a file to a linked list
+    // Vendor'ları dosyadan okuma ve stack'e ekleme
+    Stack* vendorStack = createStack();
+    Queue* vendorQueue = createQueue();
+
+
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        insertVendor(vendor);
+        if (!isDuplicate(vendorQueue, vendor)) {
+            enqueue(vendorQueue, vendor); // Queue'ya ekle
+        }
+        push(vendorStack, vendor); // Stack'e ekle
+        insertVendor(vendor); // Mevcut doubly linked list'e ekle
     }
+
 
     fclose(file);
 
-    // Forward and backward navigation
+    // Satıcıları listeleme
     printf("\n--- List of Vendors ---\n");
-    DoublyLinkedListNode* current = head;
     char choice;
-
+    DoublyLinkedListNode* current = head;
 
     while (current != NULL) {
         printf("ID: %d, Name: %s\n", current->vendor.id, current->vendor.name);
-        printf("\n'n' for Next, 'p' for Previous, 'q' to Quit: ");
-        scanf(" %c", &choice); // We remove the previous \n character by adding a space with ' %c'.
+        printf("\n'n' for Next, 'p' for Previous, 's' for Stack traversal, 'q' for Queue traversal, 'x' to Quit: ");
+        scanf(" %c", &choice);
         clearScreen();
 
         if (choice == 'n') {
@@ -1012,15 +1108,29 @@ bool listVendors() {
                 printf("No more vendors in this direction.\n");
             }
         }
+        else if (choice == 's') {
+            printf("\n--- Stack Traversal (Last In, First Out) ---\n");
+            while (!isStackEmpty(vendorStack)) {
+                Vendor v = pop(vendorStack);
+                printf("ID: %d, Name: %s\n", v.id, v.name);
+            }
+        }
         else if (choice == 'q') {
+            printf("\n--- Queue Traversal (First In, First Out) ---\n");
+            while (!isQueueEmpty(vendorQueue)) {
+                Vendor v = dequeue(vendorQueue);
+                printf("ID: %d, Name: %s\n", v.id, v.name);
+            }
+        }
+        else if (choice == 'x') {
             break;
         }
         else {
-            printf("Invalid input. Please use 'n', 'p', or 'q'.\n");
+            printf("Invalid input. Please use 'n', 'p', 's', 'q', or 'x'.\n");
         }
     }
 
-    // Clear memory
+    // Hafızayı temizle
     current = head;
     while (current != NULL) {
         DoublyLinkedListNode* temp = current;
@@ -1029,10 +1139,29 @@ bool listVendors() {
     }
     head = NULL;
 
-    // Return to menu notification
+    // Stack ve Queue'yu serbest bırak
+    freeStack(vendorStack);
+    freeQueue(vendorQueue);
+
+    // Menüye geri dönme bildirimi
     printf("Returning to menu...\n");
     return true;
 }
+
+bool isDuplicate(Queue* queue, Vendor vendor) {
+    QueueNode* current = queue->front;
+
+    while (current != NULL) {
+        if (current->vendor.id == vendor.id) {
+            // Vendor ID zaten kuyrukta varsa, tekrarlama var demektir
+            return true;
+        }
+        current = current->next;
+    }
+
+    return false; // Eğer kuyruğun sonuna kadar aynı ID bulunmadıysa, tekrarlama yok demektir
+}
+
 
 
 /**
