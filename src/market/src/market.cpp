@@ -1,3 +1,15 @@
+/**
+ * @file market.c
+ * @brief Market Management System
+ * @details This file contains the implementation of a local market management system
+ *          that includes functionalities for managing vendors, products, market hours, and user authentication.
+ *          This system incorporates various data structures including hash tables, min-heaps, doubly linked lists,
+ *          XOR linked lists, and B+ trees to efficiently manage the market data.
+ *
+ * @author Tuğba Nur Uygun - Şevval Asi - Dürdane Naz Babaoğlu - İrem Acınan
+ * @date 2024-11-08
+ */
+
 #define _CRT_SECURE_NO_WARNINGS
 #include "../header/market.h"
 #include <stdexcept>
@@ -36,6 +48,12 @@ HashTableEntry hashTable[TABLE_SIZE];
 HashTableEntry overflowArea[OVERFLOW_SIZE];
 Bucket hashTableBuckets[TABLE_SIZE];
 
+
+/**
+ * @brief Clears the terminal screen.
+ *
+ * Clears the screen for different operating systems.
+ */
 void clearScreen() {
 #ifdef _WIN32
     system("cls");
@@ -44,6 +62,12 @@ void clearScreen() {
 #endif
 }
 
+
+/**
+ * @brief Handles user input for menu selections.
+ *
+ * @return An integer representing the user's choice.
+ */
 int getInput()
 {
     int choice;
@@ -59,6 +83,15 @@ int getInput()
     return choice;
 }
 
+
+/**
+ * @brief Handles user authentication.
+ *
+ * This function provides an interface for user authentication by allowing login, registration,
+ * guest mode, or exiting the system.
+ *
+ * @return Boolean indicating whether the program should continue running.
+ */
 bool userAuthentication() {
     int choice;
     char username[50];
@@ -102,11 +135,18 @@ bool userAuthentication() {
     return true;
 }
 
+/**
+ * @brief Displays the main menu.
+ *
+ * This function displays the main menu of the system, allowing users to select options such as
+ * viewing local vendors, products, price comparison, market hours, or keyword searches.
+ *
+ * @return Boolean indicating whether the main menu is still active.
+ */
 bool mainMenu() {
     int choice;
 
     do {
-        // Print main menu
         clearScreen();
         printf("\n--- Main Menu ---\n");
         printf("1. Listing of Local Vendors\n");
@@ -145,6 +185,13 @@ bool mainMenu() {
     return true;
 }
 
+/**
+ * @brief Lists local vendors and provides operations on them.
+ *
+ * This function allows users to list local vendors, add, update, delete vendors, or view the vendor list.
+ *
+ * @return Boolean indicating whether the vendor listing menu is still active.
+ */
 bool listingOfLocalVendors() {
     int choice;
 
@@ -183,6 +230,14 @@ bool listingOfLocalVendors() {
     return true;
 }
 
+
+/**
+ * @brief Lists products available locally.
+ *
+ * This function allows users to list local products, add, update, delete products, or view the product list.
+ *
+ * @return Boolean indicating whether the product listing menu is still active.
+ */
 bool listingOfLocalProducts() {
 int choice;
 
@@ -223,6 +278,14 @@ do {
 return true;
 }
 
+
+/**
+ * @brief Allows price comparison for products.
+ *
+ * This function provides an interface for selecting a product and comparing its prices among different vendors.
+ *
+ * @return Boolean indicating whether the price comparison menu is still active.
+ */
 bool priceComparison() {
     int choice;
     char selectedProductName[100] = "";  // We will keep the selected product name here
@@ -271,6 +334,14 @@ bool priceComparison() {
     return true;
 }
 
+
+/**
+ * @brief Manages market hours and locations.
+ *
+ * This function allows users to add, update, or view market hours and locations.
+ *
+ * @return Boolean indicating whether the market hours menu is still active.
+ */
 bool marketHoursAndLocations() {
     int choice;
 
@@ -311,6 +382,13 @@ bool marketHoursAndLocations() {
     return true;
 }
 
+/**
+ * @brief Searches for products or keywords in the database.
+ *
+ * This function allows users to either search for products by their name or enter specific keywords for search.
+ *
+ * @return Boolean indicating whether the search menu is still active.
+ */
 bool searchProductsOrEnterKeyword() {
     int choice;
 
@@ -343,6 +421,13 @@ bool searchProductsOrEnterKeyword() {
     return true;
 }
 
+/**
+ * @brief Logs in a user by checking username and password from a Huffman encoded file.
+ *
+ * @param username Username to be checked.
+ * @param password Password to be checked.
+ * @return true if login is successful, false otherwise.
+ */
 bool loginUserFromHuffFile(const char* username, const char* password) {
     FILE* file = fopen("users.huff", "rb");
     if (file == NULL) {
@@ -397,6 +482,12 @@ bool loginUserFromHuffFile(const char* username, const char* password) {
     return false;
 }
 
+
+/**
+ * @brief Logs in a user by prompting for username and password.
+ *
+ * @return true if login is successful, false otherwise.
+ */
 bool loginUser() {
     clearScreen();
     char username[50], password[50];
@@ -420,6 +511,13 @@ bool loginUser() {
     return true;
 }
 
+/**
+ * @brief Saves a user's credentials to a Huffman encoded file.
+ *
+ * @param username Username to be saved.
+ * @param password Password to be saved.
+ * @return true if saving is successful, false otherwise.
+ */
 bool saveUserToHuffFile(const char* username, const char* password) {
     FILE* file = fopen("users.huff", "ab");
     if (file == NULL) {
@@ -440,6 +538,11 @@ bool saveUserToHuffFile(const char* username, const char* password) {
     return true;
 }
 
+/**
+ * @brief Registers a new user and saves their information to a binary and Huffman file.
+ *
+ * @return true if registration is successful, false otherwise.
+ */
 bool registerUser()
     {
         clearScreen();
@@ -469,7 +572,12 @@ bool registerUser()
         return true;
     }
 
-// Create Min-Heap
+/**
+ * @brief Creates a Min-Heap with a given capacity.
+ *
+ * @param capacity Maximum capacity of the Min-Heap.
+ * @return Pointer to the newly created Min-Heap.
+ */
 struct MinHeap* createMinHeap(unsigned capacity) {
     struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
     minHeap->size = 0;
@@ -478,14 +586,24 @@ struct MinHeap* createMinHeap(unsigned capacity) {
     return minHeap;
 }
 
-// Swapping two nodes in Min-Heap
+/**
+ * @brief Swaps two nodes in a Min-Heap.
+ *
+ * @param a Pointer to the first node.
+ * @param b Pointer to the second node.
+ */
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
     struct MinHeapNode* t = *a;
     *a = *b;
     *b = t;
 }
 
-// Min-Heapify process
+/**
+ * @brief Heapifies a node in a Min-Heap to maintain the heap property.
+ *
+ * @param minHeap Pointer to the Min-Heap.
+ * @param idx Index of the node to be heapified.
+ */
 void minHeapify(struct MinHeap* minHeap, int idx) {
     int smallest = idx;
     int left = 2 * idx + 1;
@@ -505,7 +623,12 @@ void minHeapify(struct MinHeap* minHeap, int idx) {
     }
 }
 
-// Extracting the minimum value from Min-Heap
+/**
+ * @brief Extracts the minimum value node from a Min-Heap.
+ *
+ * @param minHeap Pointer to the Min-Heap.
+ * @return Pointer to the extracted node.
+ */
 struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
     struct MinHeapNode* temp = minHeap->array[0];
     minHeap->array[0] = minHeap->array[minHeap->size - 1];
@@ -514,7 +637,12 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
     return temp;
 }
 
-// Adding a new node
+/**
+ * @brief Inserts a new node into a Min-Heap.
+ *
+ * @param minHeap Pointer to the Min-Heap.
+ * @param minHeapNode Pointer to the node to be inserted.
+ */
 void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
     ++minHeap->size;
     int i = minHeap->size - 1;
@@ -527,7 +655,12 @@ void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
     minHeap->array[i] = minHeapNode;
 }
 
-// Create Min-Heap
+
+/**
+ * @brief Builds a Min-Heap from an array of nodes.
+ *
+ * @param minHeap Pointer to the Min-Heap.
+ */
 void buildMinHeap(struct MinHeap* minHeap) {
     int n = minHeap->size - 1;
     for (int i = (n - 1) / 2; i >= 0; --i) {
@@ -535,7 +668,14 @@ void buildMinHeap(struct MinHeap* minHeap) {
     }
 }
 
-// Min-Heap generation by counting the frequency of characters
+/**
+ * @brief Creates and builds a Min-Heap based on character frequencies.
+ *
+ * @param data Array of characters.
+ * @param freq Array of character frequencies.
+ * @param size Size of the arrays.
+ * @return Pointer to the newly created Min-Heap.
+ */
 struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
     struct MinHeap* minHeap = createMinHeap(size);
 
@@ -549,7 +689,14 @@ struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
     return minHeap;
 }
 
-// Create a Huffman tree
+/**
+ * @brief Builds a Huffman Tree from given character frequencies.
+ *
+ * @param data Array of characters.
+ * @param freq Array of character frequencies.
+ * @param size Size of the arrays.
+ * @return Pointer to the root of the Huffman Tree.
+ */
 struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
     struct MinHeapNode* left, * right, * top;
 
@@ -569,7 +716,13 @@ struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
     return extractMin(minHeap);
 }
 
-// Create Huffman codes
+/**
+ * @brief Prints Huffman codes for each character.
+ *
+ * @param root Pointer to the root of the Huffman Tree.
+ * @param arr Array to store the Huffman code.
+ * @param top Current index in the array.
+ */
 void printCodes(struct MinHeapNode* root, int arr[], int top) {
     if (root->left) {
         arr[top] = 0;
@@ -590,13 +743,27 @@ void printCodes(struct MinHeapNode* root, int arr[], int top) {
     }
 }
 
-// Huffman encoding process
+/**
+ * @brief Generates and prints Huffman codes for given characters and frequencies.
+ *
+ * @param data Array of characters.
+ * @param freq Array of character frequencies.
+ * @param size Size of the arrays.
+ */
 void HuffmanCodes(char data[], int freq[], int size) {
     struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
     int arr[MAX_TREE_HT], top = 0;
     printCodes(root, arr, top);
 }
 
+
+/**
+ * @brief Creates a new Min-Heap node.
+ *
+ * @param data Character data.
+ * @param freq Frequency of the character.
+ * @return Pointer to the newly created node.
+ */
 struct MinHeapNode* newNode(char data, unsigned freq) {
     struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
     temp->left = temp->right = NULL;
@@ -605,7 +772,13 @@ struct MinHeapNode* newNode(char data, unsigned freq) {
     return temp;
 }
 
-// Adding Vendor
+/**
+ * @brief Adds a vendor to the system.
+ *
+ * This function is used to add a vendor to the system. It assigns a random 6-digit ID, takes the vendor's name, and stores the information in a binary file.
+ *
+ * @return Boolean indicating whether the vendor was successfully added.
+ */
 bool addVendor() {
     FILE* file;
     Vendor vendor;
@@ -644,7 +817,14 @@ bool addVendor() {
 }
 
 
-// Updating vendor
+/**
+ * @brief Updates an existing vendor's information.
+ *
+ * This function allows users to update the details of an existing vendor in the system.
+ * The user is prompted to enter a vendor ID, and if found, the vendor's information is updated.
+ *
+ * @return Boolean indicating whether the vendor was successfully updated.
+ */
 bool updateVendor() {
     FILE* file;
     Vendor vendor;
@@ -687,7 +867,14 @@ bool updateVendor() {
     return true;
 }
 
-// Deleting vendor
+/**
+ * @brief Deletes a vendor from the system.
+ *
+ * This function deletes a vendor identified by their unique ID from the system.
+ * The data is read from the original file and rewritten, excluding the deleted vendor.
+ *
+ * @return Boolean indicating whether the vendor was successfully deleted.
+ */
 bool deleteVendor() {
     FILE* file, * tempFile;
     Vendor vendor;
@@ -771,7 +958,15 @@ void insertVendor(Vendor newVendor) {
     }
 }
 
-// Vendor listing function (with forward and backward navigation)
+
+/**
+ * @brief Lists vendors in the system using a doubly linked list for navigation.
+ *
+ * This function lists all the vendors, allowing the user to navigate forward and backward through the list.
+ * The vendor data is read from the binary file and stored in a doubly linked list for easy traversal.
+ *
+ * @return Boolean indicating whether the vendor listing was successful.
+ */
 bool listVendors() {
     FILE* file;
     Vendor vendor;
@@ -840,6 +1035,14 @@ bool listVendors() {
 }
 
 
+/**
+ * @brief Adds a new product to the products file.
+ *
+ * This function allows the user to add a product to the "products.bin" file.
+ * It first verifies whether the vendor ID exists in the "vendor.bin" file before adding the product.
+ *
+ * @return Returns true (1) if the product is added successfully, false (0) otherwise.
+ */
 bool addProduct() {
     FILE* productFile;
     FILE* vendorFile;
@@ -903,11 +1106,21 @@ bool addProduct() {
 
     printf("Press Enter to continue...");
     getchar();
-    getchar();  // For clean the tampon and continue
+    getchar();  // Clean the buffer and continue
+
 
     return true;
 }
 
+
+/**
+ * @brief Updates an existing product in the products file.
+ *
+ * This function updates a product's details in the "products.bin" file by asking for the product name.
+ * If the product is found, it allows the user to modify the details of that product.
+ *
+ * @return Returns true (1) if the product is updated successfully, false (0) otherwise.
+ */
 bool updateProduct() {
     FILE* productFile, * tempFile;
     Product product;
@@ -967,6 +1180,15 @@ bool updateProduct() {
     return true;
 }
 
+
+/**
+ * @brief Deletes an existing product from the products file.
+ *
+ * This function deletes a product from the "products.bin" file by asking for the product name.
+ * If the product is found, it is removed from the file.
+ *
+ * @return Returns true (1) if the product is deleted successfully, false (0) otherwise.
+ */
 bool deleteProduct() {
     FILE* productFile, * tempFile;
     Product product;
@@ -989,7 +1211,7 @@ bool deleteProduct() {
     printf("Enter Product Name to delete: ");
     scanf("%s", productName);
 
-   // We read all products from the file and check the name
+    // Read all products from the file and check the name
     while (fread(&product, sizeof(Product), 1, productFile)) {
         if (strcmp(product.productName, productName) == 0) {
             found = 1;
@@ -1019,7 +1241,14 @@ bool deleteProduct() {
 }
 
 
-// Function that lists all vendors' products
+/**
+ * @brief Lists all vendors and their respective products.
+ *
+ * This function reads the "vendor.bin" file to list all vendors, and for each vendor, lists the products associated with them from "products.bin".
+ * It provides the user an option to select a collision resolution strategy for vendor products.
+ *
+ * @return Returns true (1) when listing is complete.
+ */
 bool listingOfLocalVendorsandProducts() {
     FILE* productFile;
     FILE* vendorFile;
@@ -1176,11 +1405,27 @@ bool listingOfLocalVendorsandProducts() {
     return true;
 }
 
-
+/**
+ * @brief Represents a sparse matrix entry for vendor-product relationships.
+ * @details Used to store non-zero relationships between vendors and products, including prices.
+ */
 SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
+
+/**
+ * @brief The current size of the sparse matrix containing vendor-product relationships.
+ */
 int sparseMatrixSize = 0;
 
-// Function that adds relationships between vendor and product
+
+/**
+ * @brief Adds a relationship between a vendor and a product.
+ *
+ * @param vendorId The ID of the vendor.
+ * @param productId The ID of the product.
+ * @param price The price of the product from the vendor.
+ *
+ * @note The function ignores the relation if the price is zero.
+ */
 void addVendorProductRelation(int vendorId, int productId, float price) {
 
     if (price == 0) {
@@ -1193,7 +1438,13 @@ void addVendorProductRelation(int vendorId, int productId, float price) {
     sparseMatrixSize++;
 }
 
-// Function that lists the products of a specific vendor
+/**
+ * @brief Lists all products offered by a specific vendor.
+ *
+ * @param vendorId The ID of the vendor whose products are to be listed.
+ *
+ * @note If no products are found for the vendor, a corresponding message is displayed.
+ */
 void listProductsByVendor(int vendorId) {
     printf("\n--- Products offered by Vendor %d ---\n", vendorId);
     int found = 0;
@@ -1208,12 +1459,22 @@ void listProductsByVendor(int vendorId) {
     }
 }
 
-// Hash Function
+/**
+ * @brief Hash function to determine the index for a given key.
+ *
+ * @param key The key to be hashed.
+ * @return The hashed index for the key.
+ */
 int hashFunction(int key) {
     return key % TABLE_SIZE;
 }
 
-// Progressive Overflow
+
+/**
+ * @brief Initializes the hash table and overflow areas.
+ *
+ * @details Sets up the hash table and overflow area by marking all entries as unoccupied.
+ */
 void initializeHashTable() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         hashTable[i].isOccupied = 0;
@@ -1224,29 +1485,59 @@ void initializeHashTable() {
     }
 }
 
-// Lineer Probing
+
+/**
+ * @brief Uses linear probing to resolve hash collisions.
+ *
+ * @param key The key to be hashed.
+ * @param i The current iteration (probe count).
+ * @return The new index after applying linear probing.
+ */
 int linearProbing(int key, int i) {
     return (key + i) % TABLE_SIZE;
 }
 
-// Karesel Probing
+/**
+ * @brief Uses quadratic probing to resolve hash collisions.
+ *
+ * @param key The key to be hashed.
+ * @param i The current iteration (probe count).
+ * @return The new index after applying quadratic probing.
+ */
 int quadraticProbing(int key, int i) {
     return (key + i * i) % TABLE_SIZE;
 }
 
-// Çift Hashing
+/**
+ * @brief Uses double hashing to resolve hash collisions.
+ *
+ * @param key The key to be hashed.
+ * @param i The current iteration (probe count).
+ * @return The new index after applying double hashing.
+ */
 int doubleHashing(int key, int i) {
     int h1 = key % TABLE_SIZE;
     int h2 = 1 + (key % (TABLE_SIZE - 1));
     return (h1 + i * h2) % TABLE_SIZE;
 }
 
-// Linear Quotient
+/**
+ * @brief Uses linear quotient to resolve hash collisions.
+ *
+ * @param key The key to be hashed.
+ * @param i The current iteration (probe count).
+ * @return The new index after applying linear quotient.
+ */
 int linearQuotient(int key, int i) {
     return (key + i * 7) % TABLE_SIZE;
 }
 
-// Progressive Overflow Searching
+/**
+ * @brief Searches for a key using progressive overflow.
+ *
+ * @param key The key to be searched.
+ * @return The index of the key in the overflow area, or -1 if not found.
+ */
 int progressiveOverflowSearch(int key) {
     for (int i = 0; i < OVERFLOW_SIZE; i++) {
         if (overflowArea[i].isOccupied && overflowArea[i].key == key) {
@@ -1256,7 +1547,12 @@ int progressiveOverflowSearch(int key) {
     return -1;
 }
 
-// Use of Bucket Searching
+/**
+ * @brief Searches for a key using bucket searching.
+ *
+ * @param key The key to be searched.
+ * @return The index of the bucket where the key is located, or -1 if not found.
+ */
 int useOfBucketsSearch(int key) {
     int index = hashFunction(key);
     for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
@@ -1267,7 +1563,12 @@ int useOfBucketsSearch(int key) {
     return -1;
 }
 
-// Brent's Method
+/**
+ * @brief Searches for a key using Brent's method.
+ *
+ * @param key The key to be searched.
+ * @return The index of the key in the hash table, or -1 if not found.
+ */
 int brentsMethodSearch(int key) {
     int index = hashFunction(key);
     int i = 0;
@@ -1287,6 +1588,15 @@ int brentsMethodSearch(int key) {
     return -1;
 }
 
+
+/**
+ * @brief Selects a product from the list of available products.
+ *
+ * @param selectedProductName The name of the selected product (output parameter).
+ * @return true if the product is successfully selected, false otherwise.
+ *
+ * @details The function lists all available products and allows the user to select one by name. It searches for the selected product in the binary file.
+ */
 bool selectProduct(char* selectedProductName) {
     FILE* productFile;
     Product product;
@@ -1342,7 +1652,15 @@ bool selectProduct(char* selectedProductName) {
     return true;
 }
 
-// Heapify Function
+/**
+ * @brief Creates a max-heap in a subtree.
+ *
+ * This function creates a max-heap structure starting from the specified root node.
+ *
+ * @param arr Array of products.
+ * @param n Number of elements in the array.
+ * @param i Index of the root node where max-heap will be created.
+ */
 void heapify(Product arr[], int n, int i) {
     int largest = i; // We initialize the largest element as root
     int left = 2 * i + 1; // Left child
@@ -1367,7 +1685,15 @@ void heapify(Product arr[], int n, int i) {
     }
 }
 
-// Heap sort Function
+
+/**
+ * @brief Performs heap sort algorithm.
+ *
+ * This function sorts the given array by creating a max-heap and applying heap sort.
+ *
+ * @param arr Array of products to be sorted.
+ * @param n Number of elements in the array.
+ */
 void heapSort(Product arr[], int n) {
     // Create max-heap for array
     for (int i = n / 2 - 1; i >= 0; i--)
@@ -1384,6 +1710,16 @@ void heapSort(Product arr[], int n) {
     }
 }
 
+
+/**
+ * @brief Compares prices of products with a given name.
+ *
+ * This function reads products from a binary file, filters those that match the given product name,
+ * and sorts them by price using heap sort. It then prints the sorted list of products and their prices.
+ *
+ * @param productName Name of the product to compare prices.
+ * @return True if products are found and compared, false otherwise.
+ */
 bool comparePricesByName(const char* productName) {
     FILE* productFile;
     Product products[100];
@@ -1428,7 +1764,15 @@ bool comparePricesByName(const char* productName) {
     return true;
 }
 
-// Function that creates a new B+ Tree Node
+/**
+ * @brief Creates a new B+ Tree node.
+ *
+ * This function creates a new B+ Tree node, initializes it as a leaf or internal node,
+ * and sets the initial values for its keys and children.
+ *
+ * @param isLeaf Boolean value indicating if the node is a leaf.
+ * @return Pointer to the newly created B+ Tree node.
+ */
 BPlusTreeNode* createNode(bool isLeaf) {
     BPlusTreeNode* newNode = (BPlusTreeNode*)malloc(sizeof(BPlusTreeNode));
     newNode->isLeaf = isLeaf;
@@ -1440,7 +1784,16 @@ BPlusTreeNode* createNode(bool isLeaf) {
     return newNode;
 }
 
-// Function that adds key to B+ Tree
+/**
+ * @brief Inserts a key into the B+ Tree.
+ *
+ * This function inserts a given key into the B+ Tree, handling the splitting of nodes
+ * if the maximum number of keys is exceeded.
+ *
+ * @param root Pointer to the root of the B+ Tree.
+ * @param key Key to be inserted.
+ * @return Pointer to the root of the updated B+ Tree.
+ */
 BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
     if (root == NULL) {
         root = createNode(true);
@@ -1505,7 +1858,15 @@ BPlusTreeNode* insert(BPlusTreeNode* root, int key) {
     return root;
 }
 
-// Function that searches for a specific key
+/**
+ * @brief Searches for a specific key in the B+ Tree.
+ *
+ * This function searches for a given key in the B+ Tree and returns true if the key is found.
+ *
+ * @param root Pointer to the root of the B+ Tree.
+ * @param key Key to be searched.
+ * @return True if the key is found, false otherwise.
+ */
 bool search(BPlusTreeNode* root, int key) {
     BPlusTreeNode* current = root;
     while (current != NULL) {
@@ -1523,7 +1884,14 @@ bool search(BPlusTreeNode* root, int key) {
     return false;
 }
 
-// Function to validate the day input
+/**
+ * @brief Validates the day input.
+ *
+ * This function checks if the given day is a valid day of the week.
+ *
+ * @param day A string representing the day to validate.
+ * @return true if the day is valid, false otherwise.
+ */
 bool validateDay(const char* day) {
     const char* validDays[] = {
         "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
@@ -1536,7 +1904,15 @@ bool validateDay(const char* day) {
     return false;
 }
 
-// Function to validate the working hours input
+/**
+ * @brief Validates the working hours input.
+ *
+ * This function checks if the given working hours are in a valid format (HH:MM - HH:MM).
+ * It also ensures that the start time is before the end time.
+ *
+ * @param hours A string representing the working hours to validate.
+ * @return true if the hours are valid, false otherwise.
+ */
 bool validateWorkingHours(const char* hours) {
     int startHour, startMinute, endHour, endMinute;
 
@@ -1554,7 +1930,14 @@ bool validateWorkingHours(const char* hours) {
     return true;
 }
 
-// Function to add market hours and location
+/**
+ * @brief Adds market hours and location.
+ *
+ * This function prompts the user for market information, including ID, day, working hours, and location.
+ * It validates the input and writes the information to a binary file (marketHours.bin).
+ *
+ * @return true if the market hours and location were added successfully, false otherwise.
+ */
 bool addMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "ab");
     FILE* vendorFile = fopen("vendor.bin", "rb");
@@ -1640,7 +2023,14 @@ bool addMarketHoursAndLocation() {
     return true;
 }
 
-// Function to update market hours and location
+/**
+ * @brief Updates market hours and location.
+ *
+ * This function prompts the user for a market ID and allows them to update the corresponding day,
+ * working hours, and location. It validates the input and updates the information in a binary file (marketHours.bin).
+ *
+ * @return true if the market hours and location were updated successfully, false otherwise.
+ */
 bool updateMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "rb+");
     if (file == NULL) {
@@ -1697,19 +2087,38 @@ bool updateMarketHoursAndLocation() {
     return true;
 }
 
-// XOR two pointers
+/**
+ * @brief XOR two pointers to obtain the mixed pointer.
+ *
+ * This function calculates the XOR of two given pointers to create a mixed pointer.
+ * XOR linked lists make use of this operation to point to both previous and next nodes.
+ *
+ * @param a Pointer to the first node.
+ * @param b Pointer to the second node.
+ * @return Resulting pointer from XOR operation.
+ */
 MarketHoursNode* xor_function (MarketHoursNode* a, MarketHoursNode* b) {
     return (MarketHoursNode*)((uintptr_t)(a) ^ (uintptr_t)(b));
 }
 
-// Insert MarketHours into the XOR linked list in sorted order by ID
+/**
+ * @brief Inserts a new node into the XOR linked list in sorted order by ID.
+ *
+ * This function inserts a new MarketHours node into the XOR linked list while maintaining
+ * a sorted order based on the market ID. It ensures that the nodes are inserted in
+ * ascending order by the ID value.
+ *
+ * @param head Pointer to the head of the XOR linked list.
+ * @param data MarketHours data to be inserted into the new node.
+ * @return Updated head pointer of the XOR linked list.
+ */
 MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
     MarketHoursNode* newNode = (MarketHoursNode*)malloc(sizeof(MarketHoursNode));
     newNode->data = data;
     newNode->xorPtr = NULL;
 
     if (head == NULL) {
-        return newNode;
+        return newNode;  ///< Case when list is empty, return new node as head.
     }
 
     MarketHoursNode* prev = NULL;
@@ -1719,14 +2128,14 @@ MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
     while (curr != NULL) {
         next = xor_function(prev, curr->xorPtr);
         if (data.id < curr->data.id) {
-            // Insert before current node
+            // Insert new node before the current node
             newNode->xorPtr = xor_function(prev, curr);
             if (prev != NULL) {
                 prev->xorPtr = xor_function(xor_function(prev->xorPtr, curr), newNode);
             }
             curr->xorPtr = xor_function(newNode, next);
             if (prev == NULL) {
-                head = newNode;
+                head = newNode;   ///< Update head if the new node is inserted at the beginning.
             }
             return head;
         }
@@ -1734,14 +2143,23 @@ MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
         curr = next;
     }
 
-    // Insert at the end
+    // Insert new node at the end of the list
     prev->xorPtr = xor_function(xor_function(prev->xorPtr, NULL), newNode);
     newNode->xorPtr = prev;
 
     return head;
 }
 
-// Traverse XOR linked list and display records grouped by ID with screen clearing
+/**
+ * @brief Traverses the XOR linked list and displays market hours grouped by ID.
+ *
+ * This function traverses through the XOR linked list and groups the market hours
+ * entries based on their ID. It also provides user interaction to navigate between
+ * different ID groups using 'n' (next), 'p' (previous), and 'q' (quit) options.
+ * The screen is cleared before displaying each group to provide a cleaner interface.
+ *
+ * @param head Pointer to the head of the XOR linked list.
+ */
 void traverseXORListGroupedByID(MarketHoursNode* head) {
     MarketHoursNode* curr = head;
     MarketHoursNode* prev = NULL;
@@ -1814,7 +2232,15 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
     }
 }
 
-// Function to display market hours and locations grouped by ID
+/**
+ * @brief Displays market hours and locations grouped by ID by reading from a binary file.
+ *
+ * This function reads MarketHours records from a binary file named "marketHours.bin",
+ * inserts them into an XOR linked list, and then traverses the linked list to display
+ * the market hours grouped by their ID.
+ *
+ * @return True if the operation was successful, otherwise false.
+ */
 bool displayMarketHoursAndLocations() {
     FILE* file = fopen("marketHours.bin", "rb");
     if (file == NULL) {
@@ -1868,8 +2294,17 @@ bool displayMarketHoursAndLocations() {
     return true;
 }
 
+/**
+ * @brief Computes the Longest Prefix Suffix (LPS) array for the KMP string matching algorithm.
+ *
+ * This helper function computes the LPS array used in the Knuth-Morris-Pratt (KMP) pattern matching algorithm.
+ * The LPS array is used to skip unnecessary character comparisons when searching for a pattern in a text.
+ *
+ * @param pattern The string pattern to be analyzed.
+ * @param M Length of the pattern.
+ * @param lps Array to store the computed LPS values.
+ */
 
-// Helper function to calculate the LPS (Longest Prefix Suffix) sequence for the KMP algorithm
 void computeLPSArray(const char* pattern, int M, int* lps) {
     int length = 0;
     lps[0] = 0; // lps[0] is always 0
@@ -1893,7 +2328,13 @@ void computeLPSArray(const char* pattern, int M, int* lps) {
     }
 }
 
-// Function that searches for patterns in text using the KMP algorithm
+/**
+ * @brief Searches for a pattern in the given text using the Knuth-Morris-Pratt (KMP) algorithm.
+ *
+ * @param pattern The pattern to search for.
+ * @param text The text to search within.
+ * @return true if the pattern is found, false otherwise.
+ */
 bool KMPSearch(const char* pattern, const char* text) {
     int M = strlen(pattern);
     int N = strlen(text);
@@ -1927,7 +2368,11 @@ bool KMPSearch(const char* pattern, const char* text) {
     return false; // Pattern not found
 }
 
-// Function that lists favorite product and related vendors
+/**
+ * @brief Lists vendors offering a user's favorite product by searching the product file.
+ *
+ * @return true if the function executes successfully, false otherwise.
+ */
 bool enterSearchProducts() {
     FILE* productFile;
     FILE* vendorFile;
@@ -1987,6 +2432,16 @@ bool enterSearchProducts() {
     return true;
 }
 
+
+/**
+ * @brief Performs a Depth-First Search (DFS) on a graph of nodes to find a keyword.
+ *
+ * @param node The starting node for the DFS.
+ * @param keyword The keyword to search for.
+ * @param visited An array of nodes that have been visited.
+ * @param visitedCount The number of nodes visited so far.
+ * @return true if the keyword is found, false otherwise.
+ */
 bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
     // Start a stack for DFS
     std::stack<Node*> stack;
@@ -2025,6 +2480,12 @@ bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
     return false;
 }
 
+
+/**
+ * @brief Searches for a keyword among products and vendors, using DFS and finding SCC.
+ *
+ * @return true if the function executes successfully, false otherwise.
+ */
 bool enterKeywords() {
     char keyword[100];
     printf("\nEnter a keyword to search: ");
@@ -2118,6 +2579,13 @@ bool enterKeywords() {
     return true;
 }
 
+
+/**
+ * @brief Finds the Strongly Connected Components (SCC) of a graph.
+ *
+ * @param nodes An array of nodes representing the graph.
+ * @param nodeCount The number of nodes in the graph.
+ */
 void findSCC(Node* nodes[], int nodeCount) {
     int* ids = (int*)malloc(nodeCount * sizeof(int));
     int* low = (int*)malloc(nodeCount * sizeof(int));
