@@ -99,11 +99,14 @@ bool userAuthentication() {
     do
     {
         clearScreen();
-        printf("\n--- User Authentication ---\n");
-        printf("1. Login\n");
-        printf("2. Register\n");
-        printf("3. Guest Mode\n");
-        printf("4. Exit\n");
+        printf("==========================================\n");
+        printf("|           User Authentication          |\n");
+        printf("==========================================\n");
+        printf("| 1. Login                               |\n");
+        printf("| 2. Register                            |\n");
+        printf("| 3. Guest Mode                          |\n");
+        printf("| 4. Exit                                |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
         choice = getInput();
 
@@ -148,13 +151,16 @@ bool mainMenu() {
 
     do {
         clearScreen();
-        printf("\n--- Main Menu ---\n");
-        printf("1. Listing of Local Vendors\n");
-        printf("2. Listing of Local Products\n");
-        printf("3. Price Comparison\n");
-        printf("4. Market Hours and Locations\n");
-        printf("5. Search Products or Enter Keywords\n");
-        printf("0. Exit\n");
+        printf("==========================================\n");
+        printf("|               Main Menu                |\n");
+        printf("==========================================\n");
+        printf("| 1. Listing of Local Vendors            |\n");
+        printf("| 2. Listing of Local Products           |\n");
+        printf("| 3. Price Comparison                    |\n");
+        printf("| 4. Market Hours and Locations          |\n");
+        printf("| 5. Search Products or Enter Keywords   |\n");
+        printf("| 0. Exit                                |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
         scanf("%d", &choice);
 
@@ -197,12 +203,15 @@ bool listingOfLocalVendors() {
 
     do {
         clearScreen();
-        printf("\n--- Listing of Local Vendors and Products ---\n");
-        printf("1. Add Vendor\n");
-        printf("2. Update Vendor\n");
-        printf("3. Delete Vendor\n");
-        printf("4. List Vendors\n");
-        printf("0. Return to Main Menu\n");
+        printf("==========================================\n");
+        printf("|     Listing of Local Vendors           |\n");
+        printf("==========================================\n");
+        printf("| 1. Add Vendor                          |\n");
+        printf("| 2. Update Vendor                       |\n");
+        printf("| 3. Delete Vendor                       |\n");
+        printf("| 4. List Vendors                        |\n");
+        printf("| 0. Return to Main Menu                 |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
         choice = getInput();
 
@@ -243,12 +252,15 @@ int choice;
 
 do {
     clearScreen();
-    printf("\n--- List All Products ---\n");
-    printf("1. Add Product \n");
-    printf("2. Update Product \n");
-    printf("3. Delete Product \n");
-    printf("4. Listing of Local Products\n");
-    printf("0. Return to Main Menu\n");
+    printf("==========================================\n");
+    printf("|           List All Products            |\n");
+    printf("==========================================\n");
+    printf("| 1. Add Product                         |\n");
+    printf("| 2. Update Product                      |\n");
+    printf("| 3. Delete Product                      |\n");
+    printf("| 4. Listing of Local Products           |\n");
+    printf("| 0. Return to Main Menu                 |\n");
+    printf("==========================================\n");
     printf("Choose an option: ");
     choice = getInput();
 
@@ -292,10 +304,13 @@ bool priceComparison() {
 
     do {
         clearScreen();
-        printf("\n--- Price Comparison ---\n");
-        printf("1. Select Product\n");
-        printf("2. Compare Prices\n");
-        printf("0. Return to Main Menu\n");
+        printf("==========================================\n");
+        printf("|            Price Comparison            |\n");
+        printf("==========================================\n");
+        printf("| 1. Select Product                      |\n");
+        printf("| 2. Compare Prices                      |\n");
+        printf("| 0. Return to Main Menu                 |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
         choice = getInput();
 
@@ -346,11 +361,14 @@ bool marketHoursAndLocations() {
     int choice;
 
     do {
-        printf("\n--- Market Hours and Locations ---\n");
-        printf("1. Add Working Hours and Location\n");
-        printf("2. Update Market Hours and Location\n");
-        printf("3. View Market Hours and Locations\n");
-        printf("0. Return to Main Menu\n");
+        printf("==========================================\n");
+        printf("|      Market Hours and Locations        |\n");
+        printf("==========================================\n");
+        printf("| 1. Add Working Hours and Location      |\n");
+        printf("| 2. Update Market Hours and Location    |\n");
+        printf("| 3. View Market Hours and Locations     |\n");
+        printf("| 0. Return to Main Menu                 |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
 
         if (scanf("%d", &choice) != 1) {
@@ -394,10 +412,13 @@ bool searchProductsOrEnterKeyword() {
 
     do {
         clearScreen();
-        printf("\n--- Search Products or Enter Keyword ---\n");
-        printf("1. Enter Search Products\n");
-        printf("2. Enter Keywords\n");
-        printf("0. Return to Main Menu\n");
+        printf("==========================================\n");
+        printf("|   Search Products or Enter Keyword     |\n");
+        printf("==========================================\n");
+        printf("| 1. Enter Search Products               |\n");
+        printf("| 2. Enter Keywords                      |\n");
+        printf("| 0. Return to Main Menu                 |\n");
+        printf("==========================================\n");
         printf("Choose an option: ");
         choice = getInput();
 
