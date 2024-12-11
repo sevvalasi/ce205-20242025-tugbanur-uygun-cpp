@@ -230,9 +230,9 @@ struct MinHeapNode* newNode(char data, unsigned freq);
 struct MinHeap* createMinHeap(unsigned capacity);
 
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b);
-void minHeapify(struct MinHeap* minHeap, int idx);
+bool minHeapify(struct MinHeap* minHeap, int idx);
 struct MinHeapNode* extractMin(struct MinHeap* minHeap);
-void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode);
+bool insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode);
 void buildMinHeap(struct MinHeap* minHeap);
 struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size);
 struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size);

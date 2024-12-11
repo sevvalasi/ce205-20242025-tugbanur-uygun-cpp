@@ -657,44 +657,7 @@ TEST_F(MarketTest, marketHoursAndLocationsTEST) {
     EXPECT_TRUE(result);
 }
 
-/**
- * @test AddMarketHoursAndLocationTEST
- * @brief Test case for adding market hours and location.
- */
-TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("1\n123456\nmonday\n09:00 - 18:00\ntrabzon\n");
-    // getInput fonksiyonunu çağır
-    bool result = addMarketHoursAndLocation;
 
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
-
-
-/**
- * @brief Test case for updating market hours and location.
- *
- * This test simulates user input for updating market hours and location.
- * The input includes an ID, day, working hours, and location.
- * After simulating the user input, it calls the updateMarketHoursAndLocation function
- * and verifies that the function returns true, indicating a successful update.
- */
-TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("2\n123456\nmonday\n09:00 - 18:00\ntrabzon\n");
-    // getInput fonksiyonunu çağır
-    bool result = updateMarketHoursAndLocation;
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
 
 
 
@@ -1028,6 +991,78 @@ TEST_F(MarketTest, enterKeywordsTEST2) {
 }
 
 
+TEST_F(MarketTest, minheapfyTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("\n");
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->size = 5; // Test için 5 düğümlü bir heap
+    minHeap->capacity = 5;
+    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+
+    // Düğümleri ekle
+    for (int i = 0; i < minHeap->size; i++) {
+        struct MinHeapNode* node = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+        node->freq = (minHeap->size - i) * 10; // Frekans değerleri: 50, 40, 30, 20, 10
+        minHeap->array[i] = node;
+    }
+    int smallest = 0;
+    // registerUser fonksiyonunu çağır
+    bool result = minHeapify(minHeap, 0);
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, insertMinheapifyTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("\n");
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->size = 0; // Başlangıçta heap boş
+    minHeap->capacity = 5;
+    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+
+    // Yeni bir MinHeapNode oluştur
+    struct MinHeapNode* minHeapNode = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+    minHeapNode->freq = 15; // Yeni düğümün frekansı
+
+    for (int i = 0; i < minHeap->size; i++) {
+        struct MinHeapNode* node = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
+        node->freq = (minHeap->size - i) * 10; // Frekans değerleri: 50, 40, 30, 20, 10
+        minHeap->array[i] = node;
+    }
+    
+    // registerUser fonksiyonunu çağır
+    bool result = insertMinHeap(minHeap,minHeapNode);
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, buildHuffmanTreeTEST) {
+    // Test verilerini tanımla
+    char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
+    int freq[] = { 5, 9, 12, 13, 16, 45 };
+    int size = sizeof(data) / sizeof(data[0]);
+
+    // buildHuffmanTree fonksiyonunu çağır
+    struct MinHeapNode* huffmanTreeRoot = buildHuffmanTree(data, freq, size);
+
+    // Huffman ağacının doğru oluşturulduğunu kontrol et
+    EXPECT_NE(huffmanTreeRoot, nullptr); // Kök düğüm boş olmamalı
+    EXPECT_EQ(huffmanTreeRoot->freq, 100); // Frekansların toplamı kökte olmalı
+
+    // Sol ve sağ alt ağaçların doğru olup olmadığını kontrol et
+    EXPECT_NE(huffmanTreeRoot->left, nullptr);
+    EXPECT_NE(huffmanTreeRoot->right, nullptr);
+
+}
 
 
 

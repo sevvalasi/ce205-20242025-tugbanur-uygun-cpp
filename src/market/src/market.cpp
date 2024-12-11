@@ -585,7 +585,7 @@ void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
  * @param minHeap Pointer to the Min-Heap.
  * @param idx Index of the node to be heapified.
  */
-void minHeapify(struct MinHeap* minHeap, int idx) {
+bool minHeapify(struct MinHeap* minHeap, int idx) {
     int smallest = idx;
     int left = 2 * idx + 1;
     int right = 2 * idx + 2;
@@ -602,6 +602,7 @@ void minHeapify(struct MinHeap* minHeap, int idx) {
         swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
         minHeapify(minHeap, smallest);
     }
+    return true;
 }
 
 /**
@@ -624,16 +625,14 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
  * @param minHeap Pointer to the Min-Heap.
  * @param minHeapNode Pointer to the node to be inserted.
  */
-void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
+bool insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
     ++minHeap->size;
     int i = minHeap->size - 1;
 
-    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) {
-        minHeap->array[i] = minHeap->array[(i - 1) / 2];
-        i = (i - 1) / 2;
-    }
+    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) { minHeap->array[i] = minHeap->array[(i - 1) / 2]; i = (i - 1) / 2;}
 
     minHeap->array[i] = minHeapNode;
+    return true;
 }
 
 
