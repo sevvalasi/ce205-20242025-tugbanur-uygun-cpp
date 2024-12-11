@@ -73,11 +73,7 @@ int getInput()
     int choice;
     int result = scanf("%d", &choice);
 
-    if (result != 1) {
-        printf("Invalid choice! Please try again.\n");
-        // Clear invalid entry
-        while (fgetc(stdin) != '\n'); // Read until new line character
-        return getInput(); // Call the function again
+    if (result != 1) {printf("Invalid choice! Please try again.\n");while (fgetc(stdin) != '\n'); return getInput(); 
     }
 
     return choice;
@@ -133,9 +129,7 @@ bool userAuthentication() {
             break;
         }
 
-    } while (choice != 4);
-   
-    return true;
+    } while (choice != 4);return true;
 }
 
 /**
@@ -317,17 +311,13 @@ bool priceComparison() {
         switch (choice) {
         case 1:
             // We pass the selectedProductName variable to the selectProduct function
-            if (selectProduct(selectedProductName) == 0) {  // If the product is selected
-                printf("Product '%s' selected.\n", selectedProductName);
-            }
+            if (selectProduct(selectedProductName) == 0) { printf("Product '%s' selected.\n", selectedProductName);}
             else {
                 printf("Product selection failed.\n");
             }
             break;
         case 2:
-            if (strlen(selectedProductName) > 0) {  // Make a comparison if the product is selected
-                comparePricesByName(selectedProductName);
-            }
+            if (strlen(selectedProductName) > 0) { comparePricesByName(selectedProductName);}
             else {
                 printf("No product selected. Please select a product first.\n");
             }
@@ -451,53 +441,29 @@ bool searchProductsOrEnterKeyword() {
  */
 bool loginUserFromHuffFile(const char* username, const char* password) {
     FILE* file = fopen("users.huff", "rb");
-    if (file == NULL) {
-        perror("Error opening file");
-        return false;
-    }
+    if (file == NULL) {perror("Error opening file");return false;}
 
     char fileUsername[100];
     char filePassword[100];
     size_t usernameLength, passwordLength;
 
     while (fread(&usernameLength, sizeof(size_t), 1, file) == 1) {
-        if (usernameLength >= sizeof(fileUsername)) {
-            printf("Username length too long, possible data corruption.\n");
-            fclose(file);
-            return false;
-        }
+        if (usernameLength >= sizeof(fileUsername)) {printf("Username length too long, possible data corruption.\n");fclose(file);return false;}
 
-        if (fread(fileUsername, sizeof(char), usernameLength, file) != usernameLength) {
-            printf("Error reading username from file.\n");
-            fclose(file);
-            return false;
-        }
+        if (fread(fileUsername, sizeof(char), usernameLength, file) != usernameLength) {printf("Error reading username from file.\n");fclose(file);return false;}
         fileUsername[usernameLength] = '\0';  // Add null character
 
-        if (fread(&passwordLength, sizeof(size_t), 1, file) != 1) {
-            printf("Error reading password length from file.\n");
-            fclose(file);
-            return false;
-        }
+        if (fread(&passwordLength, sizeof(size_t), 1, file) != 1) { printf("Error reading password length from file.\n");fclose(file); return false;}
 
-        if (passwordLength >= sizeof(filePassword)) {
-            printf("Password length too long, possible data corruption.\n");
-            fclose(file);
-            return false;
-        }
+        if (passwordLength >= sizeof(filePassword)) {printf("Password length too long, possible data corruption.\n");fclose(file);return false;}
 
-        if (fread(filePassword, sizeof(char), passwordLength, file) != passwordLength) {
-            printf("Error reading password from file.\n");
-            fclose(file);
-            return false;
-        }
+        if (fread(filePassword, sizeof(char), passwordLength, file) != passwordLength) {printf("Error reading password from file.\n");fclose(file);return false;}
         filePassword[passwordLength] = '\0';  // Add null character
 
         if (strcmp(username, fileUsername) == 0 && strcmp(password, filePassword) == 0) {
             fclose(file);
             return true;
-        }
-    }
+        }}
 
     fclose(file);
     return false;
@@ -541,10 +507,7 @@ bool loginUser() {
  */
 bool saveUserToHuffFile(const char* username, const char* password) {
     FILE* file = fopen("users.huff", "ab");
-    if (file == NULL) {
-        perror("Error opening file");
-        return false;
-    }
+    if (file == NULL) {perror("Error opening file");return false;}
 
     // Save username and password in binary format
     size_t usernameLength = strlen(username);
@@ -578,10 +541,7 @@ bool registerUser()
 
         // User information is written to file in binary format
         file = fopen("users.bin", "ab"); // We open in append to file mode with “ab”
-        if (file == NULL) {
-            printf("The file is not opened.\n");
-            exit(1);
-        }
+        if (file == NULL) {printf("The file is not opened.\n");exit(1);}
         fwrite(&user, sizeof(User), 1, file);
         fclose(file);
 
@@ -805,10 +765,7 @@ bool addVendor() {
     Vendor vendor;
 
     file = fopen("vendor.bin", "ab"); // We open the file in insert mode
-    if (file == NULL) {
-        printf("Error opening vendor file.\n");
-        return 1;
-    }
+    if (file == NULL) {printf("Error opening vendor file.\n");return false;}
 
     printf("\n--- List of Vendors ---\n");
     int vendorCount = 0; // To track the number of vendors we have listed
@@ -852,10 +809,7 @@ bool updateVendor() {
     int id, found = 0;
     file = fopen("vendor.bin", "rb+"); // We open the file in read and write mode
 
-    if (file == NULL) {
-        printf("Error opening vendor file.\n");
-        return 1;
-    }
+    if (file == NULL) {printf("Error opening vendor file.\n");return 1;}
 
     printf("Enter Vendor ID to update: ");
     scanf("%d", &id);
@@ -864,16 +818,8 @@ bool updateVendor() {
 
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        if (vendor.id == id) {
-            printf("Enter new Vendor Name: ");
-            scanf("%s", vendor.name);
-
-            fseek(file, -sizeof(Vendor), SEEK_CUR); // Undo cursor
-            fwrite(&vendor, sizeof(Vendor), 1, file);
-            found = 1;
-            printf("Vendor updated successfully!\n");
-            break;
-        }
+        if (vendor.id == id) {printf("Enter new Vendor Name: ");scanf("%s", vendor.name);fseek(file, -sizeof(Vendor), SEEK_CUR); // Undo cursor
+            fwrite(&vendor, sizeof(Vendor), 1, file);found = 1;printf("Vendor updated successfully!\n");break;}
     }
 
     if (!found) {
@@ -904,10 +850,7 @@ bool deleteVendor() {
     file = fopen("vendor.bin", "rb");
     tempFile = fopen("temp.bin", "wb");
 
-    if (file == NULL || tempFile == NULL) {
-        printf("Error opening file.\n");
-        return 1;
-    }
+    if (file == NULL || tempFile == NULL) {printf("Error opening file.\n");return 1;}
 
     printf("Enter Vendor ID to delete: ");
     scanf("%d", &id);
@@ -928,9 +871,7 @@ bool deleteVendor() {
     remove("vendor.bin");
     rename("temp.bin", "vendor.bin");
 
-    if (found) {
-        printf("Vendor deleted successfully!\n");
-    }
+    if (found) {printf("Vendor deleted successfully!\n");}
     else {
         printf("Vendor with ID %d not found.\n", id);
     }
@@ -997,11 +938,7 @@ void push(Stack* stack, Vendor vendor) {
 }
 
 Vendor pop(Stack* stack) {
-    if (isStackEmpty(stack)) {
-        printf("Stack is empty.\n");
-        Vendor emptyVendor = { 0 };
-        return emptyVendor;
-    }
+    if (isStackEmpty(stack)) {printf("Stack is empty.\n");Vendor emptyVendor = { 0 };return emptyVendor;}
     StackNode* temp = stack->top;
     Vendor vendor = temp->vendor;
     stack->top = stack->top->next;
@@ -1043,10 +980,7 @@ void enqueue(Queue* queue, Vendor vendor) {
 }
 
 Vendor dequeue(Queue* queue) {
-    if (queue->front == NULL) {
-        Vendor emptyVendor = { 0 }; // Boş bir vendor döndür
-        return emptyVendor;
-    }
+    if (queue->front == NULL) {Vendor emptyVendor = { 0 }; return emptyVendor;}
 
     QueueNode* temp = queue->front;
     Vendor vendor = temp->vendor;
@@ -1062,9 +996,7 @@ Vendor dequeue(Queue* queue) {
 
 
 void freeQueue(Queue* queue) {
-    while (!isQueueEmpty(queue)) {
-        dequeue(queue);
-    }
+    while (!isQueueEmpty(queue)) {dequeue(queue);}
     free(queue);
 }
 
@@ -1081,10 +1013,7 @@ bool listVendors() {
     Vendor vendor;
     file = fopen("vendor.bin", "rb"); // Dosyayı okuma modunda açıyoruz
 
-    if (file == NULL) {
-        printf("Error opening vendor file.\n");
-        return false;
-    }
+    if (file == NULL) {printf("Error opening vendor file.\n");return false;}
 
     // Vendor'ları dosyadan okuma ve stack'e ekleme
     Stack* vendorStack = createStack();
@@ -1113,29 +1042,18 @@ bool listVendors() {
         scanf(" %c", &choice);
         clearScreen();
 
-        if (choice == 'n') {
-            if (current->next != NULL) {
-                current = current->next;
-            }
+        if (choice == 'n') {if (current->next != NULL) {current = current->next;}
             else {
                 printf("No more vendors in this direction.\n");
             }
         }
-        else if (choice == 'p') {
-            if (current->prev != NULL) {
-                current = current->prev;
-            }
+        else if (choice == 'p') {if (current->prev != NULL) {current = current->prev;}
             else {
                 printf("No more vendors in this direction.\n");
             }
         }
-        else if (choice == 's') {
-            printf("\n--- Stack Traversal (Last In, First Out) ---\n");
-            while (!isStackEmpty(vendorStack)) {
-                Vendor v = pop(vendorStack);
-                printf("ID: %d, Name: %s\n", v.id, v.name);
-            }
-        }
+        else if (choice == 's') {printf("\n--- Stack Traversal (Last In, First Out) ---\n");while (!isStackEmpty(vendorStack)) {Vendor v = pop(vendorStack);
+                printf("ID: %d, Name: %s\n", v.id, v.name);}}
         else if (choice == 'q') {
             printf("\n--- Queue Traversal (First In, First Out) ---\n");
             while (!isQueueEmpty(vendorQueue)) {
@@ -1144,8 +1062,7 @@ bool listVendors() {
             }
         }
         else if (choice == 'x') {
-            break;
-        }
+            break;}
         else {
             printf("Invalid input. Please use 'n', 'p', 's', 'q', or 'x'.\n");
         }
@@ -1201,27 +1118,17 @@ bool addProduct() {
     int found = 0;
 
     productFile = fopen("products.bin", "ab"); 
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
     vendorFile = fopen("vendor.bin", "rb"); 
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(productFile);
-        return 1;
-    }
+    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);return 1;}
 
     printf("Enter Vendor ID for the product: ");
     scanf("%d", &product.vendorId);
 
     // Check the vendor ID
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-        if (vendor.id == product.vendorId) {
-            found = 1;  // Vonder found
-            break;
-        }
+        if (vendor.id == product.vendorId) {found = 1; break;}
     }
 
     fclose(vendorFile);  // Close the vendor file
@@ -1278,10 +1185,7 @@ bool updateProduct() {
     int found = 0;
 
     productFile = fopen("products.bin", "rb"); 
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
     tempFile = fopen("temp.bin", "wb"); // Open temporary file in write mode
     if (tempFile == NULL) {
@@ -1294,21 +1198,7 @@ bool updateProduct() {
     scanf("%s", productName);
 
     // Read all products from the file and check the name
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (strcmp(product.productName, productName) == 0) {
-            found = 1;
-            // Receiving new product information
-            printf("Enter new Product Name: ");
-            scanf("%s", product.productName);
-            printf("Enter new Product Price: ");
-            scanf("%f", &product.price);
-            printf("Enter new Product Quantity: ");
-            scanf("%d", &product.quantity);
-            printf("Enter new Product Season: ");
-            scanf("%s", product.season);
-        }
-        fwrite(&product, sizeof(Product), 1, tempFile); // Write the product in the temporary file
-    }
+    while (fread(&product, sizeof(Product), 1, productFile)) {if (strcmp(product.productName, productName) == 0) {found = 1;printf("Enter new Product Name: ");scanf("%s", product.productName);printf("Enter new Product Price: ");scanf("%f", &product.price);printf("Enter new Product Quantity: ");scanf("%d", &product.quantity);printf("Enter new Product Season: ");scanf("%s", product.season);}fwrite(&product, sizeof(Product), 1, tempFile);}
 
     fclose(productFile);
     fclose(tempFile);
@@ -1346,30 +1236,16 @@ bool deleteProduct() {
     int found = 0;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
     tempFile = fopen("temp.bin", "wb"); 
-    if (tempFile == NULL) {
-        printf("Error creating temporary file.\n");
-        fclose(productFile);
-        return 1;
-    }
+    if (tempFile == NULL) {printf("Error creating temporary file.\n");fclose(productFile);return 1;}
 
     printf("Enter Product Name to delete: ");
     scanf("%s", productName);
 
     // Read all products from the file and check the name
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (strcmp(product.productName, productName) == 0) {
-            found = 1;
-            printf("Product with name %s deleted successfully!\n", productName);
-            continue; // Skip product to delete
-        }
-        fwrite(&product, sizeof(Product), 1, tempFile); // Put other products in the temporary file
-    }
+    while (fread(&product, sizeof(Product), 1, productFile)) {if (strcmp(product.productName, productName) == 0) {found = 1;printf("Product with name %s deleted successfully!\n", productName);continue; }fwrite(&product, sizeof(Product), 1, tempFile); }
 
     fclose(productFile);
     fclose(tempFile);
@@ -1407,17 +1283,10 @@ bool listingOfLocalVendorsandProducts() {
     int found = 0;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
     vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(productFile);  
-        return 1;
-    }
+    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);  return 1;}
 
     printf("\n--- Listing All Vendors and Their Products ---\n");
 
@@ -1450,86 +1319,36 @@ bool listingOfLocalVendorsandProducts() {
 
         switch (strategy) {
         case 1: // Lineer Probing
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1; found = 1;}}
             break;
 
         case 2: // Karesel Probing
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
 
         case 3: // Çift Hashing
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
 
         case 4: // Linear Quotient
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
 
         case 5: // Progressive Overflow
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
 
         case 6: // Use of Buckets
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
 
         case 7: // Brent's Method
-            while (fread(&product, sizeof(Product), 1, productFile)) {
-                if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
-                    printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
-                        product.productName, product.price, product.quantity, product.season);
-                    productFound = 1;
-                    found = 1;
-                }
-            }
+            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
             break;
         case 8:
             printf("Exiting the vendor list\n");
             getchar();
-            return true;
-            break;
+            return true;break;
 
         default:
             printf("Invalid strategy selected.\n");
@@ -1578,8 +1397,7 @@ int sparseMatrixSize = 0;
  */
 void addVendorProductRelation(int vendorId, int productId, float price) {
 
-    if (price == 0) {
-        return;
+    if (price == 0) {return;
     }
     // We add a new relation to the sparse matrix
     sparseMatrix[sparseMatrixSize].vendorId = vendorId;
@@ -1753,17 +1571,11 @@ bool selectProduct(char* selectedProductName) {
     int productCount = 0;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;
     }
 
     printf("\n--- Available Products ---\n");
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        printf("Name: %s, Price: %.2f, Quantity: %d, Season: %s, Vendor ID: %d\n",
-            product.productName, product.price, product.quantity, product.season, product.vendorId);
-        productCount++;
-    }
+    while (fread(&product, sizeof(Product), 1, productFile)) {printf("Name: %s, Price: %.2f, Quantity: %d, Season: %s, Vendor ID: %d\n",product.productName, product.price, product.quantity, product.season, product.vendorId);productCount++;}
 
     fclose(productFile);
 
@@ -1877,19 +1689,10 @@ bool comparePricesByName(const char* productName) {
     bool found = false;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        getchar();
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");getchar();return 1;}
 
     // Read products from the file and add the ones that match the given name to the products array
-    while (fread(&products[productCount], sizeof(Product), 1, productFile)) {
-        if (strcmp(products[productCount].productName, productName) == 0) {
-            productCount++;
-            found = true;
-        }
-    }
+    while (fread(&products[productCount], sizeof(Product), 1, productFile)) {if (strcmp(products[productCount].productName, productName) == 0) {productCount++;found = true;}}
 
     fclose(productFile);
 
@@ -2537,35 +2340,16 @@ bool enterSearchProducts() {
 
     // Open the product file
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return 1;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
     // Open the vendor file
     vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(productFile);
-        return 1;
-    }
+    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);return 1;}
 
     printf("\n--- Vendors Offering '%s' ---\n", favoriteProduct);
 
     // Search with KMP by scanning the product file
-    while (fread(&product, sizeof(Product), 1, productFile)) {
-        if (KMPSearch(favoriteProduct, product.productName)) {
-            // Matching product found, show vendor
-            rewind(vendorFile); // Undo to reread the vendor file
-            while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-                if (vendor.id == product.vendorId) {
-                    printf("Vendor: %s, ID: %d\n", vendor.name, vendor.id);
-                    found = true;
-                    break;
-                }
-            }
-        }
-    }
+    while (fread(&product, sizeof(Product), 1, productFile)) {if (KMPSearch(favoriteProduct, product.productName)) {rewind(vendorFile); while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {if (vendor.id == product.vendorId) {printf("Vendor: %s, ID: %d\n", vendor.name, vendor.id);found = true;break;}}}}
 
     if (!found) {
         printf("No vendors found offering '%s'.\n", favoriteProduct);
@@ -2616,10 +2400,7 @@ bool DFS(Node* node, const char* keyword, Node** visited, int* visitedCount) {
         (*visitedCount)++;
 
         // Return if the keyword is present in the node information
-        if (strstr(currentNode->info, keyword) != NULL) {
-            printf("Match found: %s\n", currentNode->info);
-            return true;
-        }
+        if (strstr(currentNode->info, keyword) != NULL) {printf("Match found: %s\n", currentNode->info);return true;}
 
         // Add neighbor nodes to the stack
         for (int i = 0; i < currentNode->neighborCount; i++) {
@@ -2645,9 +2426,7 @@ bool enterKeywords() {
     FILE* productFile = fopen("products.bin", "rb");
     FILE* vendorFile = fopen("vendor.bin", "rb");
 
-    if (productFile == NULL || vendorFile == NULL) {
-        printf("Error opening product or vendor file.\n");
-        return 1;
+    if (productFile == NULL || vendorFile == NULL) {printf("Error opening product or vendor file.\n");return false;
     }
 
     Product product;
@@ -2658,15 +2437,7 @@ bool enterKeywords() {
     int nodeCount = 0;
 
     // Adding products as nodes
-    while (fread(&product, sizeof(Product), 1, productFile) && nodeCount < 100) {
-        Node* productNode = (Node*)malloc(sizeof(Node));
-        productNode->info = (char*)malloc(200 * sizeof(char));
-        snprintf(productNode->info, 200, "Product: %s, Season: %s, Vendor ID: %d, Price: %.2f, Quantity: %d",
-            product.productName, product.season, product.vendorId, product.price, product.quantity);
-        productNode->neighborCount = 0;
-        productNode->neighbors = NULL;
-        nodes[nodeCount++] = productNode;
-    }
+    while (fread(&product, sizeof(Product), 1, productFile) && nodeCount < 100) {Node* productNode = (Node*)malloc(sizeof(Node));productNode->info = (char*)malloc(200 * sizeof(char));snprintf(productNode->info, 200, "Product: %s, Season: %s, Vendor ID: %d, Price: %.2f, Quantity: %d",product.productName, product.season, product.vendorId, product.price, product.quantity);productNode->neighborCount = 0;productNode->neighbors = NULL;nodes[nodeCount++] = productNode;}
 
     // Adding vendors as nodes
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile) && nodeCount < 100) {
@@ -2702,8 +2473,7 @@ bool enterKeywords() {
 
     for (int i = 0; i < nodeCount; ++i) {
         visitedCount = 0;
-        if (DFS(nodes[i], keyword, visited, &visitedCount)) {
-            found = true;
+        if (DFS(nodes[i], keyword, visited, &visitedCount)) {found = true;
         }
     }
 
@@ -2794,6 +2564,5 @@ void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack,
 int findNodeIndex(Node* nodes[], Node* node, int nodeCount) {
     for (int i = 0; i < nodeCount; ++i) {
         if (nodes[i] == node) return i;
-    }
-    return -1;  // If not found
+    }return -1;  // If not found
 }

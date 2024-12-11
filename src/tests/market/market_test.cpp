@@ -126,7 +126,7 @@ TEST_F(MarketTest, MainMenuTest2) {
 
 TEST_F(MarketTest, MainMenuTest3) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("3\n0\n0\n");
+    simulateUserInput("3\n0\n0\n0\n0\n4\n");
 
     // getInput fonksiyonunu çağır
     bool result = mainMenu();
@@ -152,6 +152,7 @@ TEST_F(MarketTest, MainMenuTest4) {
     EXPECT_TRUE(result);
 }
 
+
 TEST_F(MarketTest, MainMenuTest5) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("5\n0\n0\n");
@@ -165,6 +166,24 @@ TEST_F(MarketTest, MainMenuTest5) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
+
+TEST_F(MarketTest, MainMenuTestInvalid) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("787\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = mainMenu();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
 
 
 /**
@@ -184,6 +203,82 @@ TEST_F(MarketTest, listingOfLocalVendorsTEST) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
+TEST_F(MarketTest, listingOfLocalVendorsTEST2) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("1\ntugba\n0\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, listingOfLocalVendorsTEST3) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("2\n123456\ntugba\n0\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, listingOfLocalVendorsTEST4) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("3\n123456\n0\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, listingOfLocalVendorsTEST5) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("4\nq\nx\n0\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, listingOfLocalVendorsInvalidTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("5\n0\n0\n0\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
 
 
 /**
@@ -248,7 +343,7 @@ TEST_F(MarketTest, DeletevendorTEST) {
  */
 TEST_F(MarketTest, ListVendorsTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("q\n\n");
+    simulateUserInput("q\nx\n");
 
     // getInput fonksiyonunu çağır
     bool result = listVendors();
@@ -278,6 +373,84 @@ TEST_F(MarketTest, ListingOfLocalProductsTEST) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
+TEST_F(MarketTest, ListingOfLocalProductsTEST2) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("1\n123456\ntomato\n15\n150\nwinter\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, ListingOfLocalProductsTEST3) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("2\n123456\ntomato\n15\n150\nwinter\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+
+
+TEST_F(MarketTest, ListingOfLocalProductsTEST4) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("3\n123456\ntomato\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, ListingOfLocalProductsTEST5) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("4\n8\n0\n0\n4\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, ListingOfLocalProductsInvalidTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("5\n0\n0\n4\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = listingOfLocalProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
 
 /**
  * @test AddProductTEST
@@ -468,64 +641,6 @@ TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST8) {
 
 
 /**
- * @test PriceComparisonTEST
- * @brief Test case for comparing product prices.
- */
-TEST_F(MarketTest, PriceComparisonTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("0\n");
-
-    // getInput fonksiyonunu çağır
-    bool result = priceComparison();
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
-
-
-/**
- * @test SelectProductTEST
- * @brief Test case for selecting a product by name.
- */
-TEST_F(MarketTest, SelectProductTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("tomato\n");
-    char selectedProductName[100] = "";
-
-    // getInput fonksiyonunu çağır
-    bool result = selectProduct(selectedProductName);
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
-
-
-/**
- * @test ComparePriceByNameTEST
- * @brief Test case for comparing product prices by name.
- */
-TEST_F(MarketTest, ComparePriceByNameTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("tomato\n");
-    char selectedProductName[100] = "";
-    // getInput fonksiyonunu çağır
-    bool result = comparePricesByName(selectedProductName);
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde alındığını kontrol et
-    EXPECT_TRUE(result);
-}
-
-
-/**
  * @test marketHoursAndLocationsTEST
  * @brief Test case for displaying market hours and locations.
  */
@@ -660,11 +775,52 @@ TEST_F(MarketTest, SaveUserToHuffFileTEST) {
     EXPECT_TRUE(result);
 }
 
+
+
+
+
+
+
+
+TEST_F(MarketTest, userAuthenticationTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
+    simulateUserInput("1\ntestUser\npassword123\n0\n0\n4\n");
+
+    // loginUser fonksiyonunu çağır
+    bool result = userAuthentication();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, userAuthenticationTEST2) {
+    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
+    simulateUserInput("2\nnewUser\nnewpassword\n0\n0\n4\n");
+
+    // loginUser fonksiyonunu çağır
+    bool result = userAuthentication();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+
+
 /**
  * @test LoginUserUpdatedTEST
  * @brief Test case for logging in a user.
  */
-TEST_F(MarketTest, LoginUserUpdatedTEST) {
+TEST_F(MarketTest, LoginUserTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
     simulateUserInput("testUser\npassword123\n");
 
@@ -697,45 +853,177 @@ TEST_F(MarketTest, RegisterUserTEST) {
     EXPECT_TRUE(result);
 }
 
-TEST_F(MarketTest, AddVendorTEST) {
-    // Simüle edilmiş vendor ekleme girişleri (vendor adı)
-    simulateUserInput("sevval\n");
 
-    // addVendor fonksiyonunu çağır
-    bool result = addVendor();
+/**
+ * @test PriceComparisonTEST
+ * @brief Test case for comparing product prices.
+ */
+TEST_F(MarketTest, PriceComparisonTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = priceComparison();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Vendor ekleme işleminin başarılı olup olmadığını kontrol et
+    // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
 
-TEST_F(MarketTest, UpdateVendorTEST) {
-    // Simüle edilmiş vendor güncelleme girişleri (vendor ID ve yeni adı)
-    simulateUserInput("123456\nsevval\n");
+TEST_F(MarketTest, PriceComparisonTEST2) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("1\ntomato\n0\n0\n4\n");
 
-    // updateVendor fonksiyonunu çağır
-    bool result = updateVendor();
+    // getInput fonksiyonunu çağır
+    bool result = priceComparison();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Vendor güncelleme işleminin başarılı olup olmadığını kontrol et
+    // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
 
-TEST_F(MarketTest, DeleteVendorTEST) {
-    // Simüle edilmiş vendor silme girişleri (vendor ID)
-    simulateUserInput("123456\n");
+TEST_F(MarketTest, PriceComparisonTEST3) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("2\n\n0\n0\n4\n");
 
-    // deleteVendor fonksiyonunu çağır
-    bool result = deleteVendor();
+    // getInput fonksiyonunu çağır
+    bool result = priceComparison();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Vendor silme işleminin başarılı olup olmadığını kontrol et
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, PriceComparisonInvalidTEST4) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("675768\n0\n0\n4\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = priceComparison();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+/**
+ * @test SelectProductTEST
+ * @brief Test case for selecting a product by name.
+ */
+TEST_F(MarketTest, SelectProductTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("tomato\n");
+    char selectedProductName[100] = "";
+
+    // getInput fonksiyonunu çağır
+    bool result = selectProduct(selectedProductName);
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+/**
+ * @test ComparePriceByNameTEST
+ * @brief Test case for comparing product prices by name.
+ */
+TEST_F(MarketTest, ComparePriceByNameTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("tomato\n");
+    char selectedProductName[100] = "";
+    // getInput fonksiyonunu çağır
+    bool result = comparePricesByName(selectedProductName);
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, enterSearchProductsTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("banana\n0\n0\n4\n");
+
+    // registerUser fonksiyonunu çağır
+    bool result = enterSearchProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, enterKeywordsTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("banana\n0\n0\n4\n");
+
+    // registerUser fonksiyonunu çağır
+    bool result = enterKeywords();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, searchProductsOrEnterKeywordInvalidTEST) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("5\n0\n0\n0\n4\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = searchProductsOrEnterKeyword();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+TEST_F(MarketTest, enterSearchProductsTEST2) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("1\nbanana\n0\n0\n4\n");
+
+    // registerUser fonksiyonunu çağır
+    bool result = searchProductsOrEnterKeyword();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, enterKeywordsTEST2) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("2\nbanana\n0\n0\n4\n");
+
+    // registerUser fonksiyonunu çağır
+    bool result = searchProductsOrEnterKeyword();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
     EXPECT_TRUE(result);
 }
 
