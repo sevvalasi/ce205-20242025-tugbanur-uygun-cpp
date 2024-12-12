@@ -264,7 +264,7 @@ int progressiveOverflowSearch(int key);
 int useOfBucketsSearch(int key);
 int brentsMethodSearch(int key);
 void addVendorProductRelation(int vendorId, int productId, float price);
-void listProductsByVendor(int vendorId);
+bool listProductsByVendor(int vendorId);
 
 bool enterSearchProducts();
 bool enterKeywords();
@@ -292,7 +292,7 @@ void traverseXORList(MarketHoursNode* head);
 void findSCC(Node* nodes[], int nodeCount);
 void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack, int* stackTop, bool* onStack, int nodeCount);
 int findNodeIndex(Node* nodes[], Node* node, int nodeCount);
-
+bool heapify(Product arr[], int n, int i);
 
 
 
