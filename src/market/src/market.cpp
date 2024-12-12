@@ -817,9 +817,7 @@ bool updateVendor() {
 
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
-        if (vendor.id == id) {printf("Enter new Vendor Name: ");scanf("%s", vendor.name);fseek(file, -sizeof(Vendor), SEEK_CUR); // Undo cursor
-            fwrite(&vendor, sizeof(Vendor), 1, file);found = 1;printf("Vendor updated successfully!\n");break;}
-    }
+        if (vendor.id == id) {printf("Enter new Vendor Name: ");scanf("%s", vendor.name);fseek(file, -sizeof(Vendor), SEEK_CUR);fwrite(&vendor, sizeof(Vendor), 1, file);found = 1;printf("Vendor updated successfully!\n");break;}}
 
     if (!found) {
         printf("Vendor with ID %d not found.\n", id);
@@ -1186,12 +1184,8 @@ bool updateProduct() {
     productFile = fopen("products.bin", "rb"); 
     if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
 
-    tempFile = fopen("temp.bin", "wb"); // Open temporary file in write mode
-    if (tempFile == NULL) {
-        printf("Error creating temporary file.\n");
-        fclose(productFile);
-        return 1;
-    }
+    tempFile = fopen("temp.bin", "wb");
+    if (tempFile == NULL) {printf("Error creating temporary file.\n");fclose(productFile);return 1;}
 
     printf("Enter Product Name to update: ");
     scanf("%s", productName);

@@ -1065,6 +1065,18 @@ TEST_F(MarketTest, buildHuffmanTreeTEST) {
 }
 
 
+TEST_F(MarketTest, DebugHuffmanCodesTest) {
+    char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
+    int freq[] = { 5, 9, 12, 13, 16, 45 };
+    int size = sizeof(data) / sizeof(data[0]);
+
+    // Huffman kodlarını üret ve doğrudan yazdır
+    HuffmanCodes(data, freq, size);
+}
+
+
+
+
 
 /**
  * @brief Main entry point for running all unit tests.
