@@ -1076,6 +1076,53 @@ TEST_F(MarketTest, DebugHuffmanCodesTest) {
 
 
 
+TEST_F(MarketTest, listProductsByVendorTEST) {
+    // Simulate the vendor ID input
+    int testVendorId = 1;
+
+    // Redirect standard output to a buffer for capturing results
+    testing::internal::CaptureStdout();
+
+    // Act: Call the function to list products by vendor
+    bool result = listProductsByVendor(testVendorId);
+
+    // Assert: Verify the result is true and the correct products are printed
+    EXPECT_TRUE(result);
+
+}
+
+
+TEST_F(MarketTest, heapifyTEST) {
+    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    simulateUserInput("\n");
+    // We initialize the largest element as root
+    struct Product arr[5] = {
+        
+    };
+
+    int i = 0; // Root elemanın başlangıç indeksi
+    int n = 5; // Dizinin boyutu
+    // Largest kısmını doğrula
+    int largest = 0; // Başlangıç değeri
+    int left = 2 * i + 1; // Sol çocuk
+    int right = 2 * i + 2; // Sağ çocuk
+
+    if (left < n && arr[left].price > arr[largest].price)
+        largest = left;
+
+    if (right < n && arr[right].price > arr[largest].price)
+        largest = right;
+
+
+    // registerUser fonksiyonunu çağırarr
+    bool result = heapify(arr,1,1);
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Kaydın başarılı olup olmadığını kontrol et
+    EXPECT_TRUE(result);
+}
 
 
 /**

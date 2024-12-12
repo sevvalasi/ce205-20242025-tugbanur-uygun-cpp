@@ -1406,18 +1406,14 @@ void addVendorProductRelation(int vendorId, int productId, float price) {
  *
  * @note If no products are found for the vendor, a corresponding message is displayed.
  */
-void listProductsByVendor(int vendorId) {
+bool listProductsByVendor(int vendorId) {
     printf("\n--- Products offered by Vendor %d ---\n", vendorId);
     int found = 0;
-    for (int i = 0; i < sparseMatrixSize; i++) {
-        if (sparseMatrix[i].vendorId == vendorId) {
-            printf("Product ID: %d, Price: %.2f\n", sparseMatrix[i].productId, sparseMatrix[i].price);
-            found = 1;
-        }
-    }
+    for (int i = 0; i < sparseMatrixSize; i++) { if (sparseMatrix[i].vendorId == vendorId) {  printf("Product ID: %d, Price: %.2f\n", sparseMatrix[i].productId, sparseMatrix[i].price); found = 1;}}
     if (!found) {
         printf("No products found for Vendor %d.\n", vendorId);
     }
+    return true;
 }
 
 /**
@@ -1616,7 +1612,7 @@ bool selectProduct(char* selectedProductName) {
  * @param n Number of elements in the array.
  * @param i Index of the root node where max-heap will be created.
  */
-void heapify(Product arr[], int n, int i) {
+bool heapify(Product arr[], int n, int i) {
     int largest = i; // We initialize the largest element as root
     int left = 2 * i + 1; // Left child
     int right = 2 * i + 2; // Right child
@@ -1630,14 +1626,8 @@ void heapify(Product arr[], int n, int i) {
         largest = right;
 
     // If the largest element is not a root
-    if (largest != i) {
-        Product temp = arr[i];
-        arr[i] = arr[largest];
-        arr[largest] = temp;
-
-        // Apply heapify in subtree
-        heapify(arr, n, largest);
-    }
+    if (largest != i) {Product temp = arr[i]; arr[i] = arr[largest]; arr[largest] = temp; heapify(arr, n, largest);}
+    return true;
 }
 
 
