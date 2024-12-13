@@ -1391,6 +1391,7 @@ SparseMatrixEntry sparseMatrix[MAX_VENDORS * MAX_PRODUCTS];
 int sparseMatrixSize = 0;
 
 
+
 /**
  * @brief Adds a relationship between a vendor and a product.
  *
