@@ -23,6 +23,8 @@
 #define MAX_KEYS 3
 /** @brief Minimum number of keys in B+ Tree nodes */
 #define MIN_KEYS (MAX_KEYS / 2)
+#define OVERFLOW__SIZE 10
+#define BUCKET_COUNT 10
 
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
@@ -71,6 +73,13 @@ typedef struct {
     Product product;
     int isOccupied;
 } HashTableEntry;
+
+typedef struct {
+    bool isOccupied;
+    int key;
+} OverflowEntry;
+
+
 
 
 /**
@@ -260,8 +269,8 @@ int linearProbing(int key, int i);
 int quadraticProbing(int key, int i);
 int doubleHashing(int key, int i);
 int linearQuotient(int key, int i);
-int progressiveOverflowSearch(int key);
-int useOfBucketsSearch(int key);
+bool progressiveOverflowSearch(int key);
+bool useOfBucketsSearch(int key);
 int brentsMethodSearch(int key);
 void addVendorProductRelation(int vendorId, int productId, float price);
 bool listProductsByVendor(int vendorId);

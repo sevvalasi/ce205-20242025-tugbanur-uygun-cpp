@@ -8,6 +8,7 @@
  */
 #include "gtest/gtest.h"
 #include "../../market/header/market.h"
+#include "../../market/src/market.cpp"
 
  /**
   * @class MarketTest
@@ -469,6 +470,9 @@ TEST_F(MarketTest, AddProductTEST) {
     // Girişin doğru şekilde alındığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
+
 
 
 /**
@@ -1123,6 +1127,56 @@ TEST_F(MarketTest, heapifyTEST) {
     // Kaydın başarılı olup olmadığını kontrol et
     EXPECT_TRUE(result);
 }
+
+
+TEST_F(MarketTest, ProgressiveOverflowSearchTEST) {
+    // Test için overflowArea'yi simüle et
+    for (int i = 0; i < OVERFLOW__SIZE; i++) {
+        overflowAreaa[i].isOccupied = false;
+        overflowAreaa[i].key = 0;
+    }
+
+    // Örnek verileri ekle
+    overflowAreaa[3].isOccupied = true;
+    overflowAreaa[3].key = 42;
+
+    overflowAreaa[7].isOccupied = true;
+    overflowAreaa[7].key = 99;
+
+
+    // Anahtar bulunmayan bir durumda false dönmesini bekliyoruz
+    EXPECT_FALSE(progressiveOverflowSearch(100));
+
+    // İşgal edilmemiş bir alandaki anahtar testi
+    EXPECT_FALSE(progressiveOverflowSearch(50));
+}
+
+
+TEST_F(MarketTest, UseOfBucketsSearchTEST) {
+    // Test için hashTableBuckets'ı simüle et
+    for (int i = 0; i < BUCKET_COUNT; i++) {
+        hashTableBuckets[i].productCount = 0;
+    }
+
+    // Örnek verileri ekle
+    int bucketIndex = hashFunction(42);
+    hashTableBucketss[bucketIndex].products[0].vendorId = 42;
+    hashTableBucketss[bucketIndex].productCount++;
+
+    bucketIndex = hashFunction(99);
+    hashTableBucketss[bucketIndex].products[0].vendorId = 99;
+    hashTableBucketss[bucketIndex].productCount++;
+
+    // Anahtar bulunmayan bir durumda false dönmesini bekliyoruz
+    EXPECT_FALSE(useOfBucketsSearch(100));
+
+
+    // İşgal edilmemiş bir alandaki anahtar testi
+    EXPECT_FALSE(useOfBucketsSearch(50));
+}
+
+
+
 
 
 /**

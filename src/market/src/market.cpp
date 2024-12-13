@@ -47,7 +47,8 @@ bool isAuthenticated = false;
 HashTableEntry hashTable[TABLE_SIZE];
 HashTableEntry overflowArea[OVERFLOW_SIZE];
 Bucket hashTableBuckets[TABLE_SIZE];
-
+OverflowEntry overflowAreaa[OVERFLOW__SIZE];
+Bucket hashTableBucketss[BUCKET_COUNT];
 
 /**
  * @brief Clears the terminal screen.
@@ -1276,76 +1277,86 @@ bool listingOfLocalVendorsandProducts() {
     int found = 0;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
+    if (productFile == NULL) {
+        printf("Error opening product file.\n");
+        return false;
+    }
 
     vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);  return 1;}
+    if (vendorFile == NULL) {
+        printf("Error opening vendor file.\n");
+        fclose(productFile);
+        return false;
+    }
 
     printf("\n--- Listing All Vendors and Their Products ---\n");
 
-    // Read all vendors and list products from each vendor
+    // Make the user select a search method
+    int strategy;
+    printf("Select Collision Resolution Strategy for All Vendors:\n");
+    printf("1. Linear Probing\n");
+    printf("2. Quadratic Probing\n");
+    printf("3. Double Hashing\n");
+    printf("4. Linear Quotient\n");
+    printf("5. Progressive Overflow\n");
+    printf("6. Use of Buckets\n");
+    printf("7. Brent's Method\n");
+    printf("8. Exit\n");
+    scanf("%d", &strategy);
+
+    if (strategy == 8) {
+        printf("Exiting the product list\n");
+        fclose(vendorFile);
+        fclose(productFile);
+        return true;
+    }
+
+    rewind(productFile); // Reset file pointer for products
+
+    // Loop through all vendors
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
         printf("\nVendor: %s (ID: %d)\n", vendor.name, vendor.id);
         printf("--------------------------\n");
 
-        // Make the user select a search method
-        int strategy;
-        printf("Select Collision Resolution Strategy for Vendor %d:\n", vendor.id);
-        printf("1. Linear Probing\n");
-        printf("2. Quadratic Probing\n");
-        printf("3. Double Hashing\n");
-        printf("4. Linear Quotient\n");
-        printf("5. Progressive Overflow\n");
-        printf("6. Use of Buckets\n");
-        printf("7. Brent's Method\n");
-        printf("8.Exit\n");
-        scanf("%d", &strategy);
-
-        // Use the appropriate conflict resolution algorithm to find products
-        // We use rewind to read the product file from the beginning
-        rewind(productFile);
+        // Loop through all products for the current vendor
+        rewind(productFile); // Reset product file pointer for each vendor
         int productFound = 0;
 
-
-        // Listing products by scanning the product file from beginning to end
-        rewind(productFile);
-
-        switch (strategy) {
-        case 1: // Lineer Probing
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1; found = 1;}}
-            break;
-
-        case 2: // Karesel Probing
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-
-        case 3: // Çift Hashing
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-
-        case 4: // Linear Quotient
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-
-        case 5: // Progressive Overflow
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-
-        case 6: // Use of Buckets
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-
-        case 7: // Brent's Method
-            while (fread(&product, sizeof(Product), 1, productFile)) {if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",product.productName, product.price, product.quantity, product.season);productFound = 1;found = 1;}}
-            break;
-        case 8:
-            printf("Exiting the vendor list\n");
-            getchar();
-            return true;break;
-
-        default:
-            printf("Invalid strategy selected.\n");
-            break;
+        while (fread(&product, sizeof(Product), 1, productFile)) {
+            if (product.vendorId == vendor.id && product.price != 0 && product.quantity != 0) {
+                switch (strategy) {
+                case 1: // Linear Probing
+                    printf("Using Linear Probing for Product: %s\n", product.productName);
+                    break;
+                case 2: // Quadratic Probing
+                    printf("Using Quadratic Probing for Product: %s\n", product.productName);
+                    break;
+                case 3: // Double Hashing
+                    printf("Using Double Hashing for Product: %s\n", product.productName);
+                    break;
+                case 4: // Linear Quotient
+                    printf("Using Linear Quotient for Product: %s\n", product.productName);
+                    break;
+                case 5: // Progressive Overflow
+                    printf("Using Progressive Overflow for Product: %s\n", product.productName);
+                    break;
+                case 6: // Use of Buckets
+                    printf("Using Use of Buckets for Product: %s\n", product.productName);
+                    break;
+                case 7: // Brent's Method
+                    printf("Using Brent's Method for Product: %s\n", product.productName);
+                    break;
+                default:
+                    printf("Invalid strategy selected.\n");
+                    fclose(vendorFile);
+                    fclose(productFile);
+                    return false;
+                }
+                printf("Product: %s, Price: %.2f, Quantity: %d, Season: %s\n",
+                    product.productName, product.price, product.quantity, product.season);
+                productFound = 1;
+                found = 1;
+            }
         }
 
         if (!productFound) {
@@ -1361,11 +1372,12 @@ bool listingOfLocalVendorsandProducts() {
     fclose(productFile);
 
     printf("\nPress Enter to return to menu...");
-    getchar();  
-    getchar();  
+    getchar();
+    getchar();
 
     return true;
 }
+
 
 /**
  * @brief Represents a sparse matrix entry for vendor-product relationships.
@@ -1495,14 +1507,18 @@ int linearQuotient(int key, int i) {
  * @param key The key to be searched.
  * @return The index of the key in the overflow area, or -1 if not found.
  */
-int progressiveOverflowSearch(int key) {
+
+
+#include <stdbool.h>
+
+bool progressiveOverflowSearch(int key) {
     for (int i = 0; i < OVERFLOW_SIZE; i++) {
-        if (overflowArea[i].isOccupied && overflowArea[i].key == key) {
-            return i + TABLE_SIZE;
-        }
+        if (overflowArea[i].isOccupied && overflowArea[i].key == key) {return true;}
     }
-    return -1;
+    return false; // Anahtar bulunamadı
 }
+
+
 
 /**
  * @brief Searches for a key using bucket searching.
@@ -1510,15 +1526,24 @@ int progressiveOverflowSearch(int key) {
  * @param key The key to be searched.
  * @return The index of the bucket where the key is located, or -1 if not found.
  */
-int useOfBucketsSearch(int key) {
+//int useOfBucketsSearch(int key) {
+//    int index = hashFunction(key);
+//    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
+//        if (hashTableBuckets[index].products[i].vendorId == key) {
+//            return index;
+//        }
+//    }
+//    return -1;
+//}
+
+
+bool useOfBucketsSearch(int key) {
     int index = hashFunction(key);
-    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
-        if (hashTableBuckets[index].products[i].vendorId == key) {
-            return index;
-        }
-    }
-    return -1;
+    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {if (hashTableBuckets[index].products[i].vendorId == key) {return true; }}
+    return false; // Anahtar bulunamadı
 }
+
+
 
 /**
  * @brief Searches for a key using Brent's method.
