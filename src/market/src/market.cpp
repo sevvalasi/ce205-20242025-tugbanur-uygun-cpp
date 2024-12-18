@@ -463,12 +463,7 @@ bool loginUserFromHuffFile(const char* username, const char* password) {
 
         if (strcmp(username, fileUsername) == 0 && strcmp(password, filePassword) == 0) {
             fclose(file);
-            return true;
-        }}
-
-    fclose(file);
-    return false;
-}
+            return true;}}fclose(file);return false;}
 
 
 /**
@@ -495,7 +490,6 @@ bool loginUser() {
         printf("Incorrect username or password.\n");
         return false;
     }
-
     return true;
 }
 
@@ -856,12 +850,7 @@ bool deleteVendor() {
 
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
         if (vendor.id != id) {
-            fwrite(&vendor, sizeof(Vendor), 1, tempFile);
-        }
-        else {
-            found = 1;
-        }
-    }
+            fwrite(&vendor, sizeof(Vendor), 1, tempFile);}else { found = 1;}}
 
     fclose(file);
     fclose(tempFile);
@@ -902,11 +891,7 @@ void insertVendor(Vendor newVendor) {
             current = current->next;
         }
 
-        if (previous == NULL) { // Add to the top status
-            newNode->next = head;
-            head->prev = newNode;
-            head = newNode;
-        }
+        if (previous == NULL) { newNode->next = head;head->prev = newNode;head = newNode;}
         else { // Insert in the middle or at the end
             newNode->next = current;
             newNode->prev = previous;
@@ -1045,13 +1030,8 @@ bool listVendors() {
                 printf("No more vendors in this direction.\n");
             }
         }
-        else if (choice == 'p') {if (current->prev != NULL) {current = current->prev;}
-            else {
-                printf("No more vendors in this direction.\n");
-            }
-        }
-        else if (choice == 's') {printf("\n--- Stack Traversal (Last In, First Out) ---\n");while (!isStackEmpty(vendorStack)) {Vendor v = pop(vendorStack);
-                printf("ID: %d, Name: %s\n", v.id, v.name);}}
+        else if (choice == 'p') {if (current->prev != NULL) {current = current->prev;}else {printf("No more vendors in this direction.\n");}}
+        else if (choice == 's') {printf("\n--- Stack Traversal (Last In, First Out) ---\n");while (!isStackEmpty(vendorStack)) {Vendor v = pop(vendorStack);printf("ID: %d, Name: %s\n", v.id, v.name);}}
         else if (choice == 'q') {
             printf("\n--- Queue Traversal (First In, First Out) ---\n");
             while (!isQueueEmpty(vendorQueue)) {
@@ -1116,10 +1096,10 @@ bool addProduct() {
     int found = 0;
 
     productFile = fopen("products.bin", "ab"); 
-    if (productFile == NULL) {printf("Error opening product file.\n");return 1;}
+    if (productFile == NULL) {printf("Error opening product file.\n");return false;}
 
     vendorFile = fopen("vendor.bin", "rb"); 
-    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);return 1;}
+    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);return false;}
 
     printf("Enter Vendor ID for the product: ");
     scanf("%d", &product.vendorId);
@@ -1135,16 +1115,8 @@ bool addProduct() {
         printf("Error: Vendor with ID %d does not exist.\n", product.vendorId);
         fclose(productFile);
         printf("Press Enter to continue...");
-        getchar();  // Wait for the user to press a key to continue
         getchar(); // Once again getchar() because we are clearing the buffer
-        return 1; // Exit the function before the product is added
-    }
-
-    // If the vendor ID is available, the product addition process continues
-    printf("Enter Product Name: ");
-    scanf("%s", product.productName);
-
-    printf("Enter Product Price: ");
+        return false; }printf("Enter Product Name: ");scanf("%s", product.productName);printf("Enter Product Price: ");
     scanf("%f", &product.price);
 
     printf("Enter Product Quantity: ");
@@ -1277,17 +1249,10 @@ bool listingOfLocalVendorsandProducts() {
     int found = 0;
 
     productFile = fopen("products.bin", "rb");
-    if (productFile == NULL) {
-        printf("Error opening product file.\n");
-        return false;
-    }
+    if (productFile == NULL) {printf("Error opening product file.\n");return false;}
 
     vendorFile = fopen("vendor.bin", "rb");
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(productFile);
-        return false;
-    }
+    if (vendorFile == NULL) {printf("Error opening vendor file.\n");fclose(productFile);return false;}
 
     printf("\n--- Listing All Vendors and Their Products ---\n");
 
@@ -1364,9 +1329,7 @@ bool listingOfLocalVendorsandProducts() {
         }
     }
 
-    if (!found) {
-        printf("No products found for any vendor.\n");
-    }
+    if (!found) {printf("No products found for any vendor.\n");}
 
     fclose(vendorFile);
     fclose(productFile);
@@ -1862,9 +1825,7 @@ bool validateDay(const char* day) {
         if (strcmp(day, validDays[i]) == 0) {
             return true;
         }
-    }
-    return false;
-}
+    }return false;}
 
 /**
  * @brief Validates the working hours input.
@@ -1903,23 +1864,16 @@ bool validateWorkingHours(const char* hours) {
 bool addMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "ab");
     FILE* vendorFile = fopen("vendor.bin", "rb");
-    if (file == NULL) {
-        printf("Error opening market hours file.\n");
-        return false;
-    }
-    if (vendorFile == NULL) {
-        printf("Error opening vendor file.\n");
-        fclose(file);
-        return false;
-    }
+    if (file == NULL) {printf("Error opening market hours file.\n");return false;}
+    
+    if (vendorFile == NULL) { printf("Error opening vendor file.\n");fclose(file);return false;}
 
     MarketHours market;
     int found = 0;
+
+    // Market ID'yi kullanıcıdan al
     printf("Enter Market ID: ");
-    while (scanf("%d", &market.id) != 1) {
-        printf("Invalid input. Please enter a valid numeric Market ID: ");
-        while (getchar() != '\n'); // Clear the input buffer
-    }
+    if (scanf("%d", &market.id) != 1) {printf("Invalid input. Please enter a valid numeric Market ID.\n");fclose(vendorFile);fclose(file);return false;}
 
     Vendor vendor;
     while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
@@ -1928,62 +1882,39 @@ bool addMarketHoursAndLocation() {
             break;
         }
     }
-
     fclose(vendorFile);
 
+    // Eğer Market ID geçersizse hata ver ve çık
     if (!found) {
-        printf("Invalid Market ID. Please enter a valid Market ID from vendor.bin: ");
-        while (!found) {
-            while (scanf("%d", &market.id) != 1) {
-                printf("Invalid input. Please enter a valid numeric Market ID: ");
-                while (getchar() != '\n'); // Clear the input buffer
-            }
-            vendorFile = fopen("vendor.bin", "rb");
-            if (vendorFile == NULL) {
-                printf("Error opening vendor file.\n");
-                fclose(file);
-                return false;
-            }
-            while (fread(&vendor, sizeof(Vendor), 1, vendorFile)) {
-                if (vendor.id == market.id) {
-                    found = 1;
-                    break;
-                }
-            }
-            fclose(vendorFile);
-            if (!found) {
-                printf("Invalid Market ID. Please enter a valid Market ID from vendor.bin: ");
-            }
-        }
+        printf("Error: Invalid Market ID. Operation canceled.\n");
+        fclose(file);
+        return false;
     }
 
-    printf("Enter Day (e.g., Monday): ");
+    // Gün bilgisi al
+    printf("Enter Day (e.g., monday): ");
     scanf("%19s", market.day);
-    while (!validateDay(market.day)) {
-        printf("Invalid day. Please enter a valid day (e.g., Monday): ");
-        scanf("%19s", market.day);
-    }
+    while (!validateDay(market.day)) {printf("Invalid day. Please enter a valid day (e.g., Monday): ");scanf("%19s", market.day);}
 
+    // Çalışma saatleri al
     printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
-    while (getchar() != '\n');  // Tamponu temizle
-    fgets(market.hours, sizeof(market.hours), stdin);  // fgets kullanarak saati al
-    market.hours[strcspn(market.hours, "\n")] = 0;  // Satır sonu karakterini kaldır
-    while (!validateWorkingHours(market.hours)) {
-        printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");
-        fgets(market.hours, sizeof(market.hours), stdin);
-        market.hours[strcspn(market.hours, "\n")] = 0;  // Satır sonu karakterini kaldır
-    }
+    while (getchar() != '\n'); // Input buffer'ı temizle
+    fgets(market.hours, sizeof(market.hours), stdin);
+    market.hours[strcspn(market.hours, "\n")] = 0; // Satır sonu karakterini kaldır
+    while (!validateWorkingHours(market.hours)) {printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");fgets(market.hours, sizeof(market.hours), stdin);market.hours[strcspn(market.hours, "\n")] = 0;}
 
-
+    // Lokasyon bilgisi al
     printf("Enter Location: ");
     scanf("%49s", market.location);
 
+    // Veriyi dosyaya yaz
     fwrite(&market, sizeof(MarketHours), 1, file);
     fclose(file);
 
     printf("Market hours and location added successfully!\n");
     return true;
 }
+
 
 /**
  * @brief Updates market hours and location.
@@ -2005,14 +1936,17 @@ bool updateMarketHoursAndLocation() {
     printf("Enter Market ID to update: ");
     while (scanf("%d", &marketId) != 1) {
         printf("Invalid input. Please enter a valid numeric Market ID: ");
-        while (getchar() != '\n'); // Clear the input buffer
+        while (getchar() != '\n'); // Input tamponunu temizle
     }
 
     MarketHours market;
 
+    rewind(file); // Dosyanın başına dön
     while (fread(&market, sizeof(MarketHours), 1, file)) {
         if (market.id == marketId) {
             found = 1;
+
+            // Yeni gün bilgisi al
             printf("Enter new Day (e.g., Monday): ");
             scanf("%19s", market.day);
             while (!validateDay(market.day)) {
@@ -2020,20 +1954,22 @@ bool updateMarketHoursAndLocation() {
                 scanf("%19s", market.day);
             }
 
+            // Yeni çalışma saatlerini al
             printf("Enter new Working Hours (e.g., 09:00 - 18:00): ");
-            while (getchar() != '\n');  // Clean the tampon
-            fgets(market.hours, sizeof(market.hours), stdin);  // Get the clock using fgets
-            market.hours[strcspn(market.hours, "\n")] = 0;  //Remove end-of-line character
+            while (getchar() != '\n'); // Tamponu temizle
+            fgets(market.hours, sizeof(market.hours), stdin);
+            market.hours[strcspn(market.hours, "\n")] = 0;
             while (!validateWorkingHours(market.hours)) {
                 printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");
                 fgets(market.hours, sizeof(market.hours), stdin);
-                market.hours[strcspn(market.hours, "\n")] = 0;  // Remove end-of-line character
+                market.hours[strcspn(market.hours, "\n")] = 0;
             }
 
-
+            // Yeni lokasyon bilgisi al
             printf("Enter new Location: ");
             scanf("%49s", market.location);
 
+            // Güncellenmiş veriyi dosyaya yaz
             fseek(file, -sizeof(MarketHours), SEEK_CUR);
             fwrite(&market, sizeof(MarketHours), 1, file);
             printf("Market hours and location updated successfully!\n");
@@ -2045,9 +1981,11 @@ bool updateMarketHoursAndLocation() {
         printf("Market ID %d not found.\n", marketId);
     }
 
-    fclose(file);
+    fclose(file); // Dosyayı kapat
     return true;
 }
+
+
 
 /**
  * @brief XOR two pointers to obtain the mixed pointer.

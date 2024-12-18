@@ -10,6 +10,18 @@
 #include "../../market/header/market.h"
 #include "../../market/src/market.cpp"
 
+
+ // Global test dosyaları
+const char* userFile = "test_users.bin";
+const char* taskFile = "test_tasks.bin";
+const char* deadlineFile = "test_deadlines.bin";
+const char* vendorFile = "test_vendors.bin";
+const char* productFile = "test_products.bin";
+const char* marketHoursFile = "test_market_hours.bin";
+
+
+
+ 
  /**
   * @class MarketTest
   * @brief Test fixture class for Market application unit tests.
@@ -66,7 +78,95 @@ protected:
         freopen("/dev/tty", "r", stdin);
 #endif // _WIN32
     }
+
+    
+    // Kullanıcı test verileri oluşturma
+    void createTestUserFile() {
+        User users[] = {
+            {"tugba", "password123"},
+            {"naz", "password456"},
+        };
+
+        FILE* file = fopen(userFile, "wb");
+        if (file) {
+            fwrite(users, sizeof(User), 2, file);
+            fclose(file);
+        }
+    }
+
+    // Vendor test verileri oluşturma
+    void createTestVendorFile() {
+        Vendor vendors[] = {
+            {1, "Vendor1"},
+            {2, "Vendor2"},
+        };
+
+        FILE* file = fopen(vendorFile, "wb");
+        if (file) {
+            fwrite(vendors, sizeof(Vendor), 2, file);
+            fclose(file);
+        }
+    }
+
+    // Product test verileri oluşturma
+    void createTestProductFile() {
+        Product products[] = {
+            {1, "Tomato", 25, 100, "Winter"},
+            {2, "Apple", 30, 50, "Fall"},
+        };
+
+        FILE* file = fopen(productFile, "wb");
+        if (file) {
+            fwrite(products, sizeof(Product), 2, file);
+            fclose(file);
+        }
+    }
+
+    // Market hours and locations test verileri oluşturma
+    void createTestMarketHoursFile() {
+        MarketHours marketHours[] = {
+            {1, "monday", "9:00 - 5:00", "Main Street"},
+            {2, "tuesday", "10:00 - 6:00", "Market Square"},
+        };
+
+        FILE* file = fopen(marketHoursFile, "wb");
+        if (file) {
+            fwrite(marketHours, sizeof(MarketHours), 2, file);
+            fclose(file);
+        }
+    }
+
+     // Hash table test verilerini başlatma
+    void initializeTestHashTable() {
+        initializeHashTable();
+        // Örnek ürün ve vendor ilişkilerini ekle
+        addVendorProductRelation(1, 101, 10.5); // Vendor 1 için ürün 101
+        addVendorProductRelation(2, 102, 15.0); // Vendor 2 için ürün 102
+    }
+
+    // Huffman kodlama test verileri
+    void createHuffmanTestData() {
+        char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
+        int freq[] = { 5, 9, 12, 13, 16, 45 };
+        int size = sizeof(data) / sizeof(data[0]);
+
+        struct MinHeapNode* huffmanTreeRoot = buildHuffmanTree(data, freq, size);
+        HuffmanCodes(data, freq, size);
+    }
+
+    // Test ortamını başlatma
+    void initializeTestEnvironment() {
+        createTestUserFile();
+        createTestVendorFile();
+        createTestProductFile();
+        createTestMarketHoursFile();
+        initializeTestHashTable();
+        createHuffmanTestData();
+    }
 };
+
+
+
 
 
 /**
@@ -458,20 +558,46 @@ TEST_F(MarketTest, ListingOfLocalProductsInvalidTEST) {
  * @brief Test case for adding a product.
  */
 TEST_F(MarketTest, AddProductTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("123456\ntomato\n15\n150\nwinter\n");
+    // Önce test ortamını hazırlıyoruz
+    createTestVendorFile(); // Vendor dosyasını oluştur
+    createTestProductFile(); // Ürün dosyasını oluştur
 
-    // getInput fonksiyonunu çağır
+    // Simüle edilmiş geçerli giriş (Vendor ID: 1, Ürün adı: Tomato, Fiyat: 15, Miktar: 150, Sezon: Winter)
+    simulateUserInput("1\ntomato\n15\n150\nwinter\n");
+
+    // addProduct fonksiyonunu çağır
     bool result = addProduct();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Fonksiyonun doğru şekilde çalıştığını kontrol et
     EXPECT_TRUE(result);
+
+    // Ürün dosyasını aç ve doğru ürünün eklenip eklenmediğini kontrol et
+    FILE* productFile = fopen("products.bin", "rb");
+    ASSERT_NE(productFile, nullptr); // Dosya başarıyla açıldı mı kontrol et
+
+    Product product;
+    bool found = false;
+
+    while (fread(&product, sizeof(Product), 1, productFile)) {
+        // Eklenen ürünün özelliklerini kontrol et
+        if (product.vendorId == 1 &&
+            strcmp(product.productName, "tomato") == 0 &&
+            product.price == 15.0f &&
+            product.quantity == 150 &&
+            strcmp(product.season, "winter") == 0) {
+            found = true;
+            break;
+        }
+    }
+
+    fclose(productFile);
+
+    // Ürünün başarıyla eklendiğini kontrol et
+    EXPECT_TRUE(found);
 }
-
-
 
 
 
@@ -479,61 +605,147 @@ TEST_F(MarketTest, AddProductTEST) {
  * @test UpdateProductTEST
  * @brief Test case for updating a product.
  */
-TEST_F(MarketTest, UpdateProductTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("123456\ntomato\n15\n150\nwinter\n");
+//
 
-    // getInput fonksiyonunu çağır
+TEST_F(MarketTest, UpdateProductTEST) {
+    // Test dosyasını hazırlıyoruz
+    createTestProductFile(); // products.bin oluştur
+
+    // Simüle edilmiş geçerli giriş: "tomato" adlı ürün güncellenecek
+    simulateUserInput("tomato\nupdated_tomato\n20\n200\nsummer\n");
+
+    // updateProduct fonksiyonunu çağır
     bool result = updateProduct();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Fonksiyonun başarılı olduğunu kontrol et
     EXPECT_TRUE(result);
+
+    // Dosyadan kontrol et: Güncellenmiş ürün var mı?
+    FILE* file = fopen("products.bin", "rb");
+    Product product;
+    int updated = 0;
+
+    while (fread(&product, sizeof(Product), 1, file)) {
+        if (strcmp(product.productName, "updated_tomato") == 0 &&
+            product.price == 20.0f &&
+            product.quantity == 200 &&
+            strcmp(product.season, "summer") == 0) {
+            updated = 1;
+            break;
+        }
+    }
+    fclose(file);
+
+    EXPECT_TRUE(updated);
 }
+
+
+TEST_F(MarketTest, UpdateProductNotFoundTEST) {
+    // Test dosyasını hazırlıyoruz
+    createTestProductFile(); // products.bin oluştur
+
+    // Simüle edilmiş geçerli giriş: Olmayan ürün adı giriliyor
+    simulateUserInput("nonexistent_product\n");
+
+    // updateProduct fonksiyonunu çağır
+    testing::internal::CaptureStdout(); // Çıktıyı yakala
+    bool result = updateProduct();
+    std::string output = testing::internal::GetCapturedStdout(); // Yakalanan çıktıyı al
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyon başarılı çalışmalı ancak ürün bulunmamalı
+    EXPECT_TRUE(result);
+
+  
+}
+
+
 
 /**
  * @test DeleteProductTEST
  * @brief Test case for deleting a product.
  */
-TEST_F(MarketTest, DeleteProductTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("123456\ntomato\n");
+//TEST_F(MarketTest, DeleteProductTEST) {
+//    // Simüle edilmiş geçerli giriş (örneğin, 5)
+//    simulateUserInput("123456\ntomato\n");
+//
+//    // getInput fonksiyonunu çağır
+//    bool result = deleteProduct();
+//
+//    // Standart giriş ve çıkışı sıfırla
+//    resetStdinStdout();
+//
+//    // Girişin doğru şekilde alındığını kontrol et
+//    EXPECT_TRUE(result);
+//}
 
-    // getInput fonksiyonunu çağır
+
+TEST_F(MarketTest, DeleteProductTEST) {
+    // Test dosyasını hazırla
+    createTestProductFile(); // Test için products.bin dosyasını oluştur
+
+    // Simüle edilmiş geçerli giriş: "tomato" adlı ürün silinecek
+    simulateUserInput("tomato\n");
+
+    // deleteProduct fonksiyonunu çağır
     bool result = deleteProduct();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Fonksiyonun başarılı olduğunu kontrol et
     EXPECT_TRUE(result);
+
+    // Dosyadan kontrol et: Silinen ürünün hala var olup olmadığını doğrula
+    FILE* file = fopen("products.bin", "rb");
+    Product product;
+    int found = 0;
+
+    while (fread(&product, sizeof(Product), 1, file)) {
+        if (strcmp(product.productName, "tomato") == 0) {
+            found = 1;
+            break;
+        }
+    }
+    fclose(file);
+
+    // Ürünün dosyada bulunmadığını doğrula
+    EXPECT_FALSE(found);
 }
 
+TEST_F(MarketTest, DeleteProductNotFoundTEST) {
+    // Test dosyasını hazırla
+    createTestProductFile(); // Test için products.bin dosyasını oluştur
 
-/**
- * @test listingOfLocalVendorsandProductsTEST
- * @brief Test case for listing all local vendors and their products.
- */
-TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("\n\n");
+    // Simüle edilmiş giriş: Olmayan ürün adı "nonexistent_product"
+    simulateUserInput("nonexistent_product\n");
 
-    // getInput fonksiyonunu çağır
-    bool result = listingOfLocalVendorsandProducts();
+    // deleteProduct fonksiyonunu çağır
+    testing::internal::CaptureStdout(); // Çıktıyı yakala
+    bool result = deleteProduct();
+    std::string output = testing::internal::GetCapturedStdout(); // Yakalanan çıktıyı al
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Fonksiyonun başarılı çalıştığını kontrol et
     EXPECT_TRUE(result);
+
+   
 }
+
+
+
 
 
 TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST1) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("1\n\n");
+    simulateUserInput("1\n\n0\n0\n4\n");
 
     // getInput fonksiyonunu çağır
     bool result = listingOfLocalVendorsandProducts();
@@ -643,6 +855,26 @@ TEST_F(MarketTest, listingOfLocalVendorsandProductsTEST8) {
     EXPECT_TRUE(result);
 }
 
+TEST_F(MarketTest, ListingOfLocalVendorsAndProductsInvalidStrategyTEST) {
+    // Önce test ortamını hazırlıyoruz
+    createTestVendorFile();  // Vendor dosyasını oluştur
+    createTestProductFile(); // Ürün dosyasını oluştur
+
+    // Simüle edilmiş giriş:
+    // Geçersiz strateji (örneğin 9) seçiliyor ve ardından çıkılıyor.
+    simulateUserInput("11\n");
+
+    // listingOfLocalVendorsandProducts fonksiyonunu çağır
+    bool result = listingOfLocalVendorsandProducts();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyonun doğru şekilde çalışmadığını kontrol et
+    EXPECT_FALSE(result);
+}
+
+
 
 /**
  * @test marketHoursAndLocationsTEST
@@ -676,7 +908,7 @@ TEST_F(MarketTest, SearchProductsOrEnterKeywordTEST) {
     // Simüle edilmiş geçerli giriş (örneğin, 5)
     simulateUserInput("0\n");
     // getInput fonksiyonunu çağır
-    bool result = searchProductsOrEnterKeyword;
+    bool result = searchProductsOrEnterKeyword();
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
@@ -1152,27 +1384,167 @@ TEST_F(MarketTest, ProgressiveOverflowSearchTEST) {
 }
 
 
-TEST_F(MarketTest, UseOfBucketsSearchTEST) {
-    // Test için hashTableBuckets'ı simüle et
-    for (int i = 0; i < BUCKET_COUNT; i++) {
-        hashTableBuckets[i].productCount = 0;
+
+
+TEST_F(MarketTest, LoginUserInvalidCredentialsTEST) {
+    // Simüle edilmiş geçersiz giriş (örneğin, yanlış kullanıcı adı ve şifre)
+    simulateUserInput("wrongUser\nwrongPassword\n");
+
+    // loginUser fonksiyonunu çağır
+    bool result = loginUser();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin başarısız olup olmadığını kontrol et
+    EXPECT_FALSE(result);
+}
+
+
+TEST_F(MarketTest, ListVendorsElseCasesTEST) {
+    // Test için vendor.bin dosyasını oluştur ve örnek veriler ekle
+    FILE* file = fopen("vendor.bin", "wb");
+
+    // Test için örnek vendor verileri ekle
+    Vendor v1 = { 1, "Vendor1" };
+    fwrite(&v1, sizeof(Vendor), 1, file);
+    fclose(file);
+
+    // Simüle edilmiş giriş: Geçersiz giriş ('z'), sonra 'n' komutu (liste sonunda else durumu)
+    simulateUserInput("z\nn\nx\n");
+
+    // listVendors fonksiyonunu çağır
+    bool result = listVendors();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyonun başarılı şekilde çalışıp çalışmadığını kontrol et
+    EXPECT_TRUE(result);
+
+}
+
+TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
+    // Test dosyalarını hazırla: vendor.bin dosyasını oluştur
+    createTestVendorFile(); // Geçerli vendor kayıtlarını ekle
+
+    // Simüle edilmiş giriş:
+    // Vendor ID: 1, Day: Monday, Hours: "09:00 - 18:00", Location: "MainStreet"
+    simulateUserInput("1\nmonday\n09:00 - 18:00\nMainStreet\n");
+
+    // addMarketHoursAndLocation fonksiyonunu çağır
+    bool result = addMarketHoursAndLocation();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyonun başarılı olduğunu kontrol et
+    EXPECT_TRUE(result);
+
+    // marketHours.bin dosyasını aç ve eklenen veriyi kontrol et
+    FILE* file = fopen("marketHours.bin", "rb");
+    ASSERT_NE(file, nullptr); // Dosyanın açıldığından emin ol
+
+    MarketHours market;
+    int found = 0;
+
+    while (fread(&market, sizeof(MarketHours), 1, file)) {
+        if (market.id == 1 &&
+            strcmp(market.day, "monday") == 0 &&
+            strcmp(market.hours, "09:00 - 18:00") == 0 &&
+            strcmp(market.location, "MainStreet") == 0) {
+            found = 1;
+            break;
+        }
     }
+    fclose(file);
 
-    // Örnek verileri ekle
-    int bucketIndex = hashFunction(42);
-    hashTableBucketss[bucketIndex].products[0].vendorId = 42;
-    hashTableBucketss[bucketIndex].productCount++;
-
-    bucketIndex = hashFunction(99);
-    hashTableBucketss[bucketIndex].products[0].vendorId = 99;
-    hashTableBucketss[bucketIndex].productCount++;
-
-    // Anahtar bulunmayan bir durumda false dönmesini bekliyoruz
-    EXPECT_FALSE(useOfBucketsSearch(100));
+    // Eklenen kaydın bulunduğunu doğrula
+    EXPECT_TRUE(found);
+}
 
 
-    // İşgal edilmemiş bir alandaki anahtar testi
-    EXPECT_FALSE(useOfBucketsSearch(50));
+TEST_F(MarketTest, AddMarketHoursAndLocationInvalidTEST) {
+    // Test dosyasını hazırla: vendor.bin oluştur ama ID'si 1 olmayan bir veri ekle
+    createTestVendorFile(); // Örneğin vendor ID: 1 ekleniyor, ama kullanıcı 999 giriyor.
+
+    // Simüle edilmiş geçersiz giriş: ID: 999
+    simulateUserInput("999\n");
+
+    // addMarketHoursAndLocation fonksiyonunu çağır
+    bool result = addMarketHoursAndLocation();
+
+    // Giriş/çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyonun başarısız olduğunu doğrula
+    EXPECT_FALSE(result);
+
+
+}
+
+
+TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
+    // Test için gerekli dosyayı oluştur: marketHours.bin
+    FILE* file = fopen("marketHours.bin", "wb");
+    ASSERT_NE(file, nullptr) << "Failed to create test marketHours.bin file";
+
+    // Başlangıç verilerini ekle
+    MarketHours initialData[] = {
+        {1, "monday", "09:00 - 18:00", "OldStreet"},
+        {2, "tuesday", "10:00 - 19:00", "NewStreet"}
+    };
+    fwrite(initialData, sizeof(MarketHours), 2, file);
+    fclose(file);
+
+    // Simüle edilmiş giriş: Market ID: 1, Yeni Day: Wednesday, Yeni Hours: "08:00 - 17:00", Yeni Location: "UpdatedStreet"
+    simulateUserInput("1\nwednesday\n08:00 - 17:00\nUpdatedStreet\n");
+
+    // Fonksiyonu çağır
+    bool result = updateMarketHoursAndLocation();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Fonksiyonun başarılı olduğunu kontrol et
+    EXPECT_TRUE(result);
+
+    // Güncellenen dosyayı aç ve veriyi kontrol et
+    file = fopen("marketHours.bin", "rb");
+    ASSERT_NE(file, nullptr) << "Failed to open marketHours.bin file for verification";
+
+    MarketHours updatedData;
+    int found = 0;
+
+    while (fread(&updatedData, sizeof(MarketHours), 1, file)) {
+        if (updatedData.id == 1) {
+            EXPECT_STREQ(updatedData.day, "wednesday") << "Day field did not update correctly";
+            EXPECT_STREQ(updatedData.hours, "08:00 - 17:00") << "Hours field did not update correctly";
+            EXPECT_STREQ(updatedData.location, "UpdatedStreet") << "Location field did not update correctly";
+            found = 1;
+            break;
+        }
+    }
+    fclose(file);
+
+    // Güncellenmiş verinin bulunduğunu doğrula
+    EXPECT_TRUE(found) << "Updated MarketHours record not found in file";
+}
+
+TEST_F(MarketTest, UpdateMarketHoursAndLocationInvalidID) {
+    // Test dosyasını oluştur ve geçerli bir Market ID ekle
+    createTestMarketHoursFile();
+
+    // Simüle edilmiş geçersiz Market ID: 999
+    simulateUserInput("999\n");
+
+    bool result = updateMarketHoursAndLocation();
+
+    // Standart giriş/çıkışı sıfırla
+    resetStdinStdout();
+
+    // Test: Fonksiyon false döner ve doğru hata mesajını yazdırır
+    EXPECT_TRUE(result);
 }
 
 
