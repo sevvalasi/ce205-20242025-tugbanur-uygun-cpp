@@ -1490,15 +1490,6 @@ bool progressiveOverflowSearch(int key) {
  * @param key The key to be searched.
  * @return The index of the bucket where the key is located, or -1 if not found.
  */
-//int useOfBucketsSearch(int key) {
-//    int index = hashFunction(key);
-//    for (int i = 0; i < hashTableBuckets[index].productCount; i++) {
-//        if (hashTableBuckets[index].products[i].vendorId == key) {
-//            return index;
-//        }
-//    }
-//    return -1;
-//}
 
 
 bool useOfBucketsSearch(int key) {
@@ -1926,18 +1917,12 @@ bool addMarketHoursAndLocation() {
  */
 bool updateMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "rb+");
-    if (file == NULL) {
-        printf("Error opening market hours file.\n");
-        return false;
-    }
+    if (file == NULL) {printf("Error opening market hours file.\n");return false;}
 
     int marketId;
     int found = 0;
     printf("Enter Market ID to update: ");
-    while (scanf("%d", &marketId) != 1) {
-        printf("Invalid input. Please enter a valid numeric Market ID: ");
-        while (getchar() != '\n'); // Input tamponunu temizle
-    }
+    while (scanf("%d", &marketId) != 1) {printf("Invalid input. Please enter a valid numeric Market ID: ");while (getchar() != '\n'); }
 
     MarketHours market;
 
@@ -1949,21 +1934,14 @@ bool updateMarketHoursAndLocation() {
             // Yeni gün bilgisi al
             printf("Enter new Day (e.g., Monday): ");
             scanf("%19s", market.day);
-            while (!validateDay(market.day)) {
-                printf("Invalid day. Please enter a valid day (e.g., Monday): ");
-                scanf("%19s", market.day);
-            }
+            while (!validateDay(market.day)) {printf("Invalid day. Please enter a valid day (e.g., Monday): ");scanf("%19s", market.day);}
 
             // Yeni çalışma saatlerini al
             printf("Enter new Working Hours (e.g., 09:00 - 18:00): ");
             while (getchar() != '\n'); // Tamponu temizle
             fgets(market.hours, sizeof(market.hours), stdin);
             market.hours[strcspn(market.hours, "\n")] = 0;
-            while (!validateWorkingHours(market.hours)) {
-                printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");
-                fgets(market.hours, sizeof(market.hours), stdin);
-                market.hours[strcspn(market.hours, "\n")] = 0;
-            }
+            while (!validateWorkingHours(market.hours)) {printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");fgets(market.hours, sizeof(market.hours), stdin);market.hours[strcspn(market.hours, "\n")] = 0;}
 
             // Yeni lokasyon bilgisi al
             printf("Enter new Location: ");
@@ -2027,18 +2005,7 @@ MarketHoursNode* insertXORList(MarketHoursNode* head, MarketHours data) {
 
     while (curr != NULL) {
         next = xor_function(prev, curr->xorPtr);
-        if (data.id < curr->data.id) {
-            // Insert new node before the current node
-            newNode->xorPtr = xor_function(prev, curr);
-            if (prev != NULL) {
-                prev->xorPtr = xor_function(xor_function(prev->xorPtr, curr), newNode);
-            }
-            curr->xorPtr = xor_function(newNode, next);
-            if (prev == NULL) {
-                head = newNode;   ///< Update head if the new node is inserted at the beginning.
-            }
-            return head;
-        }
+        if (data.id < curr->data.id) {newNode->xorPtr = xor_function(prev, curr);if (prev != NULL) {prev->xorPtr = xor_function(xor_function(prev->xorPtr, curr), newNode);}curr->xorPtr = xor_function(newNode, next);if (prev == NULL) {head = newNode;   }return head;}
         prev = curr;
         curr = next;
     }
@@ -2143,10 +2110,7 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
  */
 bool displayMarketHoursAndLocations() {
     FILE* file = fopen("marketHours.bin", "rb");
-    if (file == NULL) {
-        printf("Error opening market hours file.\n");
-        return false;
-    }
+    if (file == NULL) {printf("Error opening market hours file.\n");return false;}
 
     MarketHours market;
     MarketHoursNode* head = NULL;
@@ -2159,10 +2123,7 @@ bool displayMarketHoursAndLocations() {
     fclose(file);
 
     // Traverse and display the XOR linked list grouped by ID using BFS
-    if (head == NULL) {
-        printf("No market hours available.\n");
-        return true;
-    }
+    if (head == NULL) {printf("No market hours available.\n");return true;}
 
     printf("\n--- Market Hours and Locations (BFS Traversal) ---\n");
     std::queue<MarketHoursNode*> queue;
@@ -2211,15 +2172,9 @@ void computeLPSArray(const char* pattern, int M, int* lps) {
 
     int i = 1;
     while (i < M) {
-        if (pattern[i] == pattern[length]) {
-            length++;
-            lps[i] = length;
-            i++;
-        }
+        if (pattern[i] == pattern[length]) {length++;lps[i] = length;i++;}
         else {
-            if (length != 0) {
-                length = lps[length - 1];
-            }
+            if (length != 0) {length = lps[length - 1];}
             else {
                 lps[i] = 0;
                 i++;
@@ -2245,19 +2200,11 @@ bool KMPSearch(const char* pattern, const char* text) {
     int i = 0;
     int j = 0;
     while (i < N) {
-        if (pattern[j] == text[i]) {
-            j++;
-            i++;
-        }
+        if (pattern[j] == text[i]) {j++;i++;}
 
-        if (j == M) {
-            free(lps);
-            return true; // Pattern found
-        }
+        if (j == M) {free(lps);return true;}
         else if (i < N && pattern[j] != text[i]) {
-            if (j != 0) {
-                j = lps[j - 1];
-            }
+            if (j != 0) {j = lps[j - 1];}
             else {
                 i++;
             }
@@ -2508,8 +2455,11 @@ void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack,
     }
 }
 
+
+
+
+
 int findNodeIndex(Node* nodes[], Node* node, int nodeCount) {
     for (int i = 0; i < nodeCount; ++i) {
-        if (nodes[i] == node) return i;
-    }return -1;  // If not found
+        if (nodes[i] == node) return i;}return -1;  // If not found
 }

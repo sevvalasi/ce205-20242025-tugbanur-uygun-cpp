@@ -25,6 +25,8 @@
 #define MIN_KEYS (MAX_KEYS / 2)
 #define OVERFLOW__SIZE 10
 #define BUCKET_COUNT 10
+#define TABLE_SIZE 10
+#define OVERFLOW_SIZE 5
 
 #include <iostream>
 #include "../../utility/header/commonTypes.h"
