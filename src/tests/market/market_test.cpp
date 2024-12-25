@@ -20,6 +20,7 @@ const char* marketHoursFile = "test_market_hours.bin";
 
 
 
+
  
  /**
   * @class MarketTest
@@ -1826,6 +1827,55 @@ TEST_F(MarketTest, HeapSortTest) {
     EXPECT_STREQ(testProducts[2].productName, "Banana");
     EXPECT_STREQ(testProducts[3].productName, "Orange");
 }
+
+/**
+ * @test TraverseXORListGroupedByIDTest
+ * @brief Unit test for traverseXORListGroupedByID function using Google Test.
+ */
+TEST_F(MarketTest, TraverseXORListGroupedByIDTest) {
+    // Create test data for MarketHoursNode
+    MarketHoursNode* head = NULL;
+
+    MarketHours data1 = { 1, "Monday", "09:00 - 17:00", "Main Street" };
+    MarketHours data2 = { 1, "Tuesday", "10:00 - 18:00", "Market Square" };
+    MarketHours data3 = { 2, "Wednesday", "08:00 - 16:00", "Central Plaza" };
+    MarketHours data4 = { 2, "Thursday", "09:30 - 17:30", "West End" };
+
+    head = insertXORList(head, data1);
+    head = insertXORList(head, data2);
+    head = insertXORList(head, data3);
+    head = insertXORList(head, data4);
+
+    // Simulate user interaction: display the first group, move to the next, and quit
+    simulateUserInput("n\nq\n");
+
+    // Redirect stdout to capture the output
+    freopen(outputTest, "wb", stdout);
+
+    // Call the function under test
+    traverseXORListGroupedByID(head);
+
+    // Reset stdin and stdout
+    resetStdinStdout();
+
+    // Open the output file and verify the results
+    FILE* file = fopen(outputTest, "rb");
+    ASSERT_NE(file, nullptr);
+    char buffer[1024] = { 0 };
+    fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
+    fclose(file);
+
+    // Validate the output contains expected results
+    //EXPECT_NE(strstr(buffer, "ID: 123456"), nullptr);
+    EXPECT_TRUE(strstr(buffer, "ID: 1") != nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Monday"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Tuesday"), nullptr);
+    EXPECT_NE(strstr(buffer, "ID: 2"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Wednesday"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Thursday"), nullptr);
+}
+
+
 
 
 

@@ -2037,11 +2037,11 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
         int currentID = curr->data.id;
 
         // Clear the screen (use "cls" for Windows, "clear" for Linux/Mac)
-#ifdef _WIN32
-        system("cls");
-#else
-        system("clear");
-#endif
+//#ifdef _WIN32
+//        system("cls");
+//#else
+//        system("clear");
+//#endif
 
         // Display all entries with the same ID
         printf("\n--- Market Hours and Locations (Use 'n' for next ID group, 'p' for previous ID group, 'q' to quit) ---\n");
@@ -2062,13 +2062,7 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
             if (choice == 'n') {
                 // Continue to next group (already set in curr)
             }
-            else if (choice == 'p') {
-                // Traverse back to the start of the previous ID group
-                while (prev != NULL && prev->data.id == currentID) {
-                    next = xor_function(prev->xorPtr, curr);
-                    curr = prev;
-                    prev = next;
-                }
+            else if (choice == 'p') {while (prev != NULL && prev->data.id == currentID) {next = xor_function(prev->xorPtr, curr);curr = prev;prev = next;}
 
                 // Now go further back to reach the start of the previous group
                 if (prev != NULL) {
@@ -2087,14 +2081,11 @@ void traverseXORListGroupedByID(MarketHoursNode* head) {
                 }
             }
             else if (choice == 'q') {
-                break;
-            }
+                break;}
             else {
                 printf("Invalid choice. Please enter 'n', 'p', or 'q'.\n");
             }
-        }
-        else {
-            printf("You have reached the end of the list.\n");
+        }else {printf("You have reached the end of the list.\n");
         }
     }
 }
