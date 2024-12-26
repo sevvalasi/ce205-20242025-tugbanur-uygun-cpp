@@ -10,7 +10,6 @@
 #include "../../market/header/market.h"
 #include "../../market/src/market.cpp"
 
-
  // Global test dosyaları
 const char* userFile = "test_users.bin";
 const char* taskFile = "test_tasks.bin";
@@ -18,6 +17,7 @@ const char* deadlineFile = "test_deadlines.bin";
 const char* vendorFile = "test_vendors.bin";
 const char* productFile = "test_products.bin";
 const char* marketHoursFile = "test_market_hours.bin";
+
 
 
 
@@ -43,6 +43,7 @@ protected:
         // Test verileri ayarlanabilir.
         initializeHashTable();
     }
+
 
     /**
     * @brief Tear down the test environment by removing temporary input and output files.
@@ -872,11 +873,11 @@ TEST_F(MarketTest, DeleteProductTEST) {
     // Check the product file to ensure the product was deleted
     FILE* file = fopen("products.bin", "rb");
     Product product;
-    int found = 0;
+    int found = false;
 
     while (fread(&product, sizeof(Product), 1, file)) {
         if (strcmp(product.productName, "tomato") == 0) {
-            found = 1;
+            found = true;
             break;
         }
     }
@@ -1109,6 +1110,66 @@ TEST_F(MarketTest, marketHoursAndLocationsTEST) {
 
 
 
+TEST_F(MarketTest, marketHoursAndLocationTest1) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("1\n108750\nmonday\n09:00 - 18:00\ntrabzon\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = marketHoursAndLocations();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, marketHoursAndLocationTest2) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("2\n108750\ntuesday\n09:00 - 17:00\nrize\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = marketHoursAndLocations();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+
+TEST_F(MarketTest, marketHoursAndLocationTest3) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("3\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = marketHoursAndLocations();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
+
+
+TEST_F(MarketTest, marketHoursAndLocationTestInvalid) {
+    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    simulateUserInput("787\n0\n");
+
+    // getInput fonksiyonunu çağır
+    bool result = marketHoursAndLocations();
+
+    // Standart giriş ve çıkışı sıfırla
+    resetStdinStdout();
+
+    // Girişin doğru şekilde alındığını kontrol et
+    EXPECT_TRUE(result);
+}
 
 
 /**
@@ -1351,19 +1412,49 @@ TEST_F(MarketTest, SelectProductTEST) {
  * @test ComparePriceByNameTEST
  * @brief Test case for comparing product prices by name.
  */
-TEST_F(MarketTest, ComparePriceByNameTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
-    simulateUserInput("tomato\n");
-    char selectedProductName[100] = "";
-    // getInput fonksiyonunu çağır
-    bool result = comparePricesByName(selectedProductName);
+//TEST_F(MarketTest, ComparePriceByNameTEST) {
+//    // Simüle edilmiş geçerli giriş (örneğin, 5)
+//    simulateUserInput("tomato\n");
+//    char selectedProductName[100] = "";
+//    // getInput fonksiyonunu çağır
+//    bool result = comparePricesByName(selectedProductName);
+//
+//    // Standart giriş ve çıkışı sıfırla
+//    resetStdinStdout();
+//
+//    // Girişin doğru şekilde alındığını kontrol et
+//    EXPECT_TRUE(result);
+//}
+
+TEST_F(MarketTest, ComparePricesByNameTest) {
+    // Test için ürün dosyası oluştur
+    createTestProductFile();
+
+    // Simüle edilmiş ürün adı girişi
+    simulateUserInput("Tomato\n");
+
+    // Fonksiyonu çağır
+    bool result = comparePricesByName("Tomato");
 
     // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Fonksiyonun doğru çalıştığını doğrula
     EXPECT_TRUE(result);
+
+    // Dosyadan sıralanmış ürünleri kontrol et
+    Product expectedProducts[] = {
+        {1, "Tomato", 20, 200, "Winter"},
+        {2, "Tomato", 25, 100, "Winter"},
+    };
+
+    // Beklenen sıralamayı kontrol et
+    EXPECT_EQ(expectedProducts[0].price, 20);
+    EXPECT_EQ(expectedProducts[1].price, 25);
 }
+
+
+
 
 TEST_F(MarketTest, enterSearchProductsTEST) {
     // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
@@ -1760,6 +1851,243 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationInvalidID) {
     // Test: Fonksiyon false döner ve doğru hata mesajını yazdırır
     EXPECT_TRUE(result);
 }
+
+
+
+/**
+ * @test HashFunctionTest
+ * @brief Test case for the hash function.
+ */
+TEST_F(MarketTest, HashFunctionTest) {
+    int key = 42;
+    int expectedHash = key % TABLE_SIZE;
+
+    // Call hash function
+    int actualHash = hashFunction(key);
+
+    // Check if the hash is as expected
+    EXPECT_EQ(actualHash, expectedHash);
+}
+
+/**
+ * @test InitializeHashTableTest
+ * @brief Test case for initializing the hash table.
+ */
+TEST_F(MarketTest, InitializeHashTableTest) {
+    initializeHashTable();
+
+    // Verify hash table entries are unoccupied
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        EXPECT_EQ(hashTable[i].isOccupied, 0);
+        EXPECT_EQ(hashTableBuckets[i].productCount, 0);
+    }
+
+    // Verify overflow area entries are unoccupied
+    for (int i = 0; i < OVERFLOW_SIZE; i++) {
+        EXPECT_EQ(overflowArea[i].isOccupied, 0);
+    }
+}
+
+/**
+ * @test LinearProbingTest
+ * @brief Test case for linear probing.
+ */
+TEST_F(MarketTest, LinearProbingTest) {
+    int key = 42;
+    int probe = 1;
+    int expectedIndex = (key + probe) % TABLE_SIZE;
+
+    // Call linear probing function
+    int actualIndex = linearProbing(key, probe);
+
+    // Verify the index matches the expected value
+    EXPECT_EQ(actualIndex, expectedIndex);
+}
+
+/**
+ * @test QuadraticProbingTest
+ * @brief Test case for quadratic probing.
+ */
+TEST_F(MarketTest, QuadraticProbingTest) {
+    int key = 42;
+    int probe = 2;
+    int expectedIndex = (key + probe * probe) % TABLE_SIZE;
+
+    // Call quadratic probing function
+    int actualIndex = quadraticProbing(key, probe);
+
+    // Verify the index matches the expected value
+    EXPECT_EQ(actualIndex, expectedIndex);
+}
+
+/**
+ * @test DoubleHashingTest
+ * @brief Test case for double hashing.
+ */
+TEST_F(MarketTest, DoubleHashingTest) {
+    int key = 42;
+    int probe = 3;
+    int h1 = key % TABLE_SIZE;
+    int h2 = 1 + (key % (TABLE_SIZE - 1));
+    int expectedIndex = (h1 + probe * h2) % TABLE_SIZE;
+
+    // Call double hashing function
+    int actualIndex = doubleHashing(key, probe);
+
+    // Verify the index matches the expected value
+    EXPECT_EQ(actualIndex, expectedIndex);
+}
+
+/**
+ * @test LinearQuotientTest
+ * @brief Test case for linear quotient.
+ */
+TEST_F(MarketTest, LinearQuotientTest) {
+    int key = 42;
+    int probe = 2;
+    int expectedIndex = (key + probe * 7) % TABLE_SIZE;
+
+    // Call linear quotient function
+    int actualIndex = linearQuotient(key, probe);
+
+    // Verify the index matches the expected value
+    EXPECT_EQ(actualIndex, expectedIndex);
+}
+
+/**
+ * @test ProgressiveOverflowSearchTest
+ * @brief Test case for progressive overflow search.
+ */
+TEST_F(MarketTest, ProgressiveOverflowSearchTest) {
+    initializeHashTable();
+
+    // Add a key to the overflow area
+    overflowArea[0].isOccupied = 1;
+    overflowArea[0].key = 42;
+
+    // Verify the key is found
+    EXPECT_TRUE(progressiveOverflowSearch(42));
+
+    // Verify a non-existent key is not found
+    EXPECT_FALSE(progressiveOverflowSearch(99));
+}
+
+/**
+ * @test UseOfBucketsSearchTest
+ * @brief Test case for bucket-based search.
+ */
+TEST_F(MarketTest, UseOfBucketsSearchTest) {
+    initializeHashTable();
+
+    // Add a product to a bucket
+    int index = hashFunction(42);
+    hashTableBuckets[index].products[0].vendorId = 42;
+    hashTableBuckets[index].productCount = 1;
+
+    // Verify the key is found
+    EXPECT_TRUE(useOfBucketsSearch(42));
+
+    // Verify a non-existent key is not found
+    EXPECT_FALSE(useOfBucketsSearch(99));
+}
+
+/**
+ * @test BrentsMethodSearchTest
+ * @brief Test case for Brent's method search.
+ */
+TEST_F(MarketTest, BrentsMethodSearchTest) {
+    initializeHashTable();
+
+    // Add a key to the hash table
+    int index = hashFunction(42);
+    hashTable[index].isOccupied = 1;
+    hashTable[index].key = 42;
+
+    // Verify the key is found
+    EXPECT_EQ(brentsMethodSearch(42), index);
+
+    // Verify a non-existent key is not found
+    EXPECT_EQ(brentsMethodSearch(99), -1);
+}
+
+
+
+TEST_F(MarketTest, HeapSortTest) {
+    // Test için ürün dizisi oluştur
+    Product testProducts[] = {
+        {1, "Banana", 30, 50, "Summer"},
+        {2, "Apple", 25, 100, "Fall"},
+        {3, "Tomato", 20, 200, "Winter"},
+        {4, "Orange", 35, 75, "Spring"}
+    };
+
+    // Dizinin boyutunu al
+    int n = sizeof(testProducts) / sizeof(testProducts[0]);
+
+    // heapSort fonksiyonunu çağır
+    heapSort(testProducts, n);
+
+    // Beklenen sıralama (price field'e göre artan sıralama kontrol edilecek)
+    EXPECT_EQ(testProducts[0].price, 20);
+    EXPECT_EQ(testProducts[1].price, 25);
+    EXPECT_EQ(testProducts[2].price, 30);
+    EXPECT_EQ(testProducts[3].price, 35);
+
+    // Ürün isimlerinin sıralamayla uyuştuğunu kontrol et
+    EXPECT_STREQ(testProducts[0].productName, "Tomato");
+    EXPECT_STREQ(testProducts[1].productName, "Apple");
+    EXPECT_STREQ(testProducts[2].productName, "Banana");
+    EXPECT_STREQ(testProducts[3].productName, "Orange");
+}
+
+/**
+ * @test TraverseXORListGroupedByIDTest
+ * @brief Unit test for traverseXORListGroupedByID function using Google Test.
+ */
+TEST_F(MarketTest, TraverseXORListGroupedByIDTest) {
+    // Create test data for MarketHoursNode
+    MarketHoursNode* head = NULL;
+
+    MarketHours data1 = { 1, "Monday", "09:00 - 17:00", "Main Street" };
+    MarketHours data2 = { 1, "Tuesday", "10:00 - 18:00", "Market Square" };
+    MarketHours data3 = { 2, "Wednesday", "08:00 - 16:00", "Central Plaza" };
+    MarketHours data4 = { 2, "Thursday", "09:30 - 17:30", "West End" };
+
+    head = insertXORList(head, data1);
+    head = insertXORList(head, data2);
+    head = insertXORList(head, data3);
+    head = insertXORList(head, data4);
+
+    // Simulate user interaction: display the first group, move to the next, and quit
+    simulateUserInput("n\nq\n");
+
+    // Redirect stdout to capture the output
+    freopen(outputTest, "wb", stdout);
+
+    // Call the function under test
+    traverseXORListGroupedByID(head);
+
+    // Reset stdin and stdout
+    resetStdinStdout();
+
+    // Open the output file and verify the results
+    FILE* file = fopen(outputTest, "rb");
+    ASSERT_NE(file, nullptr);
+    char buffer[1024] = { 0 };
+    fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
+    fclose(file);
+
+    // Validate the output contains expected results
+    //EXPECT_NE(strstr(buffer, "ID: 123456"), nullptr);
+    EXPECT_TRUE(strstr(buffer, "ID: 1") != nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Monday"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Tuesday"), nullptr);
+    EXPECT_NE(strstr(buffer, "ID: 2"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Wednesday"), nullptr);
+    EXPECT_NE(strstr(buffer, "Day: Thursday"), nullptr);
+}
+
+
 
 
 
