@@ -871,13 +871,21 @@ bool deleteVendor() {
 // Listing using hash table and min-heap to sort vendors by their IDs
 DoublyLinkedListNode* head = NULL;
 
-// Vendor addition function (sequential addition to bidirectional linked list)
+/**
+ * @brief Inserts a new vendor into a sorted doubly linked list by vendor ID.
+ *
+ * This function creates a new node for a given vendor and inserts it into
+ * the linked list in a position that maintains order by vendor ID.
+ *
+ * @param newVendor The vendor to be inserted.
+ */
 void insertVendor(Vendor newVendor) {
     DoublyLinkedListNode* newNode = (DoublyLinkedListNode*)malloc(sizeof(DoublyLinkedListNode));
     newNode->vendor = newVendor;
     newNode->next = NULL;
     newNode->prev = NULL;
 
+    // If the list is currently empty, insert as the first element
     if (head == NULL) { // If the list is empty
         head = newNode;
     }
@@ -885,7 +893,7 @@ void insertVendor(Vendor newVendor) {
         DoublyLinkedListNode* current = head;
         DoublyLinkedListNode* previous = NULL;
 
-        // Find the appropriate place to add vendors sorted by ID
+        // Traverse the list to find the insertion point
         while (current != NULL && current->vendor.id < newVendor.id) {
             previous = current;
             current = current->next;
@@ -903,16 +911,39 @@ void insertVendor(Vendor newVendor) {
     }
 }
 
+/**
+ * @brief Creates and initializes a stack.
+ *
+ * Allocates memory for a new stack and sets its top pointer to NULL.
+ *
+ * @return A pointer to the newly created stack.
+ */
 Stack* createStack() {
     Stack* stack = (Stack*)malloc(sizeof(Stack));
     stack->top = NULL;
     return stack;
 }
 
+
+/**
+ * @brief Checks if a stack is empty.
+ *
+ * @param stack The stack to check.
+ * @return True if the stack is empty, false otherwise.
+ */
 bool isStackEmpty(Stack* stack) {
     return stack->top == NULL;
 }
 
+
+/**
+ * @brief Pushes a vendor onto the stack.
+ *
+ * Adds a new vendor to the top of the stack.
+ *
+ * @param stack The stack where the vendor will be added.
+ * @param vendor The vendor to add to the stack.
+ */
 void push(Stack* stack, Vendor vendor) {
     StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
     newNode->vendor = vendor;
@@ -920,6 +951,16 @@ void push(Stack* stack, Vendor vendor) {
     stack->top = newNode;
 }
 
+
+/**
+ * @brief Pops a vendor from the stack.
+ *
+ * Removes the vendor at the top of the stack and returns it. If the stack is empty,
+ * an empty vendor struct is returned and a message is printed.
+ *
+ * @param stack The stack from which the vendor will be popped.
+ * @return The vendor at the top of the stack or an empty vendor if the stack is empty.
+ */
 Vendor pop(Stack* stack) {
     if (isStackEmpty(stack)) {printf("Stack is empty.\n");Vendor emptyVendor = { 0 };return emptyVendor;}
     StackNode* temp = stack->top;
@@ -929,6 +970,14 @@ Vendor pop(Stack* stack) {
     return vendor;
 }
 
+
+/**
+ * @brief Frees all memory allocated for the stack.
+ *
+ * Deallocates all nodes in the stack and the stack itself.
+ *
+ * @param stack The stack to be freed.
+ */
 void freeStack(Stack* stack) {
     while (!isStackEmpty(stack)) {
         pop(stack);
@@ -936,7 +985,14 @@ void freeStack(Stack* stack) {
     free(stack);
 }
 
-// Queue fonksiyonları
+
+/**
+ * @brief Creates and initializes a queue.
+ *
+ * Allocates memory for a new queue and initializes its front and rear pointers to NULL.
+ *
+ * @return A pointer to the newly created queue.
+ */
 Queue* createQueue() {
     Queue* queue = (Queue*)malloc(sizeof(Queue));
     queue->front = NULL;
@@ -944,10 +1000,26 @@ Queue* createQueue() {
     return queue;
 }
 
+
+/**
+ * @brief Checks if a queue is empty.
+ *
+ * @param queue The queue to check.
+ * @return True if the queue is empty, false otherwise.
+ */
 bool isQueueEmpty(Queue* queue) {
     return queue->front == NULL;
 }
 
+
+/**
+ * @brief Enqueues a vendor to the rear of the queue.
+ *
+ * Adds a new vendor to the end of the queue.
+ *
+ * @param queue The queue where the vendor will be added.
+ * @param vendor The vendor to enqueue.
+ */
 void enqueue(Queue* queue, Vendor vendor) {
     QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
     newNode->vendor = vendor;
@@ -962,6 +1034,16 @@ void enqueue(Queue* queue, Vendor vendor) {
     }
 }
 
+
+/**
+ * @brief Dequeues a vendor from the front of the queue.
+ *
+ * Removes the vendor at the front of the queue and returns it. If the queue is empty,
+ * an empty vendor struct is returned.
+ *
+ * @param queue The queue from which the vendor will be dequeued.
+ * @return The vendor at the front of the queue or an empty vendor if the queue is empty.
+ */
 Vendor dequeue(Queue* queue) {
     if (queue->front == NULL) {Vendor emptyVendor = { 0 }; return emptyVendor;}
 
@@ -978,18 +1060,28 @@ Vendor dequeue(Queue* queue) {
 }
 
 
+/**
+ * @brief Frees all memory allocated for the queue.
+ *
+ * Deallocates all nodes in the queue and the queue itself.
+ *
+ * @param queue The queue to be freed.
+ */
 void freeQueue(Queue* queue) {
     while (!isQueueEmpty(queue)) {dequeue(queue);}
     free(queue);
 }
 
 /**
- * @brief Lists vendors in the system using a doubly linked list for navigation.
+ * @brief Lists all vendors from a binary file and manages navigation through them.
  *
- * This function lists all the vendors, allowing the user to navigate forward and backward through the list.
- * The vendor data is read from the binary file and stored in a doubly linked list for easy traversal.
+ * Opens a binary file to read vendor data, loads vendors into a stack and a queue,
+ * and allows user interaction for navigating through vendors in a doubly linked list.
+ * The user can traverse through the vendors in different orders and exit when desired.
+ * This function also demonstrates the usage of stacks, queues, and doubly linked lists
+ * for handling data in memory.
  *
- * @return Boolean indicating whether the vendor listing was successful.
+ * @return True if the function executes successfully, False if the file cannot be opened.
  */
 bool listVendors() {
     FILE* file;
@@ -998,23 +1090,23 @@ bool listVendors() {
 
     if (file == NULL) {printf("Error opening vendor file.\n");return false;}
 
-    // Vendor'ları dosyadan okuma ve stack'e ekleme
+    // Initialize data structures for handling vendors
     Stack* vendorStack = createStack();
     Queue* vendorQueue = createQueue();
 
-
+    // Read vendors from file and store in data structures
     while (fread(&vendor, sizeof(Vendor), 1, file)) {
         if (!isDuplicate(vendorQueue, vendor)) {
-            enqueue(vendorQueue, vendor); // Queue'ya ekle
+            enqueue(vendorQueue, vendor); // Enqueue non-duplicate vendors
         }
-        push(vendorStack, vendor); // Stack'e ekle
-        insertVendor(vendor); // Mevcut doubly linked list'e ekle
+        push(vendorStack, vendor); // Push all vendors onto the stack
+        insertVendor(vendor); // Insert vendors into the doubly linked list sorted by ID
     }
 
 
-    fclose(file);
+    fclose(file); // Close the file after reading
 
-    // Satıcıları listeleme
+    // Interactive vendor listing
     printf("\n--- List of Vendors ---\n");
     char choice;
     DoublyLinkedListNode* current = head;
@@ -1046,7 +1138,7 @@ bool listVendors() {
         }
     }
 
-    // Hafızayı temizle
+    // Clean up memory
     current = head;
     while (current != NULL) {
         DoublyLinkedListNode* temp = current;
@@ -1055,15 +1147,24 @@ bool listVendors() {
     }
     head = NULL;
 
-    // Stack ve Queue'yu serbest bırak
     freeStack(vendorStack);
     freeQueue(vendorQueue);
 
-    // Menüye geri dönme bildirimi
     printf("Returning to menu...\n");
     return true;
 }
 
+
+/**
+ * @brief Checks for duplicate vendor IDs in a queue.
+ *
+ * Iterates through a queue to find if a vendor with the same ID already exists in it.
+ * Used to avoid adding duplicate entries to the queue when reading from the file.
+ *
+ * @param queue The queue to check for duplicates.
+ * @param vendor The vendor whose ID to check for duplicates.
+ * @return True if a duplicate is found, false otherwise.
+ */
 bool isDuplicate(Queue* queue, Vendor vendor) {
     QueueNode* current = queue->front;
 
@@ -1472,7 +1573,6 @@ int linearQuotient(int key, int i) {
  * @return The index of the key in the overflow area, or -1 if not found.
  */
 
-
 #include <stdbool.h>
 
 bool progressiveOverflowSearch(int key) {
@@ -1854,12 +1954,16 @@ bool validateWorkingHours(const char* hours) {
 }
 
 /**
- * @brief Adds market hours and location.
+ * @brief Captures and stores market operational details such as hours and location.
  *
- * This function prompts the user for market information, including ID, day, working hours, and location.
- * It validates the input and writes the information to a binary file (marketHours.bin).
+ * This function prompts the user to input market information such as the market ID, operating day,
+ * hours of operation, and location. It checks for the existence of the given market ID against a vendor file
+ * to ensure the market is registered. Valid input is then written to a binary file for persistent storage.
+ * Each step includes validation to ensure that the data is correct before proceeding to the next step.
+ * The function will clear the input buffer after necessary reads to handle any extraneous input.
  *
- * @return true if the market hours and location were added successfully, false otherwise.
+ * @return True if the market information is successfully added and saved; False if any errors occur during
+ *         the file handling or input process.
  */
 bool addMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "ab");
@@ -1871,7 +1975,7 @@ bool addMarketHoursAndLocation() {
     MarketHours market;
     int found = 0;
 
-    // Market ID'yi kullanıcıdan al
+    // Prompt user for Market ID
     printf("Enter Market ID: ");
     if (scanf("%d", &market.id) != 1) {printf("Invalid input. Please enter a valid numeric Market ID.\n");fclose(vendorFile);fclose(file);return false;}
 
@@ -1884,30 +1988,30 @@ bool addMarketHoursAndLocation() {
     }
     fclose(vendorFile);
 
-    // Eğer Market ID geçersizse hata ver ve çık
+    // Check if Market ID exists in vendor file
     if (!found) {
         printf("Error: Invalid Market ID. Operation canceled.\n");
         fclose(file);
         return false;
     }
 
-    // Gün bilgisi al
+    // Get day of the week
     printf("Enter Day (e.g., monday): ");
     scanf("%19s", market.day);
     while (!validateDay(market.day)) {printf("Invalid day. Please enter a valid day (e.g., Monday): ");scanf("%19s", market.day);}
 
-    // Çalışma saatleri al
+    // Get working hours
     printf("Enter Working Hours (e.g., 09:00 - 18:00): ");
     while (getchar() != '\n'); // Input buffer'ı temizle
     fgets(market.hours, sizeof(market.hours), stdin);
-    market.hours[strcspn(market.hours, "\n")] = 0; // Satır sonu karakterini kaldır
+    market.hours[strcspn(market.hours, "\n")] = 0; // Remove newline character
     while (!validateWorkingHours(market.hours)) {printf("Invalid hours. Please enter valid hours (e.g., 09:00 - 18:00): ");fgets(market.hours, sizeof(market.hours), stdin);market.hours[strcspn(market.hours, "\n")] = 0;}
 
-    // Lokasyon bilgisi al
+    // Get location
     printf("Enter Location: ");
     scanf("%49s", market.location);
 
-    // Veriyi dosyaya yaz
+    // Write the data to file
     fwrite(&market, sizeof(MarketHours), 1, file);
     fclose(file);
 
@@ -1917,12 +2021,16 @@ bool addMarketHoursAndLocation() {
 
 
 /**
- * @brief Updates market hours and location.
+ * @brief Updates existing market operational details such as hours and location.
  *
- * This function prompts the user for a market ID and allows them to update the corresponding day,
- * working hours, and location. It validates the input and updates the information in a binary file (marketHours.bin).
+ * This function prompts the user to enter a market ID, then searches for it in the 'marketHours.bin' file.
+ * If the market ID is found, the user can update the day of the week, operating hours, and location for that market.
+ * The input is validated at each step to ensure it meets the expected format before it's written back into the file.
+ * The function handles file operations with read and write permissions and ensures that the file pointer
+ * is correctly managed to update the existing record without altering other entries.
  *
- * @return true if the market hours and location were updated successfully, false otherwise.
+ * @return True if the market's operational details are successfully updated; False if the file can't be opened
+ *         or the market ID is not found.
  */
 bool updateMarketHoursAndLocation() {
     FILE* file = fopen("marketHours.bin", "rb+");
@@ -1936,17 +2044,17 @@ bool updateMarketHoursAndLocation() {
     printf("Enter Market ID to update: ");
     while (scanf("%d", &marketId) != 1) {
         printf("Invalid input. Please enter a valid numeric Market ID: ");
-        while (getchar() != '\n'); // Input tamponunu temizle
+        while (getchar() != '\n'); // Clear input buffer
     }
 
     MarketHours market;
 
-    rewind(file); // Dosyanın başına dön
+    rewind(file); // Rewind to the start of the file
     while (fread(&market, sizeof(MarketHours), 1, file)) {
         if (market.id == marketId) {
             found = 1;
 
-            // Yeni gün bilgisi al
+            // Prompt for new day
             printf("Enter new Day (e.g., Monday): ");
             scanf("%19s", market.day);
             while (!validateDay(market.day)) {
@@ -1954,7 +2062,7 @@ bool updateMarketHoursAndLocation() {
                 scanf("%19s", market.day);
             }
 
-            // Yeni çalışma saatlerini al
+            // Prompt for new working hours
             printf("Enter new Working Hours (e.g., 09:00 - 18:00): ");
             while (getchar() != '\n'); // Tamponu temizle
             fgets(market.hours, sizeof(market.hours), stdin);
@@ -1965,11 +2073,11 @@ bool updateMarketHoursAndLocation() {
                 market.hours[strcspn(market.hours, "\n")] = 0;
             }
 
-            // Yeni lokasyon bilgisi al
+            // Prompt for new location
             printf("Enter new Location: ");
             scanf("%49s", market.location);
 
-            // Güncellenmiş veriyi dosyaya yaz
+            // Write updated information to file
             fseek(file, -sizeof(MarketHours), SEEK_CUR);
             fwrite(&market, sizeof(MarketHours), 1, file);
             printf("Market hours and location updated successfully!\n");
@@ -1981,7 +2089,7 @@ bool updateMarketHoursAndLocation() {
         printf("Market ID %d not found.\n", marketId);
     }
 
-    fclose(file); // Dosyayı kapat
+    fclose(file); // Close the file
     return true;
 }
 
@@ -2479,6 +2587,16 @@ void findSCC(Node* nodes[], int nodeCount) {
     free(stack);
 }
 
+
+/**
+ * @brief Performs a depth-first search (DFS) to find strongly connected components (SCCs) in a graph using Tarjan's algorithm.
+ *
+ * This function recursively explores nodes, manages discovery and low-link values,
+ * and identifies SCCs by checking if the current node is a root node (i.e., discovery time is equal to low-link value).
+ * The function maintains a stack to track active nodes in the current search path and uses it to
+ * identify nodes in the same SCC when a root node is found.
+ */
+
 void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack, int* stackTop, bool* onStack, int nodeCount) {
     ids[at] = low[at] = (*id)++;
     stack[++(*stackTop)] = nodes[at];
@@ -2508,6 +2626,14 @@ void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack,
     }
 }
 
+
+/**
+ * @brief Finds the index of a node within an array of node pointers.
+ *
+ * Given a node and an array of node pointers, this function searches for the node in the array and returns its index.
+ * This is useful for locating the position of a node in the graph's node list based on its pointer, facilitating access
+ * to its associated properties in parallel arrays.
+ */
 int findNodeIndex(Node* nodes[], Node* node, int nodeCount) {
     for (int i = 0; i < nodeCount; ++i) {
         if (nodes[i] == node) return i;
