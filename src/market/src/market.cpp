@@ -2030,15 +2030,11 @@ bool updateMarketHoursAndLocation() {
     int marketId;
     int found = 0;
     printf("Enter Market ID to update: ");
-<<<<<<< HEAD
     while (scanf("%d", &marketId) != 1) {
         printf("Invalid input. Please enter a valid numeric Market ID: ");
         while (getchar() != '\n'); // Clear input buffer
     }
-=======
     while (scanf("%d", &marketId) != 1) {printf("Invalid input. Please enter a valid numeric Market ID: ");while (getchar() != '\n'); }
->>>>>>> 90d5f15bc04008e1f11ba62511754ac6c9d23488
-
     MarketHours market;
 
     rewind(file); // Rewind to the start of the file
@@ -2571,8 +2567,6 @@ void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack,
     }
 }
 
-
-<<<<<<< HEAD
 /**
  * @brief Finds the index of a node within an array of node pointers.
  *
@@ -2580,11 +2574,6 @@ void tarjanDFS(Node* nodes[], int at, int* id, int* ids, int* low, Node** stack,
  * This is useful for locating the position of a node in the graph's node list based on its pointer, facilitating access
  * to its associated properties in parallel arrays.
  */
-=======
-
-
-
->>>>>>> 90d5f15bc04008e1f11ba62511754ac6c9d23488
 int findNodeIndex(Node* nodes[], Node* node, int nodeCount) {
     for (int i = 0; i < nodeCount; ++i) {
         if (nodes[i] == node) return i;}return -1;  // If not found

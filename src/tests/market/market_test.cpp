@@ -1094,217 +1094,264 @@ TEST_F(MarketTest, ListingOfLocalVendorsAndProductsInvalidStrategyTEST) {
 /**
  * @test marketHoursAndLocationsTEST
  * @brief Test case for displaying market hours and locations.
+ *
+ * This test checks the functionality of the marketHoursAndLocations function by simulating an immediate exit.
+ * It verifies whether the function can handle a simple user input to exit without performing any action and return true,
+ * indicating successful handling of the input.
  */
 TEST_F(MarketTest, marketHoursAndLocationsTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate immediate exit input
     simulateUserInput("0\n");
-    // getInput fonksiyonunu çağır
+    // Call the function to display market hours and locations
     bool result = marketHoursAndLocations;
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clean up the environment
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Check if the function returns true as expected
     EXPECT_TRUE(result);
 }
 
-
-
+/**
+ * @test marketHoursAndLocationTest1
+ * @brief Test case for adding or updating market hours and locations.
+ *
+ * This test simulates the addition or update of market hours and location details by the user.
+ * It verifies that the marketHoursAndLocations function can correctly process valid inputs to add
+ * or update a market's details and concludes successfully by returning true.
+ */
 TEST_F(MarketTest, marketHoursAndLocationTest1) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for adding/updating a market
     simulateUserInput("1\n108750\nmonday\n09:00 - 18:00\ntrabzon\n0\n");
 
-    // getInput fonksiyonunu çağır
+    // Call the function
     bool result = marketHoursAndLocations();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset the environment
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Ensure the function handles the input correctly
     EXPECT_TRUE(result);
 }
 
 
-
+/**
+ * @test marketHoursAndLocationTest2
+ * @brief Test case for updating specific market hours and location.
+ *
+ * This test simulates updating market hours and location details for a specific market.
+ * It aims to confirm that the function can accept detailed modifications and effectively update the market's
+ * information, returning true to indicate that the process was executed without errors.
+ */
 TEST_F(MarketTest, marketHoursAndLocationTest2) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate detailed input for updating market hours
     simulateUserInput("2\n108750\ntuesday\n09:00 - 17:00\nrize\n0\n");
 
-    // getInput fonksiyonunu çağır
+    // Invoke the function
     bool result = marketHoursAndLocations();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clean up input/output states
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Validate successful input handling and function execution
     EXPECT_TRUE(result);
 }
 
 
-
+/**
+ * @test marketHoursAndLocationTest3
+ * @brief Test case for exiting from the market hours and location menu.
+ *
+ * This test ensures that the marketHoursAndLocations function can handle an exit command without
+ * any user modifications to market data, and return true to signify a clean and error-free exit.
+ */
 TEST_F(MarketTest, marketHoursAndLocationTest3) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user selecting to exit the function
     simulateUserInput("3\n0\n");
 
-    // getInput fonksiyonunu çağır
+    // Execute the function
     bool result = marketHoursAndLocations();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset system states
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Check for a successful function outcome
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test marketHoursAndLocationTestInvalid
+ * @brief Test case for handling invalid input in the market hours and location menu.
+ *
+ * This test simulates an invalid menu option selection to verify that the marketHoursAndLocations function
+ * can gracefully handle unexpected or incorrect inputs by returning true, thereby maintaining robustness
+ * and preventing crashes or unexpected behavior.
+ */
 TEST_F(MarketTest, marketHoursAndLocationTestInvalid) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate an invalid menu option selection
     simulateUserInput("787\n0\n");
 
-    // getInput fonksiyonunu çağır
+    // Call the function to test its robustness
     bool result = marketHoursAndLocations();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear any changes to standard input/output
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Confirm the function successfully managed the incorrect input
     EXPECT_TRUE(result);
 }
 
 
 /**
- * @brief Test case for searching products or entering a keyword.
+ * @test SearchProductsOrEnterKeywordTEST
+ * @brief Test case for initiating a search for products or entering a keyword.
  *
- * This test simulates user input to trigger the searchProductsOrEnterKeyword function.
- * It verifies that the function returns true after the simulated input, indicating
- * a successful keyword or product search.
- */
+ * This test simulates user interaction with the searchProductsOrEnterKeyword function by providing
+ * an exit command as input. It verifies that the function handles the input correctly and concludes
+ * the process without issues, indicated by returning true.
+ */ 
 TEST_F(MarketTest, SearchProductsOrEnterKeywordTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for exiting the search function
     simulateUserInput("0\n");
-    // getInput fonksiyonunu çağır
+    // Execute the function
     bool result = searchProductsOrEnterKeyword();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard input and output streams
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Validate that the function returns true, indicating a successful interaction
     EXPECT_TRUE(result);
 }
 
 
 /**
- * @brief Test case for entering search products.
+ * @test EnterSearchProductsTEST
+ * @brief Test case for searching products by entering a specific product name.
  *
- * This test simulates user input for entering a product name to search.
- * After simulating the input, it calls the enterSearchProducts function and verifies
- * that the function returns true, indicating a successful product search.
+ * This test simulates user input for a product search by entering the name of a product ("tomato").
+ * It aims to verify that the enterSearchProducts function processes this input and successfully
+ * completes the search, which is confirmed by the function returning true.
  */
 TEST_F(MarketTest, EnterSearchProductsTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for searching a specific product
     simulateUserInput("tomato\n");
-    // getInput fonksiyonunu çağır
+    // Call the function to search for products
     bool result = enterSearchProducts;
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset the environment to its original state
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Ensure the function handles the search correctly and returns true
     EXPECT_TRUE(result);
 }
 
 
 /**
- * @brief Test case for entering keywords.
+ * @test EnterKeywordsTEST
+ * @brief Test case for entering keywords to filter or search for related content.
  *
- * This test simulates user input for entering a keyword.
- * After simulating the input, it calls the enterKeywords function and verifies
- * that the function returns true, indicating a successful keyword entry.
+ * This test simulates user input for entering a keyword ("winter") to filter or search content.
+ * It checks that the enterKeywords function can handle the keyword entry properly and returns true,
+ * indicating the successful acceptance and processing of the keyword.
  */
 TEST_F(MarketTest, EnterKeywordsTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for entering a keyword
     simulateUserInput("winter\n");
-    // getInput fonksiyonunu çağır
+    // Call the function to process the keyword
     bool result = enterKeywords;
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear any input/output residue
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Confirm that the function returns true, signaling successful keyword processing
     EXPECT_TRUE(result);
 }
 
 
 /**
  * @test SaveUserToHuffFileTEST
- * @brief Test case for saving a user to the Huffman file.
+ * @brief Test case for saving a user's details to a Huffman-encoded file.
+ *
+ * This test verifies the functionality of the saveUserToHuffFile function by attempting to save
+ * a user's username and password. It ensures that the user's details are encoded and saved correctly,
+ * as indicated by the function's return value of true, denoting a successful save operation.
  */
 TEST_F(MarketTest, SaveUserToHuffFileTEST) {
-    // Kullanıcı adı ve şifreyi kaydet
+    // Define a username
     const char* username = "testUser";
+    // Define a password
     const char* password = "password123";
+    // Execute the function to save the user details
     bool result = saveUserToHuffFile(username, password);
 
-    // Kaydetme işleminin başarılı olduğunu kontrol et
+    // Check if the save operation was successful
     EXPECT_TRUE(result);
 }
 
-
-
-
-
-
-
-
+/**
+ * @test userAuthenticationTEST
+ * @brief Test case for user authentication.
+ *
+ * This test simulates a user entering correct login credentials (username and password) to verify
+ * that the userAuthentication function correctly handles valid inputs and successfully authenticates the user.
+ * It confirms that the function returns true, indicating successful authentication.
+ */
 TEST_F(MarketTest, userAuthenticationTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
+    // Simulate valid login credentials and exit inputs
     simulateUserInput("1\ntestUser\npassword123\n0\n0\n4\n");
 
-    // loginUser fonksiyonunu çağır
+    // Call the function to authenticate the user
     bool result = userAuthentication();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard input and output streams
     resetStdinStdout();
 
-    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
+    // Assert that authentication was successful
     EXPECT_TRUE(result);
 }
-
-
-
-TEST_F(MarketTest, userAuthenticationTEST2) {
-    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
-    simulateUserInput("2\nnewUser\nnewpassword\n0\n0\n4\n");
-
-    // loginUser fonksiyonunu çağır
-    bool result = userAuthentication();
-
-    // Standart giriş ve çıkışı sıfırla
-    resetStdinStdout();
-
-    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
-    EXPECT_TRUE(result);
-}
-
-
-
 
 
 /**
- * @test LoginUserUpdatedTEST
- * @brief Test case for logging in a user.
+ * @test userAuthenticationTEST2
+ * @brief Test case for user authentication with different credentials.
+ *
+ * This test checks the user authentication system with a different set of credentials, simulating a scenario where a user
+ * logs in using a different username and password. It aims to verify that the userAuthentication function
+ * can correctly process varying inputs and still return true, denoting successful authentication.
  */
-TEST_F(MarketTest, LoginUserTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, doğru kullanıcı adı ve şifre)
-    simulateUserInput("testUser\npassword123\n");
+TEST_F(MarketTest, userAuthenticationTEST2) {
+    // Simulate a different user's credentials and exit sequence
+    simulateUserInput("2\nnewUser\nnewpassword\n0\n0\n4\n");
 
-    // loginUser fonksiyonunu çağır
-    bool result = loginUser();
+    // Call the authentication function
+    bool result = userAuthentication();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear any changes to the I/O streams
     resetStdinStdout();
 
-    // Girişin doğru şekilde işlenip işlenmediğini kontrol et
+    // Check that the function correctly processes the input and authenticates the user
+    EXPECT_TRUE(result);
+}
+
+/**
+ * @test LoginUserTEST
+ * @brief Test case for logging in a user with correct credentials.
+ *
+ * This test simulates the login process by providing the username and password for an existing user.
+ * It tests whether the loginUser function can successfully authenticate a user and return true, thus verifying
+ * that the user's login information is correctly processed and validated.
+ */
+TEST_F(MarketTest, LoginUserTEST) {
+    // Simulate entering valid user credentials
+    simulateUserInput("testUser\npassword123\n");
+
+    // Invoke the login function
+    bool result = loginUser();
+
+    // Reset the environment to its original state
+    resetStdinStdout();
+
+    // Ensure the function validates the credentials correctly
     EXPECT_TRUE(result);
 }
 
@@ -1312,341 +1359,437 @@ TEST_F(MarketTest, LoginUserTEST) {
 /**
  * @test RegisterUserTEST
  * @brief Test case for registering a new user.
+ *
+ * This test simulates the registration of a new user by entering a username and password.
+ * It verifies that the registerUser function can handle the registration process properly, adding the new user
+ * to the system, and returning true, indicating that the registration was successful.
  */
 TEST_F(MarketTest, RegisterUserTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Simulate entering new user registration details
     simulateUserInput("newUser\nnewPassword\n");
 
-    // registerUser fonksiyonunu çağır
+    // Call the function to register a new user
     bool result = registerUser();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clean up the input/output states
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Confirm that the registration process was successfully completed
     EXPECT_TRUE(result);
 }
-
 
 /**
  * @test PriceComparisonTEST
- * @brief Test case for comparing product prices.
+ * @brief Test case for verifying basic price comparison functionality.
+ *
+ * This test simulates a user choosing to exit the price comparison menu immediately.
+ * It checks if the priceComparison function handles the exit input correctly and terminates
+ * the operation successfully, returning true as an indicator of proper function execution.
  */
 TEST_F(MarketTest, PriceComparisonTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate immediate exit input
     simulateUserInput("0\n");
 
-    // getInput fonksiyonunu çağır
+    // Call the function to perform price comparison
     bool result = priceComparison();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear changes to the I/O streams
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Assert that the function handled the input correctly
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test PriceComparisonTEST2
+ * @brief Test case for executing a specific product price comparison.
+ *
+ * This test simulates the user input for comparing the price of a specific product ('tomato').
+ * It validates that the priceComparison function can process this input and successfully complete
+ * the comparison process, returning true to indicate no errors during execution.
+ */
 TEST_F(MarketTest, PriceComparisonTEST2) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for price comparison of 'tomato'
     simulateUserInput("1\ntomato\n0\n0\n4\n");
 
-    // getInput fonksiyonunu çağır
+    // Execute the price comparison
     bool result = priceComparison();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard input and output
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Check that the function successfully processes the input
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test PriceComparisonTEST3
+ * @brief Test case for performing a price comparison using another set of inputs.
+ *
+ * This test simulates a user performing a price comparison without specifying a particular product,
+ * possibly indicating a general comparison across categories. The function is expected to handle this input
+ * effectively and return true, signaling successful operation.
+ */
 TEST_F(MarketTest, PriceComparisonTEST3) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate a general input for price comparison
     simulateUserInput("2\n\n0\n0\n4\n");
 
-    // getInput fonksiyonunu çağır
+    // Invoke the price comparison functionality
     bool result = priceComparison();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clean up the input/output states
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Verify successful handling of the input
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test PriceComparisonInvalidTEST4
+ * @brief Test case for price comparison with invalid product or category ID.
+ *
+ * This test simulates user input of an invalid product or category ID to test how the priceComparison
+ * function handles incorrect or non-existent data. It aims to verify that even with invalid inputs,
+ * the function manages to conclude gracefully and returns true, maintaining robustness against user errors.
+ */
 TEST_F(MarketTest, PriceComparisonInvalidTEST4) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate input of an invalid product/category ID
     simulateUserInput("675768\n0\n0\n4\n");
 
-    // getInput fonksiyonunu çağır
+    // Call the price comparison function
     bool result = priceComparison();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset the environment to its original state
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Confirm the function handles invalid inputs gracefully
     EXPECT_TRUE(result);
 }
 
 /**
  * @test SelectProductTEST
  * @brief Test case for selecting a product by name.
+ *
+ * This test simulates user input to select a product by its name ("tomato"). It checks if the selectProduct
+ * function can correctly identify and select the product based on the input provided. The function should
+ * return true, indicating that the product was successfully selected.
  */
 TEST_F(MarketTest, SelectProductTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate user input for product selection
     simulateUserInput("tomato\n");
+
+    // Buffer to store selected product name
     char selectedProductName[100] = "";
 
-    // getInput fonksiyonunu çağır
+    // Call the function to select the product
     bool result = selectProduct(selectedProductName);
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear any changes to the input/output streams
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Validate the selection was successful
     EXPECT_TRUE(result);
 }
 
-
 /**
- * @test ComparePriceByNameTEST
- * @brief Test case for comparing product prices by name.
+ * @test ComparePricesByNameTest
+ * @brief Test case for comparing the prices of a specific product across different vendors.
+ *
+ * This test first sets up a product file with predefined products, including multiple entries for "Tomato"
+ * with different prices and quantities. It simulates user input to select "Tomato" for a price comparison and
+ * invokes the comparePricesByName function to perform the operation. The test verifies that the function
+ * successfully retrieves and compares prices for all "Tomato" entries in the product file, and it checks
+ * that the prices are sorted correctly in ascending order, confirming that the function operates as expected.
+ *
+ * The test ensures that:
+ * - The function handles the input correctly and returns true, indicating a successful comparison.
+ * - The prices are sorted as expected, validating the correctness of the sorting algorithm within the function.
  */
-//TEST_F(MarketTest, ComparePriceByNameTEST) {
-//    // Simüle edilmiş geçerli giriş (örneğin, 5)
-//    simulateUserInput("tomato\n");
-//    char selectedProductName[100] = "";
-//    // getInput fonksiyonunu çağır
-//    bool result = comparePricesByName(selectedProductName);
-//
-//    // Standart giriş ve çıkışı sıfırla
-//    resetStdinStdout();
-//
-//    // Girişin doğru şekilde alındığını kontrol et
-//    EXPECT_TRUE(result);
-//}
-
 TEST_F(MarketTest, ComparePricesByNameTest) {
-    // Test için ürün dosyası oluştur
+    // Prepare the product file with predefined data
     createTestProductFile();
 
-    // Simüle edilmiş ürün adı girişi
+    // Simulate user input to select "Tomato" for price comparisone
     simulateUserInput("Tomato\n");
 
-    // Fonksiyonu çağır
+    // Execute the price comparison function
     bool result = comparePricesByName("Tomato");
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clean up the environment
     resetStdinStdout();
 
-    // Fonksiyonun doğru çalıştığını doğrula
+    // Verify that the function returned true, indicating success
     EXPECT_TRUE(result);
 
-    // Dosyadan sıralanmış ürünleri kontrol et
+    // Check the sorted product prices against expected values
     Product expectedProducts[] = {
+        // Expected first result with the lowest price
         {1, "Tomato", 20, 200, "Winter"},
+        // Expected second result with a higher price
         {2, "Tomato", 25, 100, "Winter"},
     };
 
-    // Beklenen sıralamayı kontrol et
-    EXPECT_EQ(expectedProducts[0].price, 20);
-    EXPECT_EQ(expectedProducts[1].price, 25);
+    // Verify the correct order and price of the products returned
+    EXPECT_EQ(expectedProducts[0].price, 20); // Check if the first product's price is as expected
+    EXPECT_EQ(expectedProducts[1].price, 25); // Check if the second product's price is as expected
 }
 
-
-
-
+/**
+ * @test enterSearchProductsTEST
+ * @brief Test case for entering search terms to find products.
+ *
+ * This test simulates user input for a product search by name ("banana"). It validates that the enterSearchProducts
+ * function can handle the input correctly and return true, indicating a successful search process.
+ */
 TEST_F(MarketTest, enterSearchProductsTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Simulate user input for searching a product
     simulateUserInput("banana\n0\n0\n4\n");
 
-    // registerUser fonksiyonunu çağır
+    // Call the function to perform product search
     bool result = enterSearchProducts();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard input and output
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Confirm the search was handled correctly
     EXPECT_TRUE(result);
 }
 
-
-
+/**
+ * @test enterKeywordsTEST
+ * @brief Test case for entering keywords to filter search results.
+ *
+ * This test simulates user input for entering a keyword ("banana"). It checks if the enterKeywords
+ * function processes this input properly and returns true, indicating successful keyword entry and handling.
+ */
 TEST_F(MarketTest, enterKeywordsTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Simulate user input for keyword entry
     simulateUserInput("banana\n0\n0\n4\n");
 
-    // registerUser fonksiyonunu çağır
+    // Call the function to handle keyword entry
     bool result = enterKeywords();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear any changes to input/output
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Ensure the keyword entry was successful
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test searchProductsOrEnterKeywordInvalidTEST
+ * @brief Test case for handling invalid input in product search or keyword entry.
+ *
+ * This test simulates invalid user input scenarios for searching products or entering keywords. It aims to test
+ * the robustness of the searchProductsOrEnterKeyword function in handling incorrect inputs and still returning true,
+ * indicating that no system errors occurred.
+ */
 TEST_F(MarketTest, searchProductsOrEnterKeywordInvalidTEST) {
-    // Simüle edilmiş geçerli giriş (örneğin, 5)
+    // Simulate invalid input scenario
     simulateUserInput("5\n0\n0\n0\n4\n");
 
-    // getInput fonksiyonunu çağır
+    // Call the function
     bool result = searchProductsOrEnterKeyword();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset input/output
     resetStdinStdout();
 
-    // Girişin doğru şekilde alındığını kontrol et
+    // Verify the function handles invalid input correctly
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test enterSearchProductsTEST2
+ * @brief Test case for entering a product name in the search function.
+ *
+ * This test simulates user input to search for a specific product ("banana") using the
+ * searchProductsOrEnterKeyword function. It checks whether the function can handle the
+ * simulated input correctly and return true, indicating a successful search operation.
+ * The purpose is to verify that the product search functionality processes the input
+ * as expected and identifies relevant product data accurately.
+ */
 TEST_F(MarketTest, enterSearchProductsTEST2) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Simulate user input for searching a product
     simulateUserInput("1\nbanana\n0\n0\n4\n");
 
-    // registerUser fonksiyonunu çağır
+    // Call the function to perform the search
     bool result = searchProductsOrEnterKeyword();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset the environment to clear any input/output residues
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Assert the function returns true, indicating the search was successful
     EXPECT_TRUE(result);
 }
 
-
-
+/**
+ * @test enterKeywordsTEST2
+ * @brief Test case for entering a keyword to filter or search for related products.
+ *
+ * This test simulates user input for entering a keyword ("banana") in the searchProductsOrEnterKeyword
+ * function. It evaluates the function's ability to handle keyword entry effectively and return true,
+ * confirming that the keyword was accepted and processed correctly. The test aims to ensure that the
+ * keyword search functionality is robust and can accurately filter or locate products based on the keyword provided.
+ */
 TEST_F(MarketTest, enterKeywordsTEST2) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Simulate user input for entering a keyword
     simulateUserInput("2\nbanana\n0\n0\n4\n");
 
-    // registerUser fonksiyonunu çağır
+    // Call the function to handle the keyword entry
     bool result = searchProductsOrEnterKeyword();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear changes to the input/output state
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Validate that the function processed the keyword correctly
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test minheapfyTEST
+ * @brief Test case for verifying the minHeapify function's correctness.
+ *
+ * This test initializes a MinHeap structure with a set of nodes, each assigned descending frequency values.
+ * The test then calls minHeapify to ensure the function properly organizes the heap according to the min-heap property.
+ * It verifies that the root node has the smallest frequency, indicating a successful heapification.
+ */
 TEST_F(MarketTest, minheapfyTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    // Placeholder for user interaction
     simulateUserInput("\n");
     struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
-    minHeap->size = 5; // Test için 5 düğümlü bir heap
+    minHeap->size = 5;
     minHeap->capacity = 5;
     minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
 
-    // Düğümleri ekle
+    
     for (int i = 0; i < minHeap->size; i++) {
         struct MinHeapNode* node = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
-        node->freq = (minHeap->size - i) * 10; // Frekans değerleri: 50, 40, 30, 20, 10
+        node->freq = (minHeap->size - i) * 10; 
         minHeap->array[i] = node;
     }
     int smallest = 0;
-    // registerUser fonksiyonunu çağır
+    
     bool result = minHeapify(minHeap, 0);
 
-    // Standart giriş ve çıkışı sıfırla
+    // Clear changes to the input/output state
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
+    // Validate that the function processed the keyword correctly
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test insertMinheapifyTEST
+ * @brief Test case for verifying the insert function in a MinHeap.
+ *
+ * This test initializes an empty MinHeap and inserts a new node with a specific frequency.
+ * It checks if the insertMinHeap function correctly adds the node while maintaining the heap property.
+ */
 TEST_F(MarketTest, insertMinheapifyTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+    
     simulateUserInput("\n");
     struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
-    minHeap->size = 0; // Başlangıçta heap boş
+    minHeap->size = 0; 
     minHeap->capacity = 5;
     minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
 
-    // Yeni bir MinHeapNode oluştur
+    
     struct MinHeapNode* minHeapNode = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
-    minHeapNode->freq = 15; // Yeni düğümün frekansı
+    minHeapNode->freq = 15; 
 
     for (int i = 0; i < minHeap->size; i++) {
         struct MinHeapNode* node = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
-        node->freq = (minHeap->size - i) * 10; // Frekans değerleri: 50, 40, 30, 20, 10
+        node->freq = (minHeap->size - i) * 10; 
         minHeap->array[i] = node;
     }
     
-    // registerUser fonksiyonunu çağır
     bool result = insertMinHeap(minHeap,minHeapNode);
 
-    // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
     EXPECT_TRUE(result);
 }
 
+/**
+ * @test buildHuffmanTreeTEST
+ * @brief Test case for building a Huffman Tree from given frequencies.
+ *
+ * This test uses a set of characters and their frequencies to build a Huffman Tree.
+ * It verifies that the Huffman Tree is correctly constructed by checking that the root node
+ * has a frequency equal to the sum of all frequencies and that it has valid left and right children.
+ */
 TEST_F(MarketTest, buildHuffmanTreeTEST) {
-    // Test verilerini tanımla
+    
     char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
     int freq[] = { 5, 9, 12, 13, 16, 45 };
     int size = sizeof(data) / sizeof(data[0]);
 
-    // buildHuffmanTree fonksiyonunu çağır
     struct MinHeapNode* huffmanTreeRoot = buildHuffmanTree(data, freq, size);
 
-    // Huffman ağacının doğru oluşturulduğunu kontrol et
-    EXPECT_NE(huffmanTreeRoot, nullptr); // Kök düğüm boş olmamalı
-    EXPECT_EQ(huffmanTreeRoot->freq, 100); // Frekansların toplamı kökte olmalı
+    EXPECT_NE(huffmanTreeRoot, nullptr);
+    EXPECT_EQ(huffmanTreeRoot->freq, 100); 
 
-    // Sol ve sağ alt ağaçların doğru olup olmadığını kontrol et
     EXPECT_NE(huffmanTreeRoot->left, nullptr);
     EXPECT_NE(huffmanTreeRoot->right, nullptr);
 
 }
 
-
+/**
+ * @test DebugHuffmanCodesTest
+ * @brief Test case for generating and printing Huffman Codes.
+ *
+ * This test uses a set of characters and their frequencies to generate Huffman Codes.
+ * It aims to verify that HuffmanCodes function can process the data and output the correct Huffman codes.
+ */
 TEST_F(MarketTest, DebugHuffmanCodesTest) {
     char data[] = { 'a', 'b', 'c', 'd', 'e', 'f' };
     int freq[] = { 5, 9, 12, 13, 16, 45 };
     int size = sizeof(data) / sizeof(data[0]);
 
-    // Huffman kodlarını üret ve doğrudan yazdır
     HuffmanCodes(data, freq, size);
 }
 
 
-
+/**
+ * @test listProductsByVendorTEST
+ * @brief Test case for listing products associated with a specific vendor ID.
+ *
+ * This test simulates a scenario where a specific vendor's products are listed.
+ * It verifies that the listProductsByVendor function correctly identifies and lists all products for the given vendor ID.
+ */
 TEST_F(MarketTest, listProductsByVendorTEST) {
-    // Simulate the vendor ID input
     int testVendorId = 1;
 
-    // Redirect standard output to a buffer for capturing results
     testing::internal::CaptureStdout();
 
-    // Act: Call the function to list products by vendor
     bool result = listProductsByVendor(testVendorId);
 
-    // Assert: Verify the result is true and the correct products are printed
     EXPECT_TRUE(result);
 
 }
 
-
+/**
+ * @test heapifyTEST
+ * @brief Test case for verifying the heapify function on a custom array of products.
+ *
+ * This test initializes an array of Product structures and performs a heapify operation.
+ * It checks if the heapify function can rearrange the elements correctly according to the heap property
+ * based on product prices.
+ */
 TEST_F(MarketTest, heapifyTEST) {
-    // Simüle edilmiş kullanıcı kaydı girişleri (kullanıcı adı ve şifre)
+
     simulateUserInput("\n");
-    // We initialize the largest element as root
+
     struct Product arr[5] = {
         
     };
 
-    int i = 0; // Root elemanın başlangıç indeksi
-    int n = 5; // Dizinin boyutu
-    // Largest kısmını doğrula
-    int largest = 0; // Başlangıç değeri
-    int left = 2 * i + 1; // Sol çocuk
-    int right = 2 * i + 2; // Sağ çocuk
+    int i = 0; 
+    int n = 5; 
+    
+    int largest = 0; 
+    int left = 2 * i + 1;
+    int right = 2 * i + 2; 
 
     if (left < n && arr[left].price > arr[largest].price)
         largest = left;
@@ -1654,26 +1797,31 @@ TEST_F(MarketTest, heapifyTEST) {
     if (right < n && arr[right].price > arr[largest].price)
         largest = right;
 
-
-    // registerUser fonksiyonunu çağırarr
     bool result = heapify(arr,1,1);
 
-    // Standart giriş ve çıkışı sıfırla
     resetStdinStdout();
 
-    // Kaydın başarılı olup olmadığını kontrol et
     EXPECT_TRUE(result);
 }
 
-
+/**
+ * @test ProgressiveOverflowSearchTEST
+ * @brief Test case for checking the search functionality within an overflow area.
+ *
+ * This test simulates a scenario where specific entries in an overflow area are set to be occupied with certain keys.
+ * It then tests the search functionality to ensure that it correctly identifies when keys are not present.
+ * The test verifies that:
+ * - A search for a non-existent key returns false, indicating the key is not found.
+ * - A search in an unoccupied area also returns false, confirming the absence of the key.
+ */
 TEST_F(MarketTest, ProgressiveOverflowSearchTEST) {
-    // Test için overflowArea'yi simüle et
+    // Prepare the overflow area with default settings: unoccupied.
     for (int i = 0; i < OVERFLOW__SIZE; i++) {
         overflowAreaa[i].isOccupied = false;
         overflowAreaa[i].key = 0;
     }
 
-    // Örnek verileri ekle
+    // Set specific entries as occupied to simulate existing data.
     overflowAreaa[3].isOccupied = true;
     overflowAreaa[3].key = 42;
 
@@ -1681,74 +1829,98 @@ TEST_F(MarketTest, ProgressiveOverflowSearchTEST) {
     overflowAreaa[7].key = 99;
 
 
-    // Anahtar bulunmayan bir durumda false dönmesini bekliyoruz
+    // Expect that searching for a non-existing key returns false.
     EXPECT_FALSE(progressiveOverflowSearch(100));
 
-    // İşgal edilmemiş bir alandaki anahtar testi
+    // Test that searching for a key in an unoccupied index returns false.
     EXPECT_FALSE(progressiveOverflowSearch(50));
 }
 
-
-
-
+/**
+ * @test LoginUserInvalidCredentialsTEST
+ * @brief Test case for attempting to login with incorrect credentials.
+ *
+ * This test simulates an attempt to login with a wrong username and password.
+ * It checks if the loginUser function appropriately handles incorrect credentials by returning false,
+ * indicating the authentication failure.
+ */
 TEST_F(MarketTest, LoginUserInvalidCredentialsTEST) {
-    // Simüle edilmiş geçersiz giriş (örneğin, yanlış kullanıcı adı ve şifre)
+    // Simulate user input for wrong credentials
     simulateUserInput("wrongUser\nwrongPassword\n");
 
-    // loginUser fonksiyonunu çağır
+    // Attempt to login with the provided credentials
     bool result = loginUser();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard I/O to clear any residual data
     resetStdinStdout();
 
-    // Girişin başarısız olup olmadığını kontrol et
+    // Verify the login attempt was unsuccessful
     EXPECT_FALSE(result);
 }
 
-
+/**
+ * @test ListVendorsElseCasesTEST
+ * @brief Test case for the vendor listing functionality, focusing on edge cases.
+ *
+ * This test checks the listVendors function's behavior when faced with invalid navigation commands.
+ * It simulates incorrect inputs and ensures that the function still operates correctly without crashing
+ * and can handle erroneous user inputs gracefully, continuing to process further valid commands.
+ */
 TEST_F(MarketTest, ListVendorsElseCasesTEST) {
-    // Test için vendor.bin dosyasını oluştur ve örnek veriler ekle
+    // Open a file for writing vendor data
     FILE* file = fopen("vendor.bin", "wb");
 
-    // Test için örnek vendor verileri ekle
+    // Define a sample vendor
     Vendor v1 = { 1, "Vendor1" };
+
+    // Write the vendor data to file
     fwrite(&v1, sizeof(Vendor), 1, file);
+
+    // Close the file
     fclose(file);
 
-    // Simüle edilmiş giriş: Geçersiz giriş ('z'), sonra 'n' komutu (liste sonunda else durumu)
+    // Simulate invalid input followed by 'next' and 'exit' commands.
     simulateUserInput("z\nn\nx\n");
 
-    // listVendors fonksiyonunu çağır
+    // Call the function to list vendors.
     bool result = listVendors();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Reset standard input/output to clear any buffered data.
     resetStdinStdout();
 
-    // Fonksiyonun başarılı şekilde çalışıp çalışmadığını kontrol et
+    // Check that the function still returns true despite incorrect inputs.
     EXPECT_TRUE(result);
 
 }
 
+/**
+ * @test AddMarketHoursAndLocationTEST
+ * @brief Tests adding market hours and location for a valid vendor ID.
+ *
+ * This test prepares a scenario where the vendor file is pre-populated with valid entries. It simulates user input for
+ * adding market hours and location details, including a specific vendor ID, day, working hours, and location name.
+ * The test verifies that the addMarketHoursAndLocation function successfully adds these details to the 'marketHours.bin' file
+ * and checks if the new entry exists as expected.
+ */
 TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
-    // Test dosyalarını hazırla: vendor.bin dosyasını oluştur
-    createTestVendorFile(); // Geçerli vendor kayıtlarını ekle
+    // Setup test vendor file with valid entries.
+    createTestVendorFile();
 
-    // Simüle edilmiş giriş:
-    // Vendor ID: 1, Day: Monday, Hours: "09:00 - 18:00", Location: "MainStreet"
+    // Simulate user input for adding market hours.
     simulateUserInput("1\nmonday\n09:00 - 18:00\nMainStreet\n");
 
-    // addMarketHoursAndLocation fonksiyonunu çağır
+    // Invoke function to add market hours.
     bool result = addMarketHoursAndLocation();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Cleanup standard input and output.
     resetStdinStdout();
 
-    // Fonksiyonun başarılı olduğunu kontrol et
+    // Ensure function succeeded.
     EXPECT_TRUE(result);
 
-    // marketHours.bin dosyasını aç ve eklenen veriyi kontrol et
+    // Verify the newly added market hours in the file.
     FILE* file = fopen("marketHours.bin", "rb");
-    ASSERT_NE(file, nullptr); // Dosyanın açıldığından emin ol
+    ASSERT_NE(file, nullptr); // Ensure the file opened successfully.
 
     MarketHours market;
     int found = 0;
@@ -1764,37 +1936,49 @@ TEST_F(MarketTest, AddMarketHoursAndLocationTEST) {
     }
     fclose(file);
 
-    // Eklenen kaydın bulunduğunu doğrula
+    // Confirm the correct entry was added.
     EXPECT_TRUE(found);
 }
 
-
+/**
+ * @test AddMarketHoursAndLocationInvalidTEST
+ * @brief Tests adding market hours and location with an invalid vendor ID.
+ *
+ * This test prepares a vendor file without the vendor ID that will be tested, simulates input for an invalid vendor ID,
+ * and checks if the addMarketHoursAndLocation function correctly rejects the entry, returning false.
+ */
 TEST_F(MarketTest, AddMarketHoursAndLocationInvalidTEST) {
-    // Test dosyasını hazırla: vendor.bin oluştur ama ID'si 1 olmayan bir veri ekle
-    createTestVendorFile(); // Örneğin vendor ID: 1 ekleniyor, ama kullanıcı 999 giriyor.
+    
+    // Setup a vendor file without the ID to be tested.
+    createTestVendorFile(); 
 
-    // Simüle edilmiş geçersiz giriş: ID: 999
+    // Simulate input for an invalid vendor ID.
     simulateUserInput("999\n");
 
-    // addMarketHoursAndLocation fonksiyonunu çağır
+    // Attempt to add market hours with invalid ID.
     bool result = addMarketHoursAndLocation();
 
-    // Giriş/çıkışı sıfırla
+    // Cleanup input and output.
     resetStdinStdout();
 
-    // Fonksiyonun başarısız olduğunu doğrula
+    // Check that the function correctly rejected the invalid ID.
     EXPECT_FALSE(result);
-
 
 }
 
-
+/**
+ * @test UpdateMarketHoursAndLocationTEST
+ * @brief Tests updating existing market hours and location.
+ *
+ * This test initializes a file with market hours, simulates user input to update one entry, and checks
+ * if the updateMarketHoursAndLocation function successfully updates the entry. It verifies the contents
+ * of the updated entry to ensure the update was applied correctly.
+ */
 TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
-    // Test için gerekli dosyayı oluştur: marketHours.bin
+    // Create and populate initial data.
     FILE* file = fopen("marketHours.bin", "wb");
     ASSERT_NE(file, nullptr) << "Failed to create test marketHours.bin file";
 
-    // Başlangıç verilerini ekle
     MarketHours initialData[] = {
         {1, "monday", "09:00 - 18:00", "OldStreet"},
         {2, "tuesday", "10:00 - 19:00", "NewStreet"}
@@ -1802,19 +1986,18 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
     fwrite(initialData, sizeof(MarketHours), 2, file);
     fclose(file);
 
-    // Simüle edilmiş giriş: Market ID: 1, Yeni Day: Wednesday, Yeni Hours: "08:00 - 17:00", Yeni Location: "UpdatedStreet"
+    // Simulate updating market hours.
     simulateUserInput("1\nwednesday\n08:00 - 17:00\nUpdatedStreet\n");
 
-    // Fonksiyonu çağır
+    // Call update function
     bool result = updateMarketHoursAndLocation();
 
-    // Standart giriş ve çıkışı sıfırla
+    // Cleanup.
     resetStdinStdout();
 
-    // Fonksiyonun başarılı olduğunu kontrol et
     EXPECT_TRUE(result);
 
-    // Güncellenen dosyayı aç ve veriyi kontrol et
+    // Reopen file to verify update.
     file = fopen("marketHours.bin", "rb");
     ASSERT_NE(file, nullptr) << "Failed to open marketHours.bin file for verification";
 
@@ -1832,23 +2015,31 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationTEST) {
     }
     fclose(file);
 
-    // Güncellenmiş verinin bulunduğunu doğrula
+    // Ensure the correct record was updated.
     EXPECT_TRUE(found) << "Updated MarketHours record not found in file";
 }
 
+/**
+ * @test UpdateMarketHoursAndLocationInvalidID
+ * @brief Tests attempting to update market hours for a non-existent vendor ID.
+ *
+ * Initializes the necessary files, simulates user input for a non-existent vendor ID, and checks if the
+ * updateMarketHoursAndLocation function fails gracefully, returning false and not altering any data.
+ */
 TEST_F(MarketTest, UpdateMarketHoursAndLocationInvalidID) {
-    // Test dosyasını oluştur ve geçerli bir Market ID ekle
+    // Setup a file with valid entries.
     createTestMarketHoursFile();
 
-    // Simüle edilmiş geçersiz Market ID: 999
+    // Simulate input for a non-existent vendor ID.
     simulateUserInput("999\n");
 
+    // Attempt to update market hours for invalid ID.
     bool result = updateMarketHoursAndLocation();
 
-    // Standart giriş/çıkışı sıfırla
+    // Cleanup.
     resetStdinStdout();
 
-    // Test: Fonksiyon false döner ve doğru hata mesajını yazdırır
+    // Ensure the function returns false.
     EXPECT_TRUE(result);
 }
 
@@ -1856,33 +2047,44 @@ TEST_F(MarketTest, UpdateMarketHoursAndLocationInvalidID) {
 
 /**
  * @test HashFunctionTest
- * @brief Test case for the hash function.
+ * @brief Tests the correctness of a hash function by ensuring it returns the expected hash index.
+ *
+ * This test verifies that the hash function computes the correct hash value based on the modulo operation
+ * with the TABLE_SIZE. The expected outcome is that the actual hash matches the expected hash, confirming
+ * the hash function's reliability.
  */
 TEST_F(MarketTest, HashFunctionTest) {
+    // The input key for the hash function.
     int key = 42;
+    // The expected hash value computed using modulo.
     int expectedHash = key % TABLE_SIZE;
 
-    // Call hash function
+    // Execute the hash function.
     int actualHash = hashFunction(key);
 
-    // Check if the hash is as expected
+    // Verify if the computed hash is as expected.
     EXPECT_EQ(actualHash, expectedHash);
 }
 
 /**
  * @test InitializeHashTableTest
- * @brief Test case for initializing the hash table.
+ * @brief Tests the initialization of a hash table to ensure all entries are set to unoccupied.
+ *
+ * This test checks that each slot in the hash table and overflow area is initialized correctly to unoccupied,
+ * ensuring the hash table is correctly set up for further operations like insertions and searches.
  */
 TEST_F(MarketTest, InitializeHashTableTest) {
+    // Call the initialization function.
     initializeHashTable();
 
-    // Verify hash table entries are unoccupied
     for (int i = 0; i < TABLE_SIZE; i++) {
+        // Check each main table slot is unoccupied.
         EXPECT_EQ(hashTable[i].isOccupied, 0);
+        // Ensure product count in buckets is zero.
         EXPECT_EQ(hashTableBuckets[i].productCount, 0);
     }
 
-    // Verify overflow area entries are unoccupied
+    // Verify each overflow area slot is unoccupied.
     for (int i = 0; i < OVERFLOW_SIZE; i++) {
         EXPECT_EQ(overflowArea[i].isOccupied, 0);
     }
@@ -1890,112 +2092,152 @@ TEST_F(MarketTest, InitializeHashTableTest) {
 
 /**
  * @test LinearProbingTest
- * @brief Test case for linear probing.
+ * @brief Tests linear probing function to ensure it calculates the correct index for collision resolution.
+ *
+ * This test inputs a key and a probe increment to calculate the expected new index using linear probing
+ * method. It checks whether the calculated index matches the expected, validating the linear probing mechanism.
  */
 TEST_F(MarketTest, LinearProbingTest) {
+    // Test key value.
     int key = 42;
+    // Probe increment.
     int probe = 1;
+    // Expected index after probing.
     int expectedIndex = (key + probe) % TABLE_SIZE;
 
-    // Call linear probing function
+    // Execute linear probing.
     int actualIndex = linearProbing(key, probe);
 
-    // Verify the index matches the expected value
+    // Verify the resulting index is correct.
     EXPECT_EQ(actualIndex, expectedIndex);
 }
 
 /**
  * @test QuadraticProbingTest
- * @brief Test case for quadratic probing.
+ * @brief Tests quadratic probing function to ensure it correctly calculates the new index based on quadratic increments.
+ *
+ * Quadratic probing is tested by providing a key and a probe value, then calculating the expected index using
+ * a quadratic formula. This verifies that quadratic probing can handle collisions by checking the index calculation.
  */
 TEST_F(MarketTest, QuadraticProbingTest) {
-    int key = 42;
-    int probe = 2;
+    int key = 42; // Test key value.
+    int probe = 2; // Probe increment, squared in the index calculation.
+    // Expected index after quadratic probing.
     int expectedIndex = (key + probe * probe) % TABLE_SIZE;
 
-    // Call quadratic probing function
+    // Execute quadratic probing.
     int actualIndex = quadraticProbing(key, probe);
 
-    // Verify the index matches the expected value
+    // Verify the resulting index is as expected.
     EXPECT_EQ(actualIndex, expectedIndex);
 }
 
 /**
  * @test DoubleHashingTest
- * @brief Test case for double hashing.
+ * @brief Validates the double hashing technique used for handling collisions in a hash table.
+ *
+ * Double hashing uses two hash functions to compute the index for a key, especially under collision scenarios.
+ * This test ensures that the computed index from the double hashing method is correct and matches the expected value.
  */
 TEST_F(MarketTest, DoubleHashingTest) {
-    int key = 42;
-    int probe = 3;
-    int h1 = key % TABLE_SIZE;
+    int key = 42; // Test key value.
+    int probe = 3; // Number of probes.
+    int h1 = key % TABLE_SIZE; // First hash function.
+    // Second hash function, ensuring it never returns zero.
     int h2 = 1 + (key % (TABLE_SIZE - 1));
+    // Expected index using double hashing.
     int expectedIndex = (h1 + probe * h2) % TABLE_SIZE;
 
-    // Call double hashing function
+    // Execute double hashing.
     int actualIndex = doubleHashing(key, probe);
 
-    // Verify the index matches the expected value
+    // Check that the calculated index is correct.
     EXPECT_EQ(actualIndex, expectedIndex);
 }
 
 /**
  * @test LinearQuotientTest
- * @brief Test case for linear quotient.
+ * @brief Tests the linear quotient function to verify the computation of indexes under collision using a linear probing variant.
+ *
+ * This function tests the linear quotient method which modifies the basic linear probing by incorporating a multiplication factor,
+ * improving the distribution of hashed values. The test verifies if the calculated index by the linearQuotient function
+ * matches the expected result calculated manually within the test.
  */
 TEST_F(MarketTest, LinearQuotientTest) {
+    // Sample key to hash.
     int key = 42;
+    // Probe count used in the linear quotient calculation.
     int probe = 2;
+    // Manually calculate expected index using a specific formula.
     int expectedIndex = (key + probe * 7) % TABLE_SIZE;
 
-    // Call linear quotient function
+    // Call the linear quotient function.
     int actualIndex = linearQuotient(key, probe);
 
-    // Verify the index matches the expected value
+    // Assert that the actual index matches the expected index.
     EXPECT_EQ(actualIndex, expectedIndex);
 }
 
 /**
  * @test ProgressiveOverflowSearchTest
- * @brief Test case for progressive overflow search.
+ * @brief Tests the progressive overflow search algorithm in a simulated overflow scenario.
+ *
+ * This test initializes a hash table and specifically sets an entry in the overflow area to simulate a condition
+ * where a key is stored outside the main area of the hash table. It tests both the presence of a known key and
+ * the absence of a non-existent key to ensure the search function accurately identifies both scenarios.
  */
 TEST_F(MarketTest, ProgressiveOverflowSearchTest) {
+    // Initialize the hash table and overflow areas.
     initializeHashTable();
 
-    // Add a key to the overflow area
+    // Mark the first slot of the overflow area as occupied.
     overflowArea[0].isOccupied = 1;
+    // Set a specific key in the overflow area.
     overflowArea[0].key = 42;
 
-    // Verify the key is found
+    // Expect the search to succeed for an existing key.
     EXPECT_TRUE(progressiveOverflowSearch(42));
 
-    // Verify a non-existent key is not found
+    // Expect the search to fail for a non-existing key.
     EXPECT_FALSE(progressiveOverflowSearch(99));
 }
 
 /**
  * @test UseOfBucketsSearchTest
- * @brief Test case for bucket-based search.
+ * @brief Tests the functionality of bucket-based search within a hash table structure.
+ *
+ * This test initializes a hash table and adds a single product to a specific bucket. It verifies that the
+ * search function correctly identifies the presence of a product by its vendor ID and fails when searching
+ * for a non-existent vendor ID.
  */
 TEST_F(MarketTest, UseOfBucketsSearchTest) {
+    // Prepare the hash table for testing.
     initializeHashTable();
 
-    // Add a product to a bucket
+    // Calculate the hash index for a sample key.
     int index = hashFunction(42);
+    // Add a product with vendor ID 42 to the calculated bucket.
     hashTableBuckets[index].products[0].vendorId = 42;
+    // Increment the product count for the bucket.
     hashTableBuckets[index].productCount = 1;
 
-    // Verify the key is found
+    // Verify that the product can be found.
     EXPECT_TRUE(useOfBucketsSearch(42));
 
-    // Verify a non-existent key is not found
+    // Verify that a non-existent product cannot be found.
     EXPECT_FALSE(useOfBucketsSearch(99));
 }
 
 /**
  * @test BrentsMethodSearchTest
- * @brief Test case for Brent's method search.
+ * @brief Tests Brent's method for hash collision resolution and search functionality.
+ *
+ * This test initializes a hash table, inserts a key using a hashing function, and then uses Brent's method
+ * to verify that the key can be correctly retrieved. It also checks the behavior when searching for a key
+ * that does not exist in the table.
  */
 TEST_F(MarketTest, BrentsMethodSearchTest) {
+    // Setup the hash table.
     initializeHashTable();
 
     // Add a key to the hash table
@@ -2011,9 +2253,16 @@ TEST_F(MarketTest, BrentsMethodSearchTest) {
 }
 
 
-
+/**
+ * @test HeapSortTest
+ * @brief Tests the heap sort algorithm to ensure it correctly sorts an array of products based on price.
+ *
+ * This test populates an array with several products each having different prices and then applies a heap sort
+ * to order them by price in ascending order. It verifies that the products are sorted correctly by comparing
+ * the order of product prices and names after sorting to expected values.
+ */
 TEST_F(MarketTest, HeapSortTest) {
-    // Test için ürün dizisi oluştur
+
     Product testProducts[] = {
         {1, "Banana", 30, 50, "Summer"},
         {2, "Apple", 25, 100, "Fall"},
@@ -2021,19 +2270,18 @@ TEST_F(MarketTest, HeapSortTest) {
         {4, "Orange", 35, 75, "Spring"}
     };
 
-    // Dizinin boyutunu al
+    // Determine the number of products.
     int n = sizeof(testProducts) / sizeof(testProducts[0]);
 
-    // heapSort fonksiyonunu çağır
+    // Apply heap sort to the array.
     heapSort(testProducts, n);
 
-    // Beklenen sıralama (price field'e göre artan sıralama kontrol edilecek)
-    EXPECT_EQ(testProducts[0].price, 20);
-    EXPECT_EQ(testProducts[1].price, 25);
-    EXPECT_EQ(testProducts[2].price, 30);
-    EXPECT_EQ(testProducts[3].price, 35);
+    EXPECT_EQ(testProducts[0].price, 20); // Expect the lowest price product to be first.
+    EXPECT_EQ(testProducts[1].price, 25); // Second lowest price.
+    EXPECT_EQ(testProducts[2].price, 30); // Third.
+    EXPECT_EQ(testProducts[3].price, 35); // Highest price last.
 
-    // Ürün isimlerinin sıralamayla uyuştuğunu kontrol et
+    // Names should match the sorted order by price.
     EXPECT_STREQ(testProducts[0].productName, "Tomato");
     EXPECT_STREQ(testProducts[1].productName, "Apple");
     EXPECT_STREQ(testProducts[2].productName, "Banana");
@@ -2042,10 +2290,28 @@ TEST_F(MarketTest, HeapSortTest) {
 
 /**
  * @test TraverseXORListGroupedByIDTest
- * @brief Unit test for traverseXORListGroupedByID function using Google Test.
+ * @brief Tests the traversal of an XOR linked list grouped by ID using the traverseXORListGroupedByID function.
+ *
+ * This unit test is designed to verify that the traverseXORListGroupedByID function can correctly navigate
+ * through an XOR linked list, group entries by ID, and display them as specified. It involves creating a small
+ * XOR linked list with entries grouped by two different IDs, simulating user interaction to traverse through these
+ * groups, and capturing the output to ensure it meets the expected criteria.
+ *
+ * Steps:
+ * 1. Initialize an XOR linked list with four nodes, two belonging to each of two different IDs.
+ * 2. Simulate user input to step through the linked list and quit the traversal.
+ * 3. Capture the output to verify that the grouping by ID works as expected, ensuring that:
+ *    - Entries are grouped by ID.
+ *    - Correct days and locations are displayed for each ID.
+ * 4. Check output using assertions to ensure that each group is correctly formatted and displayed.
+ *
+ * Expected Outcome:
+ * - The output captured from the console will correctly reflect the entries grouped by ID with accurate
+ *   days and locations as per the test data. Each ID and its associated details should appear as expected
+ *   based on the simulated user interaction.
  */
 TEST_F(MarketTest, TraverseXORListGroupedByIDTest) {
-    // Create test data for MarketHoursNode
+    // Set up test data in an XOR linked list.
     MarketHoursNode* head = NULL;
 
     MarketHours data1 = { 1, "Monday", "09:00 - 17:00", "Main Street" };
@@ -2058,33 +2324,34 @@ TEST_F(MarketTest, TraverseXORListGroupedByIDTest) {
     head = insertXORList(head, data3);
     head = insertXORList(head, data4);
 
-    // Simulate user interaction: display the first group, move to the next, and quit
-    simulateUserInput("n\nq\n");
+    // Simulate user interaction to traverse through the grouped list.
+    simulateUserInput("n\nq\n"); // Navigate through the list and then quit.
 
-    // Redirect stdout to capture the output
+    // Redirect stdout to capture output for verification.
     freopen(outputTest, "wb", stdout);
 
     // Call the function under test
     traverseXORListGroupedByID(head);
 
-    // Reset stdin and stdout
+    // Clean up and reset the environment after output capture.
     resetStdinStdout();
 
-    // Open the output file and verify the results
+    // Open the output file and verify the contents.
     FILE* file = fopen(outputTest, "rb");
+    // Ensure file opened successfully for reading.
     ASSERT_NE(file, nullptr);
     char buffer[1024] = { 0 };
+    // Read the output into the buffer.
     fread(buffer, sizeof(char), sizeof(buffer) - 1, file);
     fclose(file);
 
-    // Validate the output contains expected results
-    //EXPECT_NE(strstr(buffer, "ID: 123456"), nullptr);
-    EXPECT_TRUE(strstr(buffer, "ID: 1") != nullptr);
-    EXPECT_NE(strstr(buffer, "Day: Monday"), nullptr);
-    EXPECT_NE(strstr(buffer, "Day: Tuesday"), nullptr);
-    EXPECT_NE(strstr(buffer, "ID: 2"), nullptr);
-    EXPECT_NE(strstr(buffer, "Day: Wednesday"), nullptr);
-    EXPECT_NE(strstr(buffer, "Day: Thursday"), nullptr);
+    // Validate the output against expected results.
+    EXPECT_TRUE(strstr(buffer, "ID: 1") != nullptr); // Check for group ID 1 presence.
+    EXPECT_NE(strstr(buffer, "Day: Monday"), nullptr); // Verify details for ID 1.
+    EXPECT_NE(strstr(buffer, "Day: Tuesday"), nullptr); // Verify details for ID 1.
+    EXPECT_NE(strstr(buffer, "ID: 2"), nullptr); // Check for group ID 2 presence.
+    EXPECT_NE(strstr(buffer, "Day: Wednesday"), nullptr); // Verify details for ID 2.
+    EXPECT_NE(strstr(buffer, "Day: Thursday"), nullptr); // Verify details for ID 2.
 }
 
 
