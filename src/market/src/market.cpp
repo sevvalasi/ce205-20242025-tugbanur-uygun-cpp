@@ -10,6 +10,7 @@
  * @date 2024-11-08
  */
 
+
 #define _CRT_SECURE_NO_WARNINGS
 #include "../header/market.h"
 #include <stdexcept>
@@ -32,6 +33,7 @@
 #include <queue>          //hash table
 #include <functional>     //hash table
 #include <limits.h> // Using INT_MAX for the Tarjan algorithm
+
 #define TABLE_SIZE 100
 #define OVERFLOW_SIZE 20
 #define BUCKET_SIZE 5
@@ -90,6 +92,15 @@ int getInput()
  * @return Boolean indicating whether the program should continue running.
  */
 bool userAuthentication() {
+
+    char data[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+    int freq[] = { 5, 9, 12, 13, 16, 45, 7, 8, 5, 5, 7, 3, 10, 15, 20, 25, 12, 18, 23, 30, 10, 5, 7, 8, 9, 11 }; // Frekans örneği
+    int size = sizeof(data) / sizeof(data[0]);
+    HuffNode* root = buildHuffmanTree(data, freq, size);
+    char code[MAX_CHAR];
+    buildCodes(root, code, 0);
+
+
     int choice;
     char username[50];
     char password[50];
@@ -109,13 +120,13 @@ bool userAuthentication() {
 
         switch (choice) {
         case 1:
-            if (loginUser())
+            if (loginUser(root))
             {
                 mainMenu();
             };
             break;
         case 2:
-            registerUser();
+            registerUser(root);
             isAuthenticated = true;
             break;
         case 3:
@@ -432,321 +443,220 @@ bool searchProductsOrEnterKeyword() {
 
     return true;
 }
+// Kullanıcı listesi
+User userList[MAX_USERS];
+int userCount = 0;
 
-/**
- * @brief Logs in a user by checking username and password from a Huffman encoded file.
- *
- * @param username Username to be checked.
- * @param password Password to be checked.
- * @return true if login is successful, false otherwise.
- */
-bool loginUserFromHuffFile(const char* username, const char* password) {
-    FILE* file = fopen("users.huff", "rb");
-    if (file == NULL) {perror("Error opening file");return false;}
+// Huffman kod tablosu
+char huffmanCodes[MAX_CHAR][MAX_CHAR] = { "" };
 
-    char fileUsername[100];
-    char filePassword[100];
-    size_t usernameLength, passwordLength;
-
-    while (fread(&usernameLength, sizeof(size_t), 1, file) == 1) {
-        if (usernameLength >= sizeof(fileUsername)) {printf("Username length too long, possible data corruption.\n");fclose(file);return false;}
-
-        if (fread(fileUsername, sizeof(char), usernameLength, file) != usernameLength) {printf("Error reading username from file.\n");fclose(file);return false;}
-        fileUsername[usernameLength] = '\0';  // Add null character
-
-        if (fread(&passwordLength, sizeof(size_t), 1, file) != 1) { printf("Error reading password length from file.\n");fclose(file); return false;}
-
-        if (passwordLength >= sizeof(filePassword)) {printf("Password length too long, possible data corruption.\n");fclose(file);return false;}
-
-        if (fread(filePassword, sizeof(char), passwordLength, file) != passwordLength) {printf("Error reading password from file.\n");fclose(file);return false;}
-        filePassword[passwordLength] = '\0';  // Add null character
-
-        if (strcmp(username, fileUsername) == 0 && strcmp(password, filePassword) == 0) {
-            fclose(file);
-            return true;}}fclose(file);return false;}
-
-
-/**
- * @brief Logs in a user by prompting for username and password.
- *
- * @return true if login is successful, false otherwise.
- */
-bool loginUser() {
-    clearScreen();
-    char username[50], password[50];
-    int found = 0;
-
-    printf("Username: ");
-    scanf("%s", username);
-    printf("Password: ");
-    scanf("%s", password);
-
-    // Check user information using the .huff file
-    if (loginUserFromHuffFile(username, password)) {
-        printf("Login successful. Welcome! %s.\n", username);
-        found = 1;
-    }
-    else {
-        printf("Incorrect username or password.\n");
-        return false;
-    }
-    return true;
+// Yeni düğüm oluşturma
+HuffNode* createNodeHuff(char data, unsigned freq) {
+    HuffNode* node = (HuffNode*)malloc(sizeof(HuffNode));
+    node->dataHuff = data;
+    node->freqHuff = freq;
+    node->leftHuff = node->rightHuff = NULL;
+    return node;
 }
 
-/**
- * @brief Saves a user's credentials to a Huffman encoded file.
- *
- * @param username Username to be saved.
- * @param password Password to be saved.
- * @return true if saving is successful, false otherwise.
- */
-bool saveUserToHuffFile(const char* username, const char* password) {
-    FILE* file = fopen("users.huff", "ab");
-    if (file == NULL) {perror("Error opening file");return false;}
-
-    // Save username and password in binary format
-    size_t usernameLength = strlen(username);
-    size_t passwordLength = strlen(password);
-
-    fwrite(&usernameLength, sizeof(size_t), 1, file);
-    fwrite(username, sizeof(char), usernameLength, file);
-    fwrite(&passwordLength, sizeof(size_t), 1, file);
-    fwrite(password, sizeof(char), passwordLength, file);
-
-    fclose(file);
-    return true;
-}
-
-/**
- * @brief Registers a new user and saves their information to a binary and Huffman file.
- *
- * @return true if registration is successful, false otherwise.
- */
-bool registerUser()
-    {
-        clearScreen();
-        FILE* file;
-        User user;
-
-        // Information is taken from the user
-        printf("Username: ");
-        scanf("%s", user.username);
-        printf("Password: ");
-        scanf("%s", user.password);
-
-        // User information is written to file in binary format
-        file = fopen("users.bin", "ab"); // We open in append to file mode with “ab”
-        if (file == NULL) {printf("The file is not opened.\n");exit(1);}
-        fwrite(&user, sizeof(User), 1, file);
-        fclose(file);
-
-        // Save user to .huff file
-        saveUserToHuffFile(user.username, user.password);
-
-        printf("Register is successful!\n");
-        getchar();
-        return true;
-    }
-
-/**
- * @brief Creates a Min-Heap with a given capacity.
- *
- * @param capacity Maximum capacity of the Min-Heap.
- * @return Pointer to the newly created Min-Heap.
- */
-struct MinHeap* createMinHeap(unsigned capacity) {
-    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+// MinHeap oluşturma
+MinHeap* createMinHeap(unsigned capacity) {
+    MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
     minHeap->size = 0;
     minHeap->capacity = capacity;
-    minHeap->array = (struct MinHeapNode**)malloc(minHeap->capacity * sizeof(struct MinHeapNode*));
+    minHeap->array = (HuffNode**)malloc(minHeap->capacity * sizeof(HuffNode*));  // Düzeltildi
     return minHeap;
 }
 
-/**
- * @brief Swaps two nodes in a Min-Heap.
- *
- * @param a Pointer to the first node.
- * @param b Pointer to the second node.
- */
-void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
-    struct MinHeapNode* t = *a;
-    *a = *b;
-    *b = t;
-}
-
-/**
- * @brief Heapifies a node in a Min-Heap to maintain the heap property.
- *
- * @param minHeap Pointer to the Min-Heap.
- * @param idx Index of the node to be heapified.
- */
-bool minHeapify(struct MinHeap* minHeap, int idx) {
+// MinHeapify işlemi
+void minHeapify(MinHeap* minHeap, int idx) {
     int smallest = idx;
     int left = 2 * idx + 1;
     int right = 2 * idx + 2;
 
-    if (left < minHeap->size && minHeap->array[left]->freq < minHeap->array[smallest]->freq) {
+    if (left < minHeap->size && minHeap->array[left]->freqHuff < minHeap->array[smallest]->freqHuff)
         smallest = left;
-    }
 
-    if (right < minHeap->size && minHeap->array[right]->freq < minHeap->array[smallest]->freq) {
+    if (right < minHeap->size && minHeap->array[right]->freqHuff < minHeap->array[smallest]->freqHuff)
         smallest = right;
-    }
 
     if (smallest != idx) {
-        swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
+        HuffNode* temp = minHeap->array[smallest];
+        minHeap->array[smallest] = minHeap->array[idx];
+        minHeap->array[idx] = temp;
         minHeapify(minHeap, smallest);
     }
-    return true;
 }
 
-/**
- * @brief Extracts the minimum value node from a Min-Heap.
- *
- * @param minHeap Pointer to the Min-Heap.
- * @return Pointer to the extracted node.
- */
-struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
-    struct MinHeapNode* temp = minHeap->array[0];
+// MinHeap'ten minimum düğümü çıkar
+HuffNode* extractMin(MinHeap* minHeap) {
+    HuffNode* temp = minHeap->array[0];
     minHeap->array[0] = minHeap->array[minHeap->size - 1];
-    --minHeap->size;
+    minHeap->size--;
     minHeapify(minHeap, 0);
     return temp;
 }
 
-/**
- * @brief Inserts a new node into a Min-Heap.
- *
- * @param minHeap Pointer to the Min-Heap.
- * @param minHeapNode Pointer to the node to be inserted.
- */
-bool insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
-    ++minHeap->size;
-    int i = minHeap->size - 1;
-
-    while (i && minHeapNode->freq < minHeap->array[(i - 1) / 2]->freq) { minHeap->array[i] = minHeap->array[(i - 1) / 2]; i = (i - 1) / 2;}
-
-    minHeap->array[i] = minHeapNode;
-    return true;
+// MinHeap'e düğüm ekleme
+void insertMinHeap(MinHeap* minHeap, HuffNode* node) {
+    int i = minHeap->size++;
+    while (i && node->freqHuff < minHeap->array[(i - 1) / 2]->freqHuff) {
+        minHeap->array[i] = minHeap->array[(i - 1) / 2];
+        i = (i - 1) / 2;
+    }
+    minHeap->array[i] = node;
 }
 
+// Huffman ağacı oluşturma
+HuffNode* buildHuffmanTree(char data[], int freq[], int size) {
+    HuffNode* left, * right, * top;
 
-/**
- * @brief Builds a Min-Heap from an array of nodes.
- *
- * @param minHeap Pointer to the Min-Heap.
- */
-void buildMinHeap(struct MinHeap* minHeap) {
-    int n = minHeap->size - 1;
-    for (int i = (n - 1) / 2; i >= 0; --i) {
-        minHeapify(minHeap, i);
-    }
-}
-
-/**
- * @brief Creates and builds a Min-Heap based on character frequencies.
- *
- * @param data Array of characters.
- * @param freq Array of character frequencies.
- * @param size Size of the arrays.
- * @return Pointer to the newly created Min-Heap.
- */
-struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size) {
-    struct MinHeap* minHeap = createMinHeap(size);
-
-    for (int i = 0; i < size; ++i) {
-        minHeap->array[i] = newNode(data[i], freq[i]);
-    }
-
+    MinHeap* minHeap = createMinHeap(size);
+    for (int i = 0; i < size; i++)
+        minHeap->array[i] = createNodeHuff(data[i], freq[i]);
     minHeap->size = size;
-    buildMinHeap(minHeap);
-
-    return minHeap;
-}
-
-/**
- * @brief Builds a Huffman Tree from given character frequencies.
- *
- * @param data Array of characters.
- * @param freq Array of character frequencies.
- * @param size Size of the arrays.
- * @return Pointer to the root of the Huffman Tree.
- */
-struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size) {
-    struct MinHeapNode* left, * right, * top;
-
-    struct MinHeap* minHeap = createAndBuildMinHeap(data, freq, size);
 
     while (minHeap->size != 1) {
         left = extractMin(minHeap);
         right = extractMin(minHeap);
 
-        top = newNode('$', left->freq + right->freq);
-        top->left = left;
-        top->right = right;
+        top = createNodeHuff('$', left->freqHuff + right->freqHuff);
+        top->leftHuff = left;
+        top->rightHuff = right;
 
         insertMinHeap(minHeap, top);
     }
-
     return extractMin(minHeap);
 }
 
-/**
- * @brief Prints Huffman codes for each character.
- *
- * @param root Pointer to the root of the Huffman Tree.
- * @param arr Array to store the Huffman code.
- * @param top Current index in the array.
- */
-void printCodes(struct MinHeapNode* root, int arr[], int top) {
-    if (root->left) {
-        arr[top] = 0;
-        printCodes(root->left, arr, top + 1);
+// Kodları oluşturma
+void buildCodes(HuffNode* root, char* code, int top) {
+    if (root->leftHuff) {
+        code[top] = '0';
+        buildCodes(root->leftHuff, code, top + 1);
     }
-
-    if (root->right) {
-        arr[top] = 1;
-        printCodes(root->right, arr, top + 1);
+    if (root->rightHuff) {
+        code[top] = '1';
+        buildCodes(root->rightHuff, code, top + 1);
     }
-
-    if (!root->left && !root->right) {
-        printf("%c: ", root->data);
-        for (int i = 0; i < top; ++i) {
-            printf("%d", arr[i]);
+    if (!root->leftHuff && !root->rightHuff) {
+        code[top] = '\0';
+        int index = (int)root->dataHuff;  // ASCII değerine göre indeksleme
+        if (index >= 0 && index < MAX_CHAR) {
+            strcpy(huffmanCodes[index], code);
         }
-        printf("\n");
     }
 }
 
-/**
- * @brief Generates and prints Huffman codes for given characters and frequencies.
- *
- * @param data Array of characters.
- * @param freq Array of character frequencies.
- * @param size Size of the arrays.
- */
-void HuffmanCodes(char data[], int freq[], int size) {
-    struct MinHeapNode* root = buildHuffmanTree(data, freq, size);
-    int arr[MAX_TREE_HT], top = 0;
-    printCodes(root, arr, top);
+// Huffman kodlama
+void huffmanEncode(char* input, char* output) {
+    for (int i = 0; input[i] != '\0'; i++) {
+        int index = (int)input[i];  // ASCII değerini al
+        if (strlen(huffmanCodes[index]) > 0) {
+            strcat(output, huffmanCodes[index]);  // Kodlama yapılır
+        }
+    }
 }
 
+// Huffman çözme
+void huffmanDecode(HuffNode* root, char* encoded, char* output) {
+    HuffNode* current = root;
+    int index = 0;
+    for (int i = 0; encoded[i] != '\0'; i++) {
+        if (encoded[i] == '0')
+            current = current->leftHuff;
+        else
+            current = current->rightHuff;
 
-/**
- * @brief Creates a new Min-Heap node.
- *
- * @param data Character data.
- * @param freq Frequency of the character.
- * @return Pointer to the newly created node.
- */
-struct MinHeapNode* newNode(char data, unsigned freq) {
-    struct MinHeapNode* temp = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
-    temp->left = temp->right = NULL;
-    temp->data = data;
-    temp->freq = freq;
-    return temp;
+        if (!current->leftHuff && !current->rightHuff) {
+            output[index++] = current->dataHuff;
+            current = root;
+        }
+    }
+    output[index] = '\0';
 }
 
+// Kullanıcı kaydı
+bool registerUser(HuffNode* root) {
+    char username[50], password[50];
+    char encoded[1000] = "";
+
+    clearScreen();
+    
+    printf("===== Register User Menu =====\n");
+    
+    printf("Enter username: ");
+    scanf("%s", username);
+    
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    huffmanEncode(username, encoded);
+    strcat(encoded, ":");
+    huffmanEncode(password, encoded + strlen(encoded));
+
+    FILE* file = fopen("user_data.huff", "a");
+    fprintf(file, "%s\n", encoded);
+    fclose(file);
+
+    
+    printf("User registered successfully!\n");
+    while (getchar() != '\n');
+    getchar();
+    return true;
+}
+
+// Kullanıcı giriş
+bool loginUser(HuffNode* root) {
+    char username[50], password[50];
+    char encodedUsername[1000] = "", encodedPassword[1000] = "";
+    char line[1000], decoded[1000];
+
+    clearScreen();
+    
+    printf("===== Login User Menu =====\n");
+    
+    printf("Enter username: ");
+    scanf("%s", username);
+    
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    huffmanEncode(username, encodedUsername);
+    huffmanEncode(password, encodedPassword);
+
+    FILE* file = fopen("user_data.huff", "r");
+    if (!file) {
+        printf("Error: Unable to open user data file.\n");
+        return false;
+    }
+
+    while (fgets(line, sizeof(line), file)) {
+        char* encoded = strtok(line, ":");
+        char* encodedPass = strtok(NULL, "\n");
+
+        if (encoded == NULL || encodedPass == NULL) continue;
+
+        huffmanDecode(root, encoded, decoded);
+        if (strcmp(decoded, username) == 0) {
+            huffmanDecode(root, encodedPass, decoded);
+            if (strcmp(decoded, password) == 0) {
+                
+                printf("Login successful!\n");
+                
+                fclose(file);
+                return true;
+            }
+        }
+    }
+
+    fclose(file);
+    
+    printf("Login failed. Username or password is incorrect.\n");
+    while (getchar() != '\n');
+    getchar();
+    return false;
+}
 /**
  * @brief Adds a vendor to the system.
  *

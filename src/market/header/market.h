@@ -34,6 +34,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define MAX_USERS 100
+#define MAX_CHAR 256
+
 
 /**
  * @struct User
@@ -143,21 +146,6 @@ typedef struct BPlusTreeNode {
  * @struct MinHeapNode
  * @brief Represents a node in the Huffman tree.
  */
-struct MinHeapNode {
-    char data;
-    unsigned freq;
-    struct MinHeapNode* left, * right;
-};
-
-/**
- * @struct MinHeap
- * @brief Represents a min-heap for building the Huffman tree.
- */
-struct MinHeap {
-    unsigned size;
-    unsigned capacity;
-    struct MinHeapNode** array;
-};
 
 /**
  * @struct MarketHours
@@ -222,8 +210,6 @@ int comparePricesByName();
 int selectProduct();
 bool marketHoursAndLocations();
 
-bool userAuthentication();
-bool registerUser();
 
 /**
  * @brief Creates a new Huffman node.
@@ -238,28 +224,47 @@ struct MinHeapNode* newNode(char data, unsigned freq);
  * @param capacity Capacity of the min-heap.
  * @return Pointer to the created MinHeap.
  */
-struct MinHeap* createMinHeap(unsigned capacity);
+ // Fonksiyon Prototipleri
 
-void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b);
-bool minHeapify(struct MinHeap* minHeap, int idx);
-struct MinHeapNode* extractMin(struct MinHeap* minHeap);
-bool insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode);
-void buildMinHeap(struct MinHeap* minHeap);
-struct MinHeap* createAndBuildMinHeap(char data[], int freq[], int size);
-struct MinHeapNode* buildHuffmanTree(char data[], int freq[], int size);
-void printCodes(struct MinHeapNode* root, int arr[], int top);
-void HuffmanCodes(char data[], int freq[], int size);
-bool saveUserToHuffFile(const char* username, const char* password);
-bool loginUser();
-bool loginUserFromHuffFile(const char* username, const char* password);
 
+#ifndef HUFFMAN_H  // HUFFMAN_H adında bir makro tanımlanmamışsa
+#define HUFFMAN_H  // HUFFMAN_H adında bir makro tanımla
+
+typedef struct HuffNode {
+    char dataHuff;
+    unsigned freqHuff;
+    struct HuffNode* leftHuff, * rightHuff;
+} HuffNode;
+
+// Minimum Yığın (MinHeap) Yapısı
+typedef struct MinHeap {
+    unsigned size;
+    unsigned capacity;
+    HuffNode** array;  // HuffNode işaretçilerinin işaretçisi olarak kalmalı
+} MinHeap;
+
+// Fonksiyon Prototipleri
+HuffNode* createNodeHuff(char data, unsigned freq);
+MinHeap* createMinHeap(unsigned capacity);
+void minHeapify(MinHeap* minHeap, int idx);
+HuffNode* extractMin(MinHeap* minHeap);
+void insertMinHeap(MinHeap* minHeap, HuffNode* node);
+HuffNode* buildHuffmanTree(char data[], int freq[], int size);
+void buildCodes(HuffNode* root, char* code, int top);
+void huffmanEncode(char* input, char* output);
+void huffmanDecode(HuffNode* root, char* encoded, char* output);
+bool registerUser(HuffNode* root);
+bool loginUser(HuffNode* root);
+void clearScreen();
+void setCursorPosition(int x, int y);
+void displayWelcomeMessage();
 bool listingOfLocalVendors();
 bool addVendor();
 bool updateVendor();
 bool deleteVendor();
 bool listVendors();
 bool isDuplicate(Queue* queue, Vendor vendor);
-
+#endif // HUFFMAN_H
 
 bool addProduct();
 bool updateProduct();
