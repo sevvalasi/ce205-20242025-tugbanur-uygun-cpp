@@ -1,56 +1,124 @@
 /**
  * @file market.c
- * @brief Market Management System
- * @details This file contains the implementation of a local market management system
- *          that includes functionalities for managing vendors, products, market hours, and user authentication.
- *          This system incorporates various data structures including hash tables, min-heaps, doubly linked lists,
- *          XOR linked lists, and B+ trees to efficiently manage the market data.
+ * @brief Market Management System Utilities
  *
- * @author Tuğba Nur Uygun - Şevval Asi - Dürdane Naz Babaoğlu - İrem Acınan
+ * @details This source file contains essential utilities for managing a market system, including vendor and product management,
+ * market hours, and user authentication mechanisms. The code is configured to prevent warnings from unsafe functions by defining
+ * _CRT_SECURE_NO_WARNINGS. It extensively uses various STL containers and data structures to simulate real-world functionalities
+ * such as hash tables for fast access and retrieval, and a stack for depth-first search implementations.
+ *
+ * This file also sets up several constants for system limits like table sizes and maximum values to ensure robust handling
+ * of data within the system constraints. Error handling is facilitated through standard exceptions.
+ *
+ * Global variables are defined to track user authentication status and manage memory efficiently using hash tables and overflow
+ * areas for excess data.
+ *
+ * @note Ensure that the library paths are correctly configured as the file includes headers from a relative path "../header/market.h".
+ *
+ * @warning This file uses several advanced C++ features and STL containers requiring good understanding of data structures.
+ *
+ * @author Tugba Nur Uygun - Sevval Asi - Durdane Naz Babaoglu - Irem Acinan
  * @date 2024-11-08
  */
 
 
-#define _CRT_SECURE_NO_WARNINGS
-#include "../header/market.h"
-#include <stdexcept>
-#include <iostream>
-#include <string.h>
-#include <string>
-#include <fstream>
-#include <fstream>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <algorithm>
-#include <stdio.h>
-#include <sstream>
-#include <time.h>
-#include <ctype.h>
-#include <stack>  // Required to use the stack structure (DFS)
-#include <stdint.h>
-#include <float.h> 
-#include <unordered_map>  //hash table 
-#include <queue>          //hash table
-#include <functional>     //hash table
-#include <limits.h> // Using INT_MAX for the Tarjan algorithm
-
+// Includes necessary for functionality
+#include "../header/market.h"    // Main definitions and prototypes for the market application.
+#include <stdexcept>             // Standard exception class for handling exceptions.
+#include <iostream>              // Standard I/O stream objects.
+#include <string.h>              // String class for operations on strings.
+#include <string>                // Input/output stream class to operate on files.
+#include <fstream>               // Macro for boolean type.
+#include <fstream>               // General purpose standard library.
+#include <stdbool.h>             // Standard algorithms like sort, max, etc.
+#include <stdlib.h>              // Standard Input Output library.
+#include <algorithm>             // String stream.
+#include <stdio.h>               // Standard Input Output library.
+#include <sstream>               // String stream.
+#include <time.h>                // Time functions.
+#include <ctype.h>               // Character handling functions.
+#include <stack>                 // Stack container for the C standard library.
+#include <stdint.h>              // Standard types with specified widths.
+#include <float.h>               // Limits of float types.
+#include <unordered_map>         // Standard hash table container.
+#include <queue>                 // Standard queue container.
+#include <functional>            // Function objects, designed for use with standard algorithms.
+#include <limits.h>              // Defines constants with the limits of fundamental types.
+#include <cmath>
+/** @brief TABLE_SIZE The number of slots in the hash table. */
 #define TABLE_SIZE 100
+
+/** @brief OVERFLOW_SIZE The number of slots in the overflow area of the hash table. */
 #define OVERFLOW_SIZE 20
+
+/** @brief BUCKET_SIZE The number of entries each bucket in the bucketized hash table can contain. */
 #define BUCKET_SIZE 5
+
+/** @brief MAX_VENDORS The maximum number of vendor records the application can handle. */
 #define MAX_VENDORS 100
+
+/** @brief MAX_PRODUCTS The maximum number of product records the application can manage. */
 #define MAX_PRODUCTS 100
+
+/** @brief MAX_TREE_HT The maximum height of any tree structure used in the application. */
 #define MAX_TREE_HT 100
+
+/** @brief MAX_KEYS The maximum number of keys a B-tree node can hold. */
 #define MAX_KEYS 3
+
+/** @brief MIN_KEYS The minimum number of keys a B-tree node must hold. */
 #define MIN_KEYS (MAX_KEYS / 2)
 
-// Variable that holds whether the user is logged in or not
-bool isAuthenticated = false;
+/** @brief _CRT_SECURE_NO_WARNINGS Disables deprecation warnings in Visual Studio. */
+#define _CRT_SECURE_NO_WARNINGS
 
-HashTableEntry hashTable[TABLE_SIZE];
-HashTableEntry overflowArea[OVERFLOW_SIZE];
-Bucket hashTableBuckets[TABLE_SIZE];
-OverflowEntry overflowAreaa[OVERFLOW__SIZE];
-Bucket hashTableBucketss[BUCKET_COUNT];
+// Global variables for application state.
+bool isAuthenticated = false;    ///< Tracks whether a user is currently authenticated.
+
+/**
+ * @var hashTable
+ * @brief Main hash table array storing entries up to TABLE_SIZE.
+ *
+ * This array serves as the primary storage for hash table entries within the application,
+ * facilitating efficient data retrieval based on hashed keys.
+ */
+HashTableEntry hashTable[TABLE_SIZE];  
+
+/**
+ * @var overflowArea
+ * @brief Overflow area for the main hash table to handle collisions, with a capacity of OVERFLOW_SIZE.
+ *
+ * When the main hash table entries experience collisions, this overflow area provides additional
+ * storage to handle excess entries.
+ */
+HashTableEntry overflowArea[OVERFLOW_SIZE];  
+
+/**
+ * @var hashTableBuckets
+ * @brief Array of buckets in the hash table, each bucket can hold multiple entries to manage collisions.
+ *
+ * This structure allows the hash table to handle collisions using chaining, where each bucket can
+ * store multiple entries. Each bucket can expand dynamically to accommodate the entries that hash to the same bucket.
+ */
+Bucket hashTableBuckets[TABLE_SIZE];      
+
+/**
+ * @var overflowAreaa
+ * @brief Secondary overflow area to manage additional overflow from the main hash table or buckets.
+ *
+ * Similar to the primary overflow area, but typically used when additional overflow handling is needed
+ * beyond what is provided by the primary overflow area. This is particularly useful in high-collision scenarios.
+ */
+OverflowEntry overflowAreaa[OVERFLOW__SIZE];  
+
+/**
+ * @var hashTableBucketss
+ * @brief Additional set of buckets, potentially used for a different or parallel hash table structure.
+ *
+ * This array may serve as a secondary or specialized bucket array in scenarios where multiple hash table
+ * instances are needed, or different types of data are handled separately.
+ */
+Bucket hashTableBucketss[BUCKET_COUNT];         
 
 /**
  * @brief Clears the terminal screen.
@@ -443,14 +511,22 @@ bool searchProductsOrEnterKeyword() {
 
     return true;
 }
-// Kullanıcı listesi
+
 User userList[MAX_USERS];
 int userCount = 0;
 
-// Huffman kod tablosu
 char huffmanCodes[MAX_CHAR][MAX_CHAR] = { "" };
 
-// Yeni düğüm oluşturma
+/**
+ * @brief Creates a new Huffman tree node.
+ *
+ * Allocates memory for a new Huffman tree node with given character data and frequency,
+ * initializing left and right child pointers to NULL.
+ *
+ * @param data The character data of the node.
+ * @param freq The frequency of the character data.
+ * @return HuffNode* Pointer to the newly created Huffman tree node.
+ */
 HuffNode* createNodeHuff(char data, unsigned freq) {
     HuffNode* node = (HuffNode*)malloc(sizeof(HuffNode));
     node->dataHuff = data;
@@ -459,16 +535,32 @@ HuffNode* createNodeHuff(char data, unsigned freq) {
     return node;
 }
 
-// MinHeap oluşturma
+/**
+ * @brief Creates a MinHeap with a specified capacity.
+ *
+ * Allocates memory for a MinHeap structure and initializes its size to zero and its capacity
+ * to the provided value. It also allocates memory for the array of pointers to HuffNode.
+ *
+ * @param capacity The maximum capacity of the MinHeap.
+ * @return MinHeap* Pointer to the newly created MinHeap.
+ */
 MinHeap* createMinHeap(unsigned capacity) {
     MinHeap* minHeap = (MinHeap*)malloc(sizeof(MinHeap));
     minHeap->size = 0;
     minHeap->capacity = capacity;
-    minHeap->array = (HuffNode**)malloc(minHeap->capacity * sizeof(HuffNode*));  // Düzeltildi
+    minHeap->array = (HuffNode**)malloc(minHeap->capacity * sizeof(HuffNode*));  
     return minHeap;
 }
 
-// MinHeapify işlemi
+/**
+ * @brief Maintains the heap property of a MinHeap starting from a given index.
+ *
+ * Reorders the elements of the MinHeap starting from a given index to maintain the min-heap property.
+ * This function is used internally by other heap operations like insertions and deletions.
+ *
+ * @param minHeap Pointer to the MinHeap.
+ * @param idx The starting index to perform heapify.
+ */
 void minHeapify(MinHeap* minHeap, int idx) {
     int smallest = idx;
     int left = 2 * idx + 1;
@@ -488,7 +580,15 @@ void minHeapify(MinHeap* minHeap, int idx) {
     }
 }
 
-// MinHeap'ten minimum düğümü çıkar
+/**
+ * @brief Extracts the node with the minimum frequency from the MinHeap.
+ *
+ * Removes and returns the root of the MinHeap, which contains the minimum frequency. The heap
+ * property is maintained after removal.
+ *
+ * @param minHeap Pointer to the MinHeap.
+ * @return HuffNode* Pointer to the node with the minimum frequency.
+ */
 HuffNode* extractMin(MinHeap* minHeap) {
     HuffNode* temp = minHeap->array[0];
     minHeap->array[0] = minHeap->array[minHeap->size - 1];
@@ -497,7 +597,14 @@ HuffNode* extractMin(MinHeap* minHeap) {
     return temp;
 }
 
-// MinHeap'e düğüm ekleme
+/**
+ * @brief Inserts a new node into the MinHeap.
+ *
+ * Inserts a new Huffman tree node into the MinHeap and rearranges it to maintain the heap property.
+ *
+ * @param minHeap Pointer to the MinHeap.
+ * @param node Pointer to the HuffNode to be inserted.
+ */
 void insertMinHeap(MinHeap* minHeap, HuffNode* node) {
     int i = minHeap->size++;
     while (i && node->freqHuff < minHeap->array[(i - 1) / 2]->freqHuff) {
@@ -507,7 +614,18 @@ void insertMinHeap(MinHeap* minHeap, HuffNode* node) {
     minHeap->array[i] = node;
 }
 
-// Huffman ağacı oluşturma
+/**
+ * @brief Builds the Huffman Tree from given character data and frequencies.
+ *
+ * Constructs a Huffman Tree for the purpose of Huffman encoding, using specified character data
+ * and their respective frequencies. The function uses a MinHeap to facilitate the construction
+ * of the tree.
+ *
+ * @param data Array of characters.
+ * @param freq Array of frequencies corresponding to the characters.
+ * @param size The number of elements in the data and freq arrays.
+ * @return HuffNode* Pointer to the root of the constructed Huffman Tree.
+ */
 HuffNode* buildHuffmanTree(char data[], int freq[], int size) {
     HuffNode* left, * right, * top;
 
@@ -529,7 +647,17 @@ HuffNode* buildHuffmanTree(char data[], int freq[], int size) {
     return extractMin(minHeap);
 }
 
-// Kodları oluşturma
+/**
+ * @brief Builds Huffman codes for characters in the Huffman Tree.
+ *
+ * Recursively generates Huffman codes for the leaf nodes of the Huffman Tree and stores them.
+ * The function traverses the tree from the root to every leaf, assigning '0' for left and '1'
+ * for right moves.
+ *
+ * @param root Pointer to the root node of the Huffman Tree.
+ * @param code Array to store the current path as a code.
+ * @param top The current length of the code path.
+ */
 void buildCodes(HuffNode* root, char* code, int top) {
     if (root->leftHuff) {
         code[top] = '0';
@@ -541,24 +669,39 @@ void buildCodes(HuffNode* root, char* code, int top) {
     }
     if (!root->leftHuff && !root->rightHuff) {
         code[top] = '\0';
-        int index = (int)root->dataHuff;  // ASCII değerine göre indeksleme
+        int index = (int)root->dataHuff;  
         if (index >= 0 && index < MAX_CHAR) {
             strcpy(huffmanCodes[index], code);
         }
     }
 }
 
-// Huffman kodlama
+/**
+ * @brief Encodes a string using Huffman codes.
+ *
+ * Encodes the input string using previously built Huffman codes and stores the result in the output string.
+ *
+ * @param input The input string to be encoded.
+ * @param output The output string where the encoded data will be stored.
+ */
 void huffmanEncode(char* input, char* output) {
     for (int i = 0; input[i] != '\0'; i++) {
-        int index = (int)input[i];  // ASCII değerini al
+        int index = (int)input[i]; 
         if (strlen(huffmanCodes[index]) > 0) {
-            strcat(output, huffmanCodes[index]);  // Kodlama yapılır
+            strcat(output, huffmanCodes[index]);  
         }
     }
 }
 
-// Huffman çözme
+/**
+ * @brief Decodes a string using the Huffman Tree.
+ *
+ * Decodes the input encoded string using the Huffman Tree and stores the decoded result in the output string.
+ *
+ * @param root Pointer to the root node of the Huffman Tree used for decoding.
+ * @param encoded The encoded string to be decoded.
+ * @param output The output string where the decoded data will be stored.
+ */
 void huffmanDecode(HuffNode* root, char* encoded, char* output) {
     HuffNode* current = root;
     int index = 0;
@@ -576,7 +719,15 @@ void huffmanDecode(HuffNode* root, char* encoded, char* output) {
     output[index] = '\0';
 }
 
-// Kullanıcı kaydı
+/**
+ * @brief Registers a new user by encoding their username and password using Huffman coding.
+ *
+ * Prompts the user for a username and password, encodes these credentials using Huffman coding,
+ * and stores them in a file. This function provides user feedback and handles basic input/output operations.
+ *
+ * @param root Pointer to the root of the Huffman Tree used for encoding.
+ * @return bool Returns true if the user registration is successful, false otherwise.
+ */
 bool registerUser(HuffNode* root) {
     char username[50], password[50];
     char encoded[1000] = "";
@@ -606,7 +757,15 @@ bool registerUser(HuffNode* root) {
     return true;
 }
 
-// Kullanıcı giriş
+/**
+ * @brief Authenticates a user by comparing encoded credentials against stored Huffman encoded data.
+ *
+ * Prompts for username and password, encodes them, and checks against previously stored encoded credentials.
+ * This function also handles file operations for reading user data and provides user feedback.
+ *
+ * @param root Pointer to the root of the Huffman Tree used for encoding and decoding.
+ * @return bool Returns true if login is successful (credentials match), false otherwise.
+ */
 bool loginUser(HuffNode* root) {
     char username[50], password[50];
     char encodedUsername[1000] = "", encodedPassword[1000] = "";
@@ -657,6 +816,7 @@ bool loginUser(HuffNode* root) {
     getchar();
     return false;
 }
+
 /**
  * @brief Adds a vendor to the system.
  *
@@ -778,8 +938,17 @@ bool deleteVendor() {
     return true;
 }
 
-// Listing using hash table and min-heap to sort vendors by their IDs
+/**
+ * @brief Initializes the head of a doubly linked list.
+ *
+ * This line sets up the starting point for a doubly linked list used to sort vendors by their IDs.
+ * The 'head' pointer is initialized to NULL, indicating that the list is initially empty.
+ * This setup is crucial before any operations like insertion, deletion, or traversal can be performed on the list.
+ * The list is intended to be populated with vendor nodes, sorted by their IDs using a combination of a hash table
+ * and a min-heap for efficient sorting and access.
+ */
 DoublyLinkedListNode* head = NULL;
+
 
 /**
  * @brief Inserts a new vendor into a sorted doubly linked list by vendor ID.
